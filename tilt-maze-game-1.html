@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>TILT — Ball Maze</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --panel: #12121a;
+    --border: #1e1e2e;
+    --neon-blue: #00d4ff;
+    --neon-green: #00ff88;
+    --neon-orange: #ff6b00;
+    --ball-color: #e8e0c8;
+    --disk-color: #8844ff;
+    --wall-color: #1a1a2e;
+    --wall-border: #2a2a4e;
+    --text-dim: #444466;
+    --glow-blue: 0 0 10px #00d4ff88, 0 0 30px #00d4ff33;
+    --glow-green: 0 0 10px #00ff8888, 0 0 30px #00ff8833;
+    --glow-orange: 0 0 10px #ff6b0088, 0 0 30px #ff6b0033;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: 'Orbitron', monospace;
+    color: #fff;
+    touch-action: none;
+  }
+
+  #ui-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 52px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    z-index: 100;
+    gap: 12px;
+  }
+
+  .ui-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    display: block;
+  }
+
+  .ui-value {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--neon-blue);
+    text-shadow: var(--glow-blue);
+    font-family: 'Space Mono', monospace;
+  }
+
+  #timer-block { text-align: center; }
+  #best-block { text-align: right; }
+  #title-block { text-align: left; }
+  #title-block span { font-size: 16px; font-weight: 900; letter-spacing: 4px; color: var(--neon-blue); text-shadow: var(--glow-blue); }
+
+  canvas {
+    display: block;
+    position: fixed;
+    top: 52px;
+    left: 0;
+  }
+
+  /* Overlay screens */
+  .overlay {
+    position: fixed;
+    top: 52px; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,10,15,0.92);
+    z-index: 200;
+    gap: 20px;
+  }
+
+  .overlay h1 {
+    font-size: clamp(28px, 8vw, 52px);
+    font-weight: 900;
+    letter-spacing: 6px;
+    color: var(--neon-blue);
+    text-shadow: var(--glow-blue);
+  }
+
+  .overlay p {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #888;
+    text-align: center;
+    max-width: 300px;
+    line-height: 1.8;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .btn {
+    background: transparent;
+    border: 1.5px solid var(--neon-blue);
+    color: var(--neon-blue);
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    padding: 14px 36px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: var(--glow-blue), inset 0 0 20px #00d4ff11;
+    transition: all 0.2s;
+  }
+
+  .btn:hover, .btn:active {
+    background: #00d4ff22;
+    box-shadow: 0 0 20px #00d4ffaa, 0 0 60px #00d4ff44, inset 0 0 20px #00d4ff22;
+  }
+
+  #countdown-display {
+    font-size: clamp(60px, 20vw, 120px);
+    font-weight: 900;
+    color: var(--neon-orange);
+    text-shadow: var(--glow-orange);
+    animation: pulse 0.5s ease-out;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1.4); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  #win-screen .win-time {
+    font-size: clamp(36px, 10vw, 64px);
+    font-weight: 900;
+    color: var(--neon-green);
+    text-shadow: var(--glow-green);
+    font-family: 'Space Mono', monospace;
+  }
+
+  #win-screen h1 { color: var(--neon-green); text-shadow: var(--glow-green); }
+  #win-screen .btn { border-color: var(--neon-green); color: var(--neon-green); box-shadow: var(--glow-green), inset 0 0 20px #00ff8811; }
+  #win-screen .btn:hover { background: #00ff8822; box-shadow: 0 0 20px #00ff88aa, 0 0 60px #00ff8844, inset 0 0 20px #00ff8822; }
+
+  #permission-screen { z-index: 300; }
+  #permission-screen p { color: #aaa; }
+
+  .tilt-hint {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+  }
+
+  #new-best {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--neon-orange);
+    text-shadow: var(--glow-orange);
+    text-transform: uppercase;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- UI Bar -->
+<div id="ui-bar">
+  <div id="title-block"><span>TILT</span></div>
+  <div id="timer-block">
+    <span class="ui-label">Time</span>
+    <span class="ui-value" id="timer-display">0.00</span>
+  </div>
+  <div id="best-block">
+    <span class="ui-label">Best</span>
+    <span class="ui-value" id="best-display" style="color:#888;text-shadow:none;">—</span>
+  </div>
+</div>
+
+<!-- Canvas -->
+<canvas id="gameCanvas"></canvas>
+
+<!-- Permission Screen (iOS) -->
+<div class="overlay" id="permission-screen" style="display:none;">
+  <h1>TILT</h1>
+  <p>This game uses your device's gyroscope.<br>Tap below to grant access.</p>
+  <button class="btn" id="permission-btn">Enable Tilt</button>
+</div>
+
+<!-- Start Screen -->
+<div class="overlay" id="start-screen">
+  <h1>TILT</h1>
+  <p>Tilt your device — or use arrow keys / mouse<br>to guide the ball into the green hole.</p>
+  <p class="tilt-hint">ARROW KEYS · WASD · MOUSE · TILT</p>
+  <button class="btn" id="start-btn">START</button>
+</div>
+
+<!-- Countdown Screen -->
+<div class="overlay" id="countdown-screen" style="display:none;">
+  <div id="countdown-display">3</div>
+</div>
+
+<!-- Win Screen -->
+<div class="overlay" id="win-screen" style="display:none;">
+  <h1>CLEARED</h1>
+  <div class="win-time" id="win-time-display">0.00s</div>
+  <div id="new-best">★ NEW BEST ★</div>
+  <button class="btn" id="restart-btn">PLAY AGAIN</button>
+</div>
+
+<script>
+// ─── Canvas Setup ───────────────────────────────────────────────────
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - 52;
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); buildLevel(); });
+
+// ─── Game State ──────────────────────────────────────────────────────
+let state = 'start'; // start | countdown | playing | win
+let tiltX = 0, tiltY = 0;
+let startTime = 0;
+let elapsed = 0;
+let bestTime = null;
+let animId = null;
+let countdownVal = 3;
+let countdownTimer = null;
+let gyroEnabled = false;
+let mouseControl = false;
+let lastMouse = null;
+
+// ─── Physics Ball ────────────────────────────────────────────────────
+const ball = { x: 0, y: 0, vx: 0, vy: 0, r: 0 };
+const GRAVITY = 0.38;
+const FRICTION = 0.985;
+const BOUNCE = 0.38;
+
+// ─── Level Objects ───────────────────────────────────────────────────
+let walls = [], hole = {}, gate = {}, disks = [], bumpers = [];
+
+function buildLevel() {
+  const W = canvas.width, H = canvas.height;
+  const R = Math.min(W, H) * 0.022;
+  ball.r = R;
+
+  // Gate at bottom center
+  const gW = R * 4.5, gH = R * 3.5;
+  gate = { x: W/2 - gW/2, y: H - gH - R*0.5, w: gW, h: gH, open: false };
+
+  // Ball starts inside gate
+  ball.x = W/2;
+  ball.y = gate.y + gH/2;
+  ball.vx = 0; ball.vy = 0;
+
+  // Hole at top center
+  hole = { x: W/2, y: H * 0.10 + R, r: R * 1.65 };
+
+  const wT = Math.max(8, R * 0.8); // wall thickness
+
+  walls = [];
+
+  // Outer boundary walls
+  walls.push({ x: 0, y: 0, w: wT, h: H });                    // left
+  walls.push({ x: W - wT, y: 0, w: wT, h: H });               // right
+  walls.push({ x: 0, y: 0, w: W, h: wT });                    // top
+  walls.push({ x: 0, y: H - wT, w: W, h: wT });               // bottom
+
+  // ── Maze walls ──
+  // Row 1 — below hole
+  walls.push({ x: wT, y: H * 0.18, w: W * 0.35, h: wT });
+  walls.push({ x: W * 0.62, y: H * 0.18, w: W * 0.35 - wT, h: wT });
+
+  // Row 2
+  walls.push({ x: W * 0.18, y: H * 0.30, w: W * 0.45, h: wT });
+  walls.push({ x: W * 0.72, y: H * 0.30, w: W * 0.25 - wT, h: wT });
+
+  // Row 3 — angled feel via short vertical
+  walls.push({ x: W * 0.18, y: H * 0.30, w: wT, h: H * 0.10 });
+  walls.push({ x: W * 0.72, y: H * 0.30, w: wT, h: H * 0.10 });
+
+  // Row 4
+  walls.push({ x: wT, y: H * 0.44, w: W * 0.28, h: wT });
+  walls.push({ x: W * 0.55, y: H * 0.44, w: W * 0.42 - wT, h: wT });
+
+  // Row 5
+  walls.push({ x: W * 0.30, y: H * 0.57, w: W * 0.40, h: wT });
+  walls.push({ x: W * 0.30, y: H * 0.57, w: wT, h: H * 0.08 });
+  walls.push({ x: W * 0.70 - wT, y: H * 0.57, w: wT, h: H * 0.08 });
+
+  // Row 6 — funnel toward gate
+  walls.push({ x: wT, y: H * 0.70, w: W * 0.22, h: wT });
+  walls.push({ x: W * 0.75, y: H * 0.70, w: W * 0.22 - wT, h: wT });
+
+  // Gate side walls
+  walls.push({ x: gate.x - wT, y: gate.y, w: wT, h: gate.h + R*2 });
+  walls.push({ x: gate.x + gate.w, y: gate.y, w: wT, h: gate.h + R*2 });
+
+  // ── Spinning Disks ──
+  disks = [
+    { x: W * 0.50, y: H * 0.24, r: Math.min(W,H)*0.07, angle: 0, speed: 0.022, armW: wT * 1.1, armLen: 0 },
+    { x: W * 0.25, y: H * 0.50, r: Math.min(W,H)*0.055, angle: Math.PI/4, speed: -0.030, armW: wT * 1.0, armLen: 0 },
+    { x: W * 0.75, y: H * 0.50, r: Math.min(W,H)*0.055, angle: 0, speed: 0.028, armW: wT * 1.0, armLen: 0 },
+    { x: W * 0.50, y: H * 0.635, r: Math.min(W,H)*0.048, angle: Math.PI/3, speed: -0.025, armW: wT * 0.9, armLen: 0 },
+  ];
+  disks.forEach(d => d.armLen = d.r);
+
+  // ── Bumpers ──
+  bumpers = [
+    { x: W * 0.20, y: H * 0.36, r: R * 1.1 },
+    { x: W * 0.80, y: H * 0.36, r: R * 1.1 },
+    { x: W * 0.50, y: H * 0.53, r: R * 1.0 },
+  ];
+}
+
+// ─── Input: Keys (always active) ─────────────────────────────────────
+const keys = {};
+window.addEventListener('keydown', e => { keys[e.key] = true; e.preventDefault(); });
+window.addEventListener('keyup',   e => { keys[e.key] = false; });
+
+// ─── Input: Mouse tilt (desktop) ─────────────────────────────────────
+window.addEventListener('mousemove', (e) => {
+  if (state !== 'playing') return;
+  const cx = canvas.width / 2;
+  const cy = 52 + canvas.height / 2;
+  tiltX = ((e.clientX - cx) / cx) * 5;
+  tiltY = ((e.clientY - cy) / (canvas.height / 2)) * 5;
+});
+
+// ─── Input: Touch drag tilt (mobile fallback / no gyro) ──────────────
+window.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (state !== 'playing') return;
+  const t = e.touches[0];
+  const cx = canvas.width / 2;
+  const cy = 52 + canvas.height / 2;
+  tiltX = ((t.clientX - cx) / cx) * 5;
+  tiltY = ((t.clientY - cy) / (canvas.height / 2)) * 5;
+}, { passive: false });
+
+// ─── Input: Gyroscope (mobile) ────────────────────────────────────────
+function setupGyro() {
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+      typeof DeviceMotionEvent.requestPermission === 'function') {
+    // iOS 13+ needs explicit permission
+    document.getElementById('permission-screen').style.display = 'flex';
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('permission-btn').onclick = async () => {
+      try {
+        const res = await DeviceMotionEvent.requestPermission();
+        if (res === 'granted') {
+          bindGyro();
+          document.getElementById('permission-screen').style.display = 'none';
+          document.getElementById('start-screen').style.display = 'flex';
+        }
+      } catch(e) { console.warn(e); }
+    };
+  } else if (window.DeviceMotionEvent) {
+    bindGyro();
+  }
+  // Desktop: mouse + keys are always active above — no extra setup needed
+}
+
+function bindGyro() {
+  gyroEnabled = true;
+  window.addEventListener('devicemotion', (e) => {
+    if (state !== 'playing') return;
+    const acc = e.accelerationIncludingGravity;
+    if (!acc) return;
+    tiltX =  (acc.x || 0) * 0.7;
+    tiltY = -(acc.y || 0) * 0.7;
+  });
+}
+
+// ─── Key-based tilt update (called each physics frame) ───────────────
+function applyKeyTilt() {
+  const ACCEL = 0.35, DAMP = 0.80, MAX = 6;
+  if (keys['ArrowLeft']  || keys['a'] || keys['A']) tiltX -= ACCEL;
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) tiltX += ACCEL;
+  if (keys['ArrowUp']    || keys['w'] || keys['W']) tiltY -= ACCEL;
+  if (keys['ArrowDown']  || keys['s'] || keys['S']) tiltY += ACCEL;
+  // Dampen when no key held
+  if (!keys['ArrowLeft']  && !keys['a'] && !keys['A'] &&
+      !keys['ArrowRight'] && !keys['d'] && !keys['D']) tiltX *= DAMP;
+  if (!keys['ArrowUp']    && !keys['w'] && !keys['W'] &&
+      !keys['ArrowDown']  && !keys['s'] && !keys['S']) tiltY *= DAMP;
+  tiltX = Math.max(-MAX, Math.min(MAX, tiltX));
+  tiltY = Math.max(-MAX, Math.min(MAX, tiltY));
+}
+
+// ─── Collision Helpers ───────────────────────────────────────────────
+function circleRect(cx, cy, cr, rx, ry, rw, rh) {
+  const nearX = Math.max(rx, Math.min(cx, rx + rw));
+  const nearY = Math.max(ry, Math.min(cy, ry + rh));
+  const dx = cx - nearX, dy = cy - nearY;
+  return dx*dx + dy*dy < cr*cr;
+}
+
+function resolveRect(b, rx, ry, rw, rh) {
+  const nearX = Math.max(rx, Math.min(b.x, rx + rw));
+  const nearY = Math.max(ry, Math.min(b.y, ry + rh));
+  const dx = b.x - nearX, dy = b.y - nearY;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist === 0 || dist >= b.r) return;
+  const nx = dx/dist, ny = dy/dist;
+  const overlap = b.r - dist;
+  b.x += nx * overlap;
+  b.y += ny * overlap;
+  const dot = b.vx*nx + b.vy*ny;
+  b.vx -= (1+BOUNCE) * dot * nx;
+  b.vy -= (1+BOUNCE) * dot * ny;
+}
+
+function resolveDiskArm(b, disk) {
+  // Disk has 2 arms (rectangles rotated)
+  for (let arm = 0; arm < 2; arm++) {
+    const angle = disk.angle + arm * Math.PI;
+    const hw = disk.armLen, hh = disk.armW / 2;
+    // Transform ball into arm's local frame
+    const cos = Math.cos(-angle), sin = Math.sin(-angle);
+    const lx = (b.x - disk.x)*cos - (b.y - disk.y)*sin;
+    const ly = (b.x - disk.x)*sin + (b.y - disk.y)*cos;
+    if (!circleRect(lx, ly, b.r, -hw, -hh, hw*2, hh*2)) continue;
+    // Push out
+    const nearX = Math.max(-hw, Math.min(lx, hw));
+    const nearY = Math.max(-hh, Math.min(ly, hh));
+    const dxl = lx - nearX, dyl = ly - nearY;
+    const dist = Math.sqrt(dxl*dxl + dyl*dyl);
+    if (dist === 0) continue;
+    const nx = dxl/dist, ny = dyl/dist;
+    const overlap = b.r - dist;
+    // Back to world space
+    const cos2 = Math.cos(angle), sin2 = Math.sin(angle);
+    const wnx = nx*cos2 - ny*sin2, wny = nx*sin2 + ny*cos2;
+    b.x += wnx * overlap;
+    b.y += wny * overlap;
+    const dot = b.vx*wnx + b.vy*wny;
+    b.vx -= (1+BOUNCE) * dot * wnx;
+    b.vy -= (1+BOUNCE) * dot * wny;
+    // Add disk spin impulse
+    const spin = disk.speed * disk.r * 6;
+    b.vx += -wny * spin;
+    b.vy +=  wnx * spin;
+  }
+}
+
+function resolveBumper(b, bump) {
+  const dx = b.x - bump.x, dy = b.y - bump.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const minD = b.r + bump.r;
+  if (dist < minD) {
+    const nx = dx/dist, ny = dy/dist;
+    b.x = bump.x + nx * minD;
+    b.y = bump.y + ny * minD;
+    const dot = b.vx*nx + b.vy*ny;
+    b.vx -= (1 + 1.2) * dot * nx;
+    b.vy -= (1 + 1.2) * dot * ny;
+    bump.flash = 12;
+  }
+}
+
+// ─── Update Physics ───────────────────────────────────────────────────
+function updatePhysics() {
+  if (state !== 'playing') return;
+
+  // Apply keyboard tilt (always; gyro/mouse overwrite tiltX/Y directly)
+  if (!gyroEnabled) applyKeyTilt();
+
+  // Apply tilt gravity
+  ball.vx += tiltX * GRAVITY;
+  ball.vy += tiltY * GRAVITY;
+
+  // Friction
+  ball.vx *= FRICTION;
+  ball.vy *= FRICTION;
+
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  // Walls
+  for (const w of walls) {
+    if (circleRect(ball.x, ball.y, ball.r, w.x, w.y, w.w, w.h)) {
+      resolveRect(ball, w.x, w.y, w.w, w.h);
+    }
+  }
+
+  // Spinning disks
+  for (const d of disks) {
+    d.angle += d.speed;
+    resolveDiskArm(ball, d);
+  }
+
+  // Bumpers
+  for (const b of bumpers) {
+    resolveBumper(ball, b);
+    if (b.flash > 0) b.flash--;
+  }
+
+  // Win condition
+  const dx = ball.x - hole.x, dy = ball.y - hole.y;
+  if (Math.sqrt(dx*dx + dy*dy) < hole.r - ball.r * 0.5) {
+    triggerWin();
+  }
+}
+
+// ─── Draw ─────────────────────────────────────────────────────────────
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background grid
+  ctx.strokeStyle = '#13131f';
+  ctx.lineWidth = 1;
+  const gridSize = 40;
+  for (let x = 0; x < W; x += gridSize) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += gridSize) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Hole (green target)
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(hole.x, hole.y, hole.r, 0, Math.PI*2);
+  const holeGrad = ctx.createRadialGradient(hole.x, hole.y, 0, hole.x, hole.y, hole.r);
+  holeGrad.addColorStop(0, '#00ff8855');
+  holeGrad.addColorStop(0.6, '#00ff8822');
+  holeGrad.addColorStop(1, '#00ff8800');
+  ctx.fillStyle = holeGrad;
+  ctx.fill();
+  ctx.strokeStyle = '#00ff88';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#00ff88';
+  ctx.shadowBlur = 18;
+  ctx.stroke();
+  // Inner circle
+  ctx.beginPath();
+  ctx.arc(hole.x, hole.y, hole.r * 0.45, 0, Math.PI*2);
+  ctx.fillStyle = '#001a0d';
+  ctx.fill();
+  ctx.strokeStyle = '#00ff88aa';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Walls
+  for (const w of walls) {
+    ctx.save();
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(w.x, w.y, w.w, w.h);
+    ctx.strokeStyle = '#2a2a5e';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(w.x, w.y, w.w, w.h);
+    // Inner highlight
+    ctx.strokeStyle = '#3a3a6e44';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(w.x+1, w.y+1, w.w-2, w.h-2);
+    ctx.restore();
+  }
+
+  // Spinning Disks
+  for (const d of disks) {
+    ctx.save();
+    ctx.translate(d.x, d.y);
+
+    // Glow
+    ctx.shadowColor = '#8844ff';
+    ctx.shadowBlur = 12;
+
+    // Draw 2 arms
+    for (let arm = 0; arm < 2; arm++) {
+      ctx.save();
+      ctx.rotate(d.angle + arm * Math.PI);
+      const grad = ctx.createLinearGradient(-d.armLen, 0, d.armLen, 0);
+      grad.addColorStop(0, '#5522aa');
+      grad.addColorStop(0.5, '#aa66ff');
+      grad.addColorStop(1, '#5522aa');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect(-d.armLen, -d.armW/2, d.armLen*2, d.armW, d.armW/2);
+      ctx.fill();
+      ctx.strokeStyle = '#cc88ff88';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Center hub
+    ctx.beginPath();
+    ctx.arc(0, 0, d.armW * 0.9, 0, Math.PI*2);
+    ctx.fillStyle = '#bb88ff';
+    ctx.shadowBlur = 20;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Bumpers
+  for (const b of bumpers) {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    const flash = b.flash > 0;
+    ctx.shadowColor = flash ? '#ff6b00' : '#00d4ff';
+    ctx.shadowBlur = flash ? 30 : 12;
+    ctx.beginPath();
+    ctx.arc(0, 0, b.r, 0, Math.PI*2);
+    const bg = ctx.createRadialGradient(0, 0, 0, 0, 0, b.r);
+    if (flash) {
+      bg.addColorStop(0, '#ff6b00cc');
+      bg.addColorStop(1, '#ff6b0044');
+    } else {
+      bg.addColorStop(0, '#0066aacc');
+      bg.addColorStop(1, '#00d4ff22');
+    }
+    ctx.fillStyle = bg;
+    ctx.fill();
+    ctx.strokeStyle = flash ? '#ff6b00' : '#00d4ff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Gate
+  if (!gate.open) {
+    ctx.save();
+    ctx.fillStyle = '#0d0d1a';
+    ctx.fillRect(gate.x, gate.y, gate.w, gate.h);
+    // Gate bars
+    const barCount = 4;
+    for (let i = 0; i < barCount; i++) {
+      const bx = gate.x + (i+1) * gate.w / (barCount+1);
+      const grad = ctx.createLinearGradient(bx, gate.y, bx, gate.y + gate.h);
+      grad.addColorStop(0, '#ff6b0000');
+      grad.addColorStop(0.3, '#ff6b00cc');
+      grad.addColorStop(0.7, '#ff6b00cc');
+      grad.addColorStop(1, '#ff6b0000');
+      ctx.fillStyle = grad;
+      ctx.shadowColor = '#ff6b00';
+      ctx.shadowBlur = 8;
+      ctx.fillRect(bx - 1.5, gate.y, 3, gate.h);
+    }
+    ctx.strokeStyle = '#ff6b0088';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(gate.x, gate.y, gate.w, gate.h);
+    ctx.restore();
+  }
+
+  // Ball
+  if (state === 'playing' || state === 'countdown') {
+    ctx.save();
+    ctx.translate(ball.x, ball.y);
+    // Shadow
+    ctx.shadowColor = '#00d4ff';
+    ctx.shadowBlur = 20;
+    // Body
+    const ballGrad = ctx.createRadialGradient(-ball.r*0.3, -ball.r*0.3, 0, 0, 0, ball.r);
+    ballGrad.addColorStop(0, '#ffffff');
+    ballGrad.addColorStop(0.4, '#ddd8c0');
+    ballGrad.addColorStop(1, '#9090a0');
+    ctx.beginPath();
+    ctx.arc(0, 0, ball.r, 0, Math.PI*2);
+    ctx.fillStyle = ballGrad;
+    ctx.fill();
+    // Rim
+    ctx.strokeStyle = '#00d4ff44';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Highlight
+    ctx.beginPath();
+    ctx.arc(-ball.r*0.28, -ball.r*0.3, ball.r*0.28, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ─── Timer ────────────────────────────────────────────────────────────
+function updateTimerDisplay() {
+  document.getElementById('timer-display').textContent = elapsed.toFixed(2);
+}
+
+// ─── Game Flow ────────────────────────────────────────────────────────
+function startCountdown() {
+  state = 'countdown';
+  countdownVal = 3;
+  gate.open = false;
+  buildLevel();
+
+  const cd = document.getElementById('countdown-screen');
+  const cdDisplay = document.getElementById('countdown-display');
+  cd.style.display = 'flex';
+  cdDisplay.textContent = '3';
+  cdDisplay.style.animation = 'none';
+  void cdDisplay.offsetWidth;
+  cdDisplay.style.animation = 'pulse 0.5s ease-out';
+
+  countdownTimer = setInterval(() => {
+    countdownVal--;
+    if (countdownVal > 0) {
+      cdDisplay.textContent = countdownVal;
+      cdDisplay.style.animation = 'none';
+      void cdDisplay.offsetWidth;
+      cdDisplay.style.animation = 'pulse 0.5s ease-out';
+    } else {
+      clearInterval(countdownTimer);
+      cdDisplay.textContent = 'GO!';
+      cdDisplay.style.color = 'var(--neon-green)';
+      cdDisplay.style.textShadow = 'var(--glow-green)';
+      cdDisplay.style.animation = 'none';
+      void cdDisplay.offsetWidth;
+      cdDisplay.style.animation = 'pulse 0.5s ease-out';
+      setTimeout(() => {
+        cd.style.display = 'none';
+        state = 'playing';
+        gate.open = true;
+        startTime = performance.now();
+        elapsed = 0;
+      }, 600);
+    }
+  }, 1000);
+}
+
+function triggerWin() {
+  state = 'win';
+  const t = elapsed;
+  let newBest = false;
+  if (bestTime === null || t < bestTime) {
+    bestTime = t;
+    newBest = true;
+    document.getElementById('best-display').textContent = bestTime.toFixed(2);
+    document.getElementById('best-display').style.color = 'var(--neon-green)';
+    document.getElementById('best-display').style.textShadow = 'var(--glow-green)';
+  }
+  document.getElementById('win-time-display').textContent = t.toFixed(2) + 's';
+  document.getElementById('new-best').style.display = newBest ? 'block' : 'none';
+  document.getElementById('win-screen').style.display = 'flex';
+}
+
+// ─── Main Loop ────────────────────────────────────────────────────────
+function loop(ts) {
+  if (state === 'playing') {
+    elapsed = (ts - startTime) / 1000;
+    updateTimerDisplay();
+    updatePhysics();
+  }
+  draw();
+  animId = requestAnimationFrame(loop);
+}
+
+// ─── Events ───────────────────────────────────────────────────────────
+document.getElementById('start-btn').onclick = () => {
+  document.getElementById('start-screen').style.display = 'none';
+  startCountdown();
+};
+
+document.getElementById('restart-btn').onclick = () => {
+  document.getElementById('win-screen').style.display = 'none';
+  tiltX = 0; tiltY = 0;
+  elapsed = 0;
+  updateTimerDisplay();
+  startCountdown();
+};
+
+// ─── Init ─────────────────────────────────────────────────────────────
+buildLevel();
+setupGyro();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
