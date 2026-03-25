@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Index</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f1a;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #e0e0f0;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p.subtitle {
+      color: #6b7280;
+      margin-bottom: 3rem;
+      font-size: 1rem;
+    }
+
+    .game-card {
+      display: inline-block;
+      background: #1a1a2e;
+      border: 1px solid #2d2d4e;
+      border-radius: 16px;
+      padding: 2rem 3rem;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: #a78bfa;
+      box-shadow: 0 8px 32px rgba(167, 139, 250, 0.2);
+    }
+
+    .game-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .game-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: #e0e0f0;
+    }
+
+    .game-label {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .play-btn {
+      display: inline-block;
+      margin-top: 1.2rem;
+      padding: 0.5rem 1.4rem;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #0f0f1a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 Game Hub</h1>
+    <p class="subtitle">Choose a game to play</p>
+
+    <a href="tilt-maze-game-1.html" class="game-card">
+      <div class="game-icon">🔮</div>
+      <div class="game-title">Tilt Maze</div>
+      <div class="game-label">tilt-maze-game-1.html</div>
+      <div class="play-btn">▶ Play Now</div>
+    </a>
+  </div>
+</body>
+</html>
