@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLAPPY ARMS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --sky1: #0a0a1a;
+    --sky2: #0d1b3e;
+    --neon-cyan: #00f5ff;
+    --neon-green: #39ff14;
+    --neon-pink: #ff2d78;
+    --neon-yellow: #ffe600;
+    --pipe-color: #00c853;
+    --pipe-border: #00ff6a;
+    --bird-body: #ffe600;
+    --bird-wing: #ff9900;
+    --glow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--sky1);
+    font-family: 'Orbitron', monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    color: white;
+  }
+
+  #wrapper {
+    position: relative;
+    width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #title {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    color: var(--neon-cyan);
+    text-shadow: var(--glow);
+    text-align: center;
+  }
+
+  #gameCanvas {
+    border: 2px solid var(--neon-cyan);
+    box-shadow: 0 0 20px var(--neon-cyan), 0 0 60px rgba(0,245,255,0.2);
+    display: block;
+    background: transparent;
+  }
+
+  #camContainer {
+    position: relative;
+    width: 420px;
+    height: 100px;
+    border: 2px solid rgba(0,245,255,0.3);
+    overflow: hidden;
+    border-radius: 6px;
+  }
+
+  #camVideo {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    opacity: 0.6;
+  }
+
+  #camCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(-1);
+  }
+
+  #hud {
+    display: flex;
+    justify-content: space-between;
+    width: 420px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(0,245,255,0.7);
+  }
+
+  #motionBar {
+    width: 420px;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  #motionFill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+    border-radius: 4px;
+    transition: width 0.05s;
+    box-shadow: 0 0 8px var(--neon-green);
+  }
+
+  #overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 420px;
+    height: 520px;
+    background: rgba(0,0,0,0.82);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    z-index: 10;
+    pointer-events: all;
+  }
+
+  #overlay h2 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--neon-cyan);
+    text-shadow: var(--glow);
+    letter-spacing: 0.15em;
+  }
+
+  #overlay p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    max-width: 320px;
+    line-height: 1.8;
+  }
+
+  #startBtn {
+    padding: 12px 36px;
+    background: transparent;
+    border: 2px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    box-shadow: var(--glow);
+    transition: all 0.2s;
+  }
+
+  #startBtn:hover {
+    background: var(--neon-cyan);
+    color: #000;
+    box-shadow: 0 0 30px var(--neon-cyan);
+  }
+
+  #scoreDisplay {
+    font-size: 1.2rem;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 10px var(--neon-yellow);
+    font-weight: 700;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div id="wrapper">
+  <div id="title">FLAPPY ARMS</div>
+
+  <div style="position:relative; width:420px; height:520px;">
+    <canvas id="gameCanvas" width="420" height="520"></canvas>
+    <div id="overlay">
+      <h2>FLAPPY ARMS</h2>
+      <p>Grant camera access, then<br>
+      <strong style="color:var(--neon-cyan)">flap your arms</strong> to make the bird fly.<br>
+      Avoid the neon pipes!</p>
+      <button id="startBtn">ENABLE CAMERA</button>
+      <div id="scoreDisplay"></div>
+    </div>
+  </div>
+
+  <div id="hud">
+    <span>ARM MOTION</span>
+    <span id="statusText">WAITING FOR CAMERA</span>
+  </div>
+  <div id="motionBar"><div id="motionFill"></div></div>
+
+  <div id="camContainer">
+    <video id="camVideo" autoplay muted playsinline></video>
+    <canvas id="camCanvas"></canvas>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ─────────────────────────────────────────────────────────────────
+const FLAP_THRESHOLD   = 6;    // motion score to trigger flap (lowered for sensitivity)
+const FLAP_COOLDOWN    = 250;  // ms between flaps
+const GRAVITY          = 0.28;
+const FLAP_STRENGTH    = -4.5;
+const PIPE_SPEED       = 2.8;
+const PIPE_GAP         = 155;
+const PIPE_INTERVAL    = 1700; // ms
+const SAMPLE_SKIP      = 2;    // motion: sample every Nth pixel (perf)
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const gameCanvas = document.getElementById('gameCanvas');
+const gc = gameCanvas.getContext('2d');
+const camVideo  = document.getElementById('camVideo');
+const camCanvas = document.getElementById('camCanvas');
+const cc = camCanvas.getContext('2d', { willReadFrequently: true });
+
+let running = false, gameOver = false, started = false;
+let score = 0, hiScore = 0, frameId;
+let lastPipeTime = 0, lastFlapTime = 0;
+let prevFrame = null;
+let lives = 3, countingDown = false;
+
+const bird = { x: 90, y: 260, vy: 0, angle: 0, wingPhase: 0 };
+const pipes = [];
+
+// Stars
+const stars = Array.from({length:80}, () => ({
+  x: Math.random()*420, y: Math.random()*520,
+  r: Math.random()*1.5+0.3,
+  a: Math.random()*0.8+0.2
+}));
+
+// ─── CAMERA SETUP ────────────────────────────────────────────────────────────
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width:320, height:180, facingMode:'user' } });
+    camVideo.srcObject = stream;
+    await new Promise(r => camVideo.onloadedmetadata = r);
+    camCanvas.width  = camVideo.videoWidth;
+    camCanvas.height = camVideo.videoHeight;
+    document.getElementById('statusText').textContent = 'CAMERA ACTIVE';
+    return true;
+  } catch(e) {
+    document.getElementById('statusText').textContent = 'CAM ERROR: ' + e.message;
+    return false;
+  }
+}
+
+function getMotionScore() {
+  if (!camVideo.videoWidth) return 0;
+  cc.drawImage(camVideo, 0, 0, camCanvas.width, camCanvas.height);
+
+  // Focus on left + right edges (arms region), exclude center face
+  const W = camCanvas.width, H = camCanvas.height;
+  const curr = cc.getImageData(0, 0, W, H).data;
+
+  if (!prevFrame) { prevFrame = curr.slice(); return 0; }
+
+  let diff = 0, count = 0;
+  // Sample left strip (0–35%) and right strip (65–100%), skip center (face)
+  for (let y = 0; y < H; y += SAMPLE_SKIP) {
+    for (let x = 0; x < W; x += SAMPLE_SKIP) {
+      const xPct = x / W;
+      if (xPct > 0.35 && xPct < 0.65) continue; // skip face/center
+      const i = (y * W + x) * 4;
+      const dr = Math.abs(curr[i]   - prevFrame[i]);
+      const dg = Math.abs(curr[i+1] - prevFrame[i+1]);
+      const db = Math.abs(curr[i+2] - prevFrame[i+2]);
+      diff += (dr + dg + db) / 3;
+      count++;
+    }
+  }
+
+  prevFrame = curr.slice();
+
+  // Draw motion overlay on cam canvas
+  drawCamOverlay(W, H);
+
+  const score = count > 0 ? diff / count : 0;
+  // Show live score in HUD for calibration
+  document.getElementById('statusText').textContent = 'MOTION: ' + score.toFixed(1) + ' / ' + FLAP_THRESHOLD;
+  return score;
+}
+
+function drawCamOverlay(W, H) {
+  cc.save();
+  // Highlight arm zones
+  cc.strokeStyle = 'rgba(0,245,255,0.5)';
+  cc.lineWidth = 2;
+  // Left arm zone
+  cc.strokeRect(2, 2, W*0.35-2, H-4);
+  // Right arm zone
+  cc.strokeRect(W*0.65, 2, W*0.35-2, H-4);
+  // Center zone (face - ignored)
+  cc.strokeStyle = 'rgba(255,45,120,0.25)';
+  cc.strokeRect(W*0.35, 2, W*0.30, H-4);
+  cc.restore();
+}
+
+// ─── MOTION LOOP ─────────────────────────────────────────────────────────────
+let motionInterval;
+function startMotionLoop() {
+  motionInterval = setInterval(() => {
+    const m = getMotionScore();
+    const pct = Math.min(100, (m / (FLAP_THRESHOLD * 2)) * 100);
+    document.getElementById('motionFill').style.width = pct + '%';
+
+    if (!running || gameOver) return;
+    const now = Date.now();
+    if (m >= FLAP_THRESHOLD && now - lastFlapTime > FLAP_COOLDOWN) {
+      flap();
+      lastFlapTime = now;
+    }
+  }, 50);
+}
+
+function flap() {
+  bird.vy = FLAP_STRENGTH;
+  bird.wingPhase = 1; // trigger wing animation
+}
+
+// ─── GAME LOOP ────────────────────────────────────────────────────────────────
+function spawnPipe(now) {
+  if (now - lastPipeTime < PIPE_INTERVAL) return;
+  lastPipeTime = now;
+  const gapY = 80 + Math.random() * (520 - PIPE_GAP - 140);
+  pipes.push({ x: 440, gapY, scored: false });
+}
+
+function update(now) {
+  if (gameOver) return;
+
+  spawnPipe(now);
+
+  // Bird physics
+  bird.vy += GRAVITY;
+  bird.y  += bird.vy;
+  bird.angle = Math.max(-0.4, Math.min(1.2, bird.vy * 0.07));
+
+  // Wing animation
+  if (bird.wingPhase > 0) {
+    bird.wingPhase = Math.max(0, bird.wingPhase - 0.08);
+  }
+
+  // Pipes
+  for (let i = pipes.length - 1; i >= 0; i--) {
+    const p = pipes[i];
+    p.x -= PIPE_SPEED;
+    if (!p.scored && p.x + 52 < bird.x) {
+      p.scored = true;
+      score++;
+    }
+    if (p.x + 52 < 0) pipes.splice(i, 1);
+  }
+
+  // Collisions
+  if (bird.y - 16 < 0 || bird.y + 16 > 520) { endGame(); return; }
+  for (const p of pipes) {
+    if (bird.x + 14 > p.x && bird.x - 14 < p.x + 52) {
+      if (bird.y - 14 < p.gapY || bird.y + 14 > p.gapY + PIPE_GAP) {
+        endGame(); return;
+      }
+    }
+  }
+}
+
+function draw() {
+  gc.clearRect(0, 0, 420, 520);
+
+  // Background gradient
+  const bg = gc.createLinearGradient(0,0,0,520);
+  bg.addColorStop(0,   '#050510');
+  bg.addColorStop(0.5, '#0a1628');
+  bg.addColorStop(1,   '#060c18');
+  gc.fillStyle = bg;
+  gc.fillRect(0, 0, 420, 520);
+
+  // Stars
+  for (const s of stars) {
+    gc.beginPath();
+    gc.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    gc.fillStyle = `rgba(255,255,255,${s.a})`;
+    gc.fill();
+  }
+
+  // Scanline effect
+  gc.fillStyle = 'rgba(0,0,0,0.03)';
+  for (let y = 0; y < 520; y += 4) {
+    gc.fillRect(0, y, 420, 2);
+  }
+
+  // Ground line
+  gc.strokeStyle = 'rgba(0,245,255,0.3)';
+  gc.lineWidth = 1;
+  gc.setLineDash([8, 6]);
+  gc.beginPath(); gc.moveTo(0,510); gc.lineTo(420,510); gc.stroke();
+  gc.setLineDash([]);
+
+  // Pipes
+  drawPipes();
+
+  // Bird
+  drawBird();
+
+  // Score - bottom right
+  gc.font = '900 28px Orbitron';
+  gc.textAlign = 'right';
+  gc.fillStyle = 'rgba(255,230,0,0.9)';
+  gc.shadowColor = '#ffe600';
+  gc.shadowBlur = 12;
+  gc.fillText(score, 405, 505);
+  gc.shadowBlur = 0;
+}
+
+function drawPipes() {
+  for (const p of pipes) {
+    const pw = 52, rx = 4;
+    // Glow
+    gc.shadowColor = '#00ff6a';
+    gc.shadowBlur = 12;
+
+    // Top pipe
+    const topH = p.gapY;
+    drawPipeRect(p.x, 0, pw, topH, true);
+
+    // Bottom pipe
+    const botY = p.gapY + PIPE_GAP;
+    drawPipeRect(p.x, botY, pw, 520 - botY, false);
+
+    gc.shadowBlur = 0;
+
+    // Gap hint line
+    gc.strokeStyle = 'rgba(0,255,106,0.15)';
+    gc.lineWidth = 1;
+    gc.setLineDash([4,8]);
+    gc.beginPath();
+    gc.moveTo(p.x + pw/2, p.gapY);
+    gc.lineTo(p.x + pw/2, p.gapY + PIPE_GAP);
+    gc.stroke();
+    gc.setLineDash([]);
+  }
+}
+
+function drawPipeRect(x, y, w, h, isTop) {
+  const capH = 18, capW = w + 10;
+  gc.fillStyle = '#003d1a';
+  gc.strokeStyle = '#00ff6a';
+  gc.lineWidth = 2;
+
+  // Body
+  gc.beginPath();
+  gc.roundRect(x, y + (isTop ? 0 : capH), w, h - capH, 2);
+  gc.fill(); gc.stroke();
+
+  // Cap
+  const capY = isTop ? h - capH : y;
+  gc.beginPath();
+  gc.roundRect(x - 5, capY, capW, capH, 3);
+  gc.fillStyle = '#005c29';
+  gc.fill(); gc.stroke();
+
+  // Highlight stripe
+  gc.fillStyle = 'rgba(0,255,106,0.12)';
+  gc.fillRect(x + 6, y + (isTop ? 0 : capH), 6, h - capH);
+}
+
+function drawBird() {
+  gc.save();
+  gc.translate(bird.x, bird.y);
+  gc.rotate(bird.angle);
+
+  const wingAng = Math.sin(Date.now() * 0.015) * 0.3 + (bird.wingPhase * Math.sin(bird.wingPhase * Math.PI) * 1.4);
+
+  // Shadow
+  gc.fillStyle = 'rgba(0,0,0,0.25)';
+  gc.beginPath();
+  gc.ellipse(3, 20, 14, 5, 0, 0, Math.PI*2);
+  gc.fill();
+
+  // Wings
+  gc.save();
+  gc.rotate(-wingAng);
+  gc.fillStyle = '#ff9900';
+  gc.shadowColor = '#ff6600';
+  gc.shadowBlur = 6;
+  gc.beginPath();
+  gc.ellipse(-14, -2, 18, 7, -0.4, 0, Math.PI*2);
+  gc.fill();
+  gc.restore();
+
+  gc.save();
+  gc.rotate(wingAng);
+  gc.fillStyle = '#ff9900';
+  gc.beginPath();
+  gc.ellipse(14, -2, 18, 7, 0.4, 0, Math.PI*2);
+  gc.fill();
+  gc.restore();
+
+  // Body glow
+  gc.shadowColor = '#ffe600';
+  gc.shadowBlur = 14;
+  gc.fillStyle = '#ffe600';
+  gc.beginPath();
+  gc.ellipse(0, 0, 16, 13, 0, 0, Math.PI*2);
+  gc.fill();
+
+  // Belly
+  gc.fillStyle = '#fff4a0';
+  gc.shadowBlur = 0;
+  gc.beginPath();
+  gc.ellipse(2, 2, 9, 7, 0.2, 0, Math.PI*2);
+  gc.fill();
+
+  // Eye
+  gc.fillStyle = '#1a1a2e';
+  gc.beginPath();
+  gc.arc(8, -4, 4.5, 0, Math.PI*2);
+  gc.fill();
+  gc.fillStyle = 'white';
+  gc.beginPath();
+  gc.arc(9, -5, 1.8, 0, Math.PI*2);
+  gc.fill();
+
+  // Beak
+  gc.fillStyle = '#ff6600';
+  gc.shadowColor = '#ff6600';
+  gc.shadowBlur = 4;
+  gc.beginPath();
+  gc.moveTo(14, -1);
+  gc.lineTo(22, 1);
+  gc.lineTo(14, 3);
+  gc.closePath();
+  gc.fill();
+
+  gc.shadowBlur = 0;
+  gc.restore();
+}
+
+function startWithCountdown(cb) {
+  countingDown = true;
+  running = false;
+  if (frameId) { cancelAnimationFrame(frameId); frameId = null; }
+
+  function drawCountdown(n) {
+    draw();
+    gc.fillStyle = 'rgba(0,0,0,0.55)';
+    gc.fillRect(0, 0, 420, 520);
+    gc.textAlign = 'center';
+
+    // Lives pips
+    for (let i = 0; i < lives; i++) {
+      gc.beginPath();
+      gc.arc(210 - (lives - 1) * 14 + i * 28, 160, 9, 0, Math.PI * 2);
+      gc.fillStyle = '#ff2d78';
+      gc.shadowColor = '#ff2d78';
+      gc.shadowBlur = 10;
+      gc.fill();
+    }
+    gc.shadowBlur = 0;
+
+    gc.font = '700 18px Orbitron';
+    gc.fillStyle = 'rgba(0,245,255,0.8)';
+    gc.fillText('GET READY', 210, 210);
+
+    gc.font = '900 110px Orbitron';
+    gc.fillStyle = '#ffe600';
+    gc.shadowColor = '#ffe600';
+    gc.shadowBlur = 30;
+    gc.fillText(n, 210, 320);
+    gc.shadowBlur = 0;
+
+    gc.font = '700 14px Share Tech Mono';
+    gc.fillStyle = 'rgba(0,245,255,0.6)';
+    gc.fillText('FLAP YOUR ARMS!', 210, 370);
+  }
+
+  // Show 3, wait 1s, show 2, wait 1s, show 1, wait 1s, then GO
+  let count = 3;
+  drawCountdown(count);
+  const interval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      drawCountdown(count);
+    } else {
+      clearInterval(interval);
+      countingDown = false;
+      cb();
+    }
+  }, 1000);
+}
+
+function endGame() {
+  gameOver = true;
+  running  = false;
+  if (score > hiScore) hiScore = score;
+  lives--;
+
+  if (frameId) { cancelAnimationFrame(frameId); frameId = null; }
+
+  if (lives > 0) {
+    // Show brief "try again" screen, then auto-countdown
+    const overlay = document.getElementById('overlay');
+    overlay.querySelector('h2').textContent = 'OOPS!';
+    const pipStr = lives === 1 ? '1 try left' : `${lives} tries left`;
+    overlay.querySelector('p').innerHTML =
+      `Score: <span style="color:var(--neon-yellow)">${score}</span><br><br>` +
+      `<span style="color:var(--neon-pink)">${pipStr}</span> — get ready!`;
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('scoreDisplay').style.display = 'none';
+    overlay.style.display = 'flex';
+
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      resetGame();
+      startWithCountdown(() => {
+        running = true;
+        if (frameId) cancelAnimationFrame(frameId);
+        frameId = requestAnimationFrame(gameLoop);
+      });
+    }, 1200);
+
+  } else {
+    // No lives left — full game over
+    const overlay = document.getElementById('overlay');
+    overlay.querySelector('h2').textContent = 'GAME OVER';
+    overlay.querySelector('p').innerHTML =
+      `Score: <span style="color:var(--neon-yellow)">${score}</span> &nbsp;|&nbsp; Best: <span style="color:var(--neon-cyan)">${hiScore}</span><br><br>Flap your arms again to restart!`;
+    const btn = document.getElementById('startBtn');
+    btn.textContent = 'PLAY AGAIN';
+    btn.style.display = '';
+    document.getElementById('scoreDisplay').style.display = 'none';
+    overlay.style.display = 'flex';
+  }
+}
+
+function resetGame(fullReset = false) {
+  bird.x = 90; bird.y = 260; bird.vy = 0; bird.angle = 0; bird.wingPhase = 0;
+  pipes.length = 0;
+  score = 0;
+  gameOver = false;
+  lastPipeTime = 0;
+  if (fullReset) lives = 3;
+}
+
+function gameLoop(now) {
+  update(now);
+  draw();
+  frameId = requestAnimationFrame(gameLoop);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.getElementById('startBtn').addEventListener('click', async () => {
+  if (!started) {
+    const ok = await startCamera();
+    if (!ok) return;
+    started = true;
+    startMotionLoop();
+  }
+
+  const overlay = document.getElementById('overlay');
+  const btn = document.getElementById('startBtn');
+  overlay.style.display = 'none';
+  btn.style.display = '';
+  resetGame(true); // full reset restores 3 lives
+
+  startWithCountdown(() => {
+    running = true;
+    if (frameId) cancelAnimationFrame(frameId);
+    frameId = requestAnimationFrame(gameLoop);
+  });
+});
+
+// Keyboard fallback (spacebar)
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && running && !gameOver) {
+    e.preventDefault();
+    flap();
+  }
+});
+
+// Initial draw
+draw();
+</script>
+</body>
+</html>
