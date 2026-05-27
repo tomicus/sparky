@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLB Viewer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap');
+
+  :root {
+    --bg: #080c10;
+    --panel: #0d1318;
+    --border: #1a2a35;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --text: #c8dde8;
+    --muted: #4a6272;
+    --glow: rgba(0, 212, 255, 0.15);
+    --active-bg: rgba(0, 212, 255, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+
+  .logo span { color: var(--accent2); }
+
+  .header-sep { flex: 1; }
+
+  .file-info {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  #file-name { color: var(--accent); }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    min-width: 200px;
+    border-right: 1px solid var(--border);
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .anim-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+
+  .anim-list::-webkit-scrollbar { width: 4px; }
+  .anim-list::-webkit-scrollbar-track { background: transparent; }
+  .anim-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .anim-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--muted);
+    user-select: none;
+  }
+
+  .anim-item:hover {
+    background: var(--active-bg);
+    color: var(--text);
+    border-left-color: var(--border);
+  }
+
+  .anim-item.active {
+    background: var(--active-bg);
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+
+  .anim-item .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .anim-item.active .dot {
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  .anim-item .anim-dur {
+    margin-left: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    opacity: 0.7;
+  }
+
+  .anim-item.active .anim-dur { color: var(--accent); opacity: 0.6; }
+
+  .no-anims {
+    padding: 20px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* PLAYBACK CONTROLS */
+  .controls {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .speed-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .speed-row input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  .speed-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  #speed-val { color: var(--accent); min-width: 28px; text-align: right; }
+
+  /* VIEWPORT */
+  .viewport {
+    flex: 1;
+    position: relative;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* DROP ZONE */
+  .drop-zone {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .drop-zone.hidden { opacity: 0; pointer-events: none; }
+
+  .drop-zone-inner {
+    pointer-events: all;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 48px 56px;
+    border: 1px solid var(--border);
+    background: rgba(13,19,24,0.85);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+
+  .drop-zone-inner::before,
+  .drop-zone-inner::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    border-color: var(--accent);
+    border-style: solid;
+    opacity: 0.5;
+  }
+  .drop-zone-inner::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .drop-zone-inner::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  .drop-zone-inner:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 30px var(--glow);
+  }
+
+  .drop-zone-inner:hover::before,
+  .drop-zone-inner:hover::after { opacity: 1; }
+
+  .drop-icon {
+    width: 56px; height: 56px;
+    opacity: 0.4;
+  }
+
+  .drop-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .drop-sub {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .drop-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 8px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .drop-btn:hover {
+    background: var(--glow);
+    box-shadow: 0 0 14px var(--glow);
+  }
+
+  /* DRAG OVER */
+  .viewport.drag-over .drop-zone-inner {
+    border-color: var(--accent);
+    box-shadow: 0 0 40px var(--glow);
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 6px 16px;
+    background: rgba(8,12,16,0.85);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    z-index: 5;
+  }
+
+  .status-bar span { display: flex; align-items: center; gap: 6px; }
+  .status-bar .val { color: var(--text); }
+  .status-bar #status-anim { color: var(--accent); }
+
+  /* LOADING */
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8,12,16,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .loading-overlay.show { opacity: 1; pointer-events: all; }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  /* TOOLTIP ON PLAY */
+  .play-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(13,19,24,0.9);
+    border: 1px solid var(--accent);
+    padding: 20px 32px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s;
+    z-index: 8;
+    line-height: 1.8;
+  }
+
+  .play-hint.show { opacity: 1; }
+
+  #file-input { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">GLB <span>//</span> VIEWER</div>
+  <div class="header-sep"></div>
+  <div class="file-info">FILE: <span id="file-name">—</span></div>
+</header>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">Animations</div>
+    <div class="anim-list" id="anim-list">
+      <div class="no-anims">Load a .glb file to see<br>its animations here.</div>
+    </div>
+    <div class="controls">
+      <div class="speed-row">
+        <span>SPD</span>
+        <input type="range" id="speed-slider" min="0.1" max="3" step="0.05" value="1">
+        <span id="speed-val">1.0×</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- VIEWPORT -->
+  <div class="viewport" id="viewport">
+    <canvas id="canvas"></canvas>
+
+    <!-- DROP ZONE -->
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-zone-inner" id="drop-inner">
+        <svg class="drop-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 4L56 18V46L32 60L8 46V18L32 4Z" stroke="#00d4ff" stroke-width="1.5" fill="none"/>
+          <path d="M32 4V60M8 18L32 32M56 18L32 32" stroke="#00d4ff" stroke-width="1" opacity="0.4"/>
+        </svg>
+        <div class="drop-title">Drop a .glb file</div>
+        <div class="drop-sub">Drag & drop your model here<br>or click to browse</div>
+        <button class="drop-btn" id="browse-btn">Browse File</button>
+      </div>
+    </div>
+
+    <!-- Play hint -->
+    <div class="play-hint" id="play-hint">← SELECT AN ANIMATION<br><span style="font-size:10px;opacity:0.6">from the list on the left</span></div>
+
+    <!-- Loading -->
+    <div class="loading-overlay" id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">PARSING MODEL…</div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar" id="status-bar" style="display:none">
+      <span>VERTS <span class="val" id="status-verts">—</span></span>
+      <span>ANIMS <span class="val" id="status-anims">—</span></span>
+      <span>PLAYING <span id="status-anim">—</span></span>
+      <span>TIME <span class="val" id="status-time">0.00s</span></span>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept=".glb">
+
+<!-- THREE.js + GLTFLoader from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── Load GLTFLoader from CDN ─────────────────────────────────────────────
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';
+  document.head.appendChild(s);
+})();
+
+// ─── App State ─────────────────────────────────────────────────────────────
+let scene, camera, renderer, mixer, clock;
+let animations = [];
+let currentAction = null;
+let animSpeed = 1.0;
+let modelLoaded = false;
+let frameId;
+
+// ─── Init Three.js ─────────────────────────────────────────────────────────
+function initThree() {
+  const canvas = document.getElementById('canvas');
+  const vp = document.getElementById('viewport');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x080c10);
+
+  // Subtle grid
+  const grid = new THREE.GridHelper(10, 20, 0x111a22, 0x111a22);
+  scene.add(grid);
+
+  // Camera
+  const w = vp.clientWidth, h = vp.clientHeight;
+  camera = new THREE.PerspectiveCamera(45, w / h, 0.01, 1000);
+  camera.position.set(0, 1.4, 3.5);
+  camera.lookAt(0, 0.8, 0);
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(w, h);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.shadowMap.enabled = true;
+
+  // Lighting
+  const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(ambient);
+  const key = new THREE.DirectionalLight(0x88ccff, 1.2);
+  key.position.set(2, 4, 3);
+  key.castShadow = true;
+  scene.add(key);
+  const fill = new THREE.DirectionalLight(0xff8844, 0.4);
+  fill.position.set(-3, 1, -2);
+  scene.add(fill);
+  const rim = new THREE.DirectionalLight(0x00d4ff, 0.3);
+  rim.position.set(0, 3, -4);
+  scene.add(rim);
+
+  clock = new THREE.Clock();
+
+  // Orbit controls (manual simple version)
+  setupOrbitControls(canvas);
+
+  // Resize
+  window.addEventListener('resize', onResize);
+
+  animate();
+}
+
+// ─── Simple Orbit Controls ─────────────────────────────────────────────────
+let isDragging = false, prevMouse = { x: 0, y: 0 };
+let spherical = { theta: 0, phi: Math.PI / 3, radius: 3.5 };
+let target = new THREE.Vector3(0, 0.8, 0);
+
+function setupOrbitControls(canvas) {
+  canvas.addEventListener('mousedown', e => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; });
+  window.addEventListener('mouseup', () => isDragging = false);
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - prevMouse.x, dy = e.clientY - prevMouse.y;
+    spherical.theta -= dx * 0.005;
+    spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + dy * 0.005));
+    prevMouse = { x: e.clientX, y: e.clientY };
+    updateCamera();
+  });
+  canvas.addEventListener('wheel', e => {
+    spherical.radius = Math.max(0.5, Math.min(30, spherical.radius + e.deltaY * 0.005));
+    updateCamera();
+  });
+  // Touch
+  let lastTouches = [];
+  canvas.addEventListener('touchstart', e => { lastTouches = Array.from(e.touches); });
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const touches = Array.from(e.touches);
+    if (touches.length === 1 && lastTouches.length === 1) {
+      const dx = touches[0].clientX - lastTouches[0].clientX;
+      const dy = touches[0].clientY - lastTouches[0].clientY;
+      spherical.theta -= dx * 0.005;
+      spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + dy * 0.005));
+      updateCamera();
+    } else if (touches.length === 2 && lastTouches.length === 2) {
+      const prevDist = Math.hypot(lastTouches[0].clientX - lastTouches[1].clientX, lastTouches[0].clientY - lastTouches[1].clientY);
+      const currDist = Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+      spherical.radius = Math.max(0.5, Math.min(30, spherical.radius - (currDist - prevDist) * 0.01));
+      updateCamera();
+    }
+    lastTouches = touches;
+  }, { passive: false });
+}
+
+function updateCamera() {
+  camera.position.x = target.x + spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+  camera.position.y = target.y + spherical.radius * Math.cos(spherical.phi);
+  camera.position.z = target.z + spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+  camera.lookAt(target);
+}
+
+// ─── Animate loop ──────────────────────────────────────────────────────────
+function animate() {
+  frameId = requestAnimationFrame(animate);
+  const delta = clock.getDelta();
+  if (mixer) {
+    mixer.update(delta * animSpeed);
+    if (currentAction) {
+      document.getElementById('status-time').textContent = currentAction.time.toFixed(2) + 's';
+    }
+  }
+  renderer.render(scene, camera);
+}
+
+// ─── Resize ────────────────────────────────────────────────────────────────
+function onResize() {
+  const vp = document.getElementById('viewport');
+  const w = vp.clientWidth, h = vp.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+
+// ─── Load GLB ─────────────────────────────────────────────────────────────
+function loadGLB(file) {
+  const loading = document.getElementById('loading');
+  loading.classList.add('show');
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const buffer = e.target.result;
+    if (!window.THREE || !THREE.GLTFLoader) {
+      setTimeout(() => loadGLBFromBuffer(buffer, file.name), 500);
+    } else {
+      loadGLBFromBuffer(buffer, file.name);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function loadGLBFromBuffer(buffer, filename) {
+  // Wait for GLTFLoader to be ready
+  if (!THREE.GLTFLoader) { setTimeout(() => loadGLBFromBuffer(buffer, filename), 100); return; }
+
+  // Clear existing model
+  scene.children = scene.children.filter(c => c.isLight || c.isGridHelper);
+  if (mixer) { mixer.stopAllAction(); mixer = null; }
+  currentAction = null;
+  animations = [];
+
+  const loader = new THREE.GLTFLoader();
+  loader.parse(buffer, '', gltf => {
+    const model = gltf.scene;
+
+    // Auto-scale and center
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2.0 / maxDim;
+    model.scale.setScalar(scale);
+    model.position.sub(center.multiplyScalar(scale));
+    model.position.y += size.y * scale * 0.5;
+
+    // Recenter orbit
+    target.set(0, size.y * scale * 0.5, 0);
+    spherical.radius = maxDim * scale * 2.2;
+    updateCamera();
+
+    scene.add(model);
+
+    // Shadows
+    model.traverse(n => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
+
+    // Animations
+    animations = gltf.animations || [];
+    mixer = animations.length ? new THREE.AnimationMixer(model) : null;
+
+    // Count verts
+    let verts = 0;
+    model.traverse(n => { if (n.isMesh && n.geometry) verts += (n.geometry.attributes.position?.count || 0); });
+
+    // Update UI
+    document.getElementById('file-name').textContent = filename;
+    document.getElementById('drop-zone').classList.add('hidden');
+    document.getElementById('status-bar').style.display = '';
+    document.getElementById('status-verts').textContent = verts.toLocaleString();
+    document.getElementById('status-anims').textContent = animations.length;
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('status-anim').textContent = '—';
+    document.getElementById('status-time').textContent = '0.00s';
+
+    buildAnimList();
+    modelLoaded = true;
+
+    if (animations.length > 0) {
+      const hint = document.getElementById('play-hint');
+      hint.classList.add('show');
+      setTimeout(() => hint.classList.remove('show'), 3000);
+    }
+  }, err => {
+    document.getElementById('loading').classList.remove('show');
+    alert('Failed to load GLB: ' + err.message);
+  });
+}
+
+// ─── Build animation list ──────────────────────────────────────────────────
+function buildAnimList() {
+  const list = document.getElementById('anim-list');
+  if (!animations.length) {
+    list.innerHTML = '<div class="no-anims">No animations found<br>in this model.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  animations.forEach((clip, i) => {
+    const item = document.createElement('div');
+    item.className = 'anim-item';
+    item.dataset.index = i;
+
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+
+    const name = document.createElement('span');
+    name.textContent = clip.name || `Anim ${i + 1}`;
+    name.style.overflow = 'hidden';
+    name.style.textOverflow = 'ellipsis';
+    name.style.whiteSpace = 'nowrap';
+
+    const dur = document.createElement('span');
+    dur.className = 'anim-dur';
+    dur.textContent = clip.duration.toFixed(1) + 's';
+
+    item.appendChild(dot);
+    item.appendChild(name);
+    item.appendChild(dur);
+    item.addEventListener('click', () => playAnimation(i));
+    list.appendChild(item);
+  });
+}
+
+// ─── Play animation ────────────────────────────────────────────────────────
+function playAnimation(index) {
+  if (!mixer || !animations[index]) return;
+
+  // Deactivate previous
+  if (currentAction) {
+    currentAction.fadeOut(0.3);
+  }
+
+  // Activate new
+  const clip = animations[index];
+  currentAction = mixer.clipAction(clip);
+  currentAction.reset().setLoop(THREE.LoopRepeat).fadeIn(0.3).play();
+
+  // Update sidebar
+  document.querySelectorAll('.anim-item').forEach((el, i) => {
+    el.classList.toggle('active', i === index);
+  });
+
+  // Update status
+  document.getElementById('status-anim').textContent = clip.name || `Anim ${index + 1}`;
+}
+
+// ─── Speed slider ──────────────────────────────────────────────────────────
+document.getElementById('speed-slider').addEventListener('input', e => {
+  animSpeed = parseFloat(e.target.value);
+  document.getElementById('speed-val').textContent = animSpeed.toFixed(1) + '×';
+});
+
+// ─── File input ────────────────────────────────────────────────────────────
+document.getElementById('browse-btn').addEventListener('click', () => {
+  document.getElementById('file-input').click();
+});
+
+document.getElementById('drop-inner').addEventListener('click', e => {
+  if (e.target.id !== 'browse-btn') document.getElementById('file-input').click();
+});
+
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) loadGLB(file);
+  e.target.value = '';
+});
+
+// ─── Drag & drop ──────────────────────────────────────────────────────────
+const vp = document.getElementById('viewport');
+vp.addEventListener('dragover', e => { e.preventDefault(); vp.classList.add('drag-over'); });
+vp.addEventListener('dragleave', () => vp.classList.remove('drag-over'));
+vp.addEventListener('drop', e => {
+  e.preventDefault();
+  vp.classList.remove('drag-over');
+  const file = Array.from(e.dataTransfer.files).find(f => f.name.toLowerCase().endsWith('.glb'));
+  if (file) loadGLB(file);
+  else alert('Please drop a .glb file.');
+});
+
+// ─── Boot ──────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  initThree();
+});
+</script>
+</body>
+</html>
