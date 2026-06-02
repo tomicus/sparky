@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epic Flowchart Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --epic-red: #C8102E;
+    --epic-dark: #1A1A2E;
+    --epic-navy: #16213E;
+    --epic-blue: #0F3460;
+    --epic-accent: #E94560;
+    --epic-teal: #00B4D8;
+    --epic-light: #F8F9FA;
+    --epic-gray: #6C757D;
+    --epic-border: #DEE2E6;
+    --epic-green: #28A745;
+    --epic-yellow: #FFC107;
+    --epic-purple: #6F42C1;
+    --shadow: 0 2px 12px rgba(0,0,0,0.10);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: #F0F2F5;
+    color: #1A1A2E;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--epic-dark);
+    color: #fff;
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo-badge {
+    background: var(--epic-red);
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+  header h1 {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    color: #E0E0E0;
+  }
+  .header-sub {
+    margin-left: auto;
+    font-size: 11px;
+    color: #888;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ── LAYOUT ── */
+  .app-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 0;
+    height: calc(100vh - 60px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    background: #fff;
+    border-right: 1px solid var(--epic-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-section {
+    padding: 16px;
+    border-bottom: 1px solid var(--epic-border);
+  }
+  .panel-section h2 {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--epic-gray);
+    margin-bottom: 10px;
+  }
+
+  /* Title input */
+  .title-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--epic-border);
+    border-radius: 6px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    color: var(--epic-dark);
+    transition: border-color 0.2s;
+  }
+  .title-input:focus { outline: none; border-color: var(--epic-teal); }
+
+  /* Category tabs */
+  .category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--epic-border);
+    background: #FAFAFA;
+  }
+  .cat-tab {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.15s;
+    background: #fff;
+    color: var(--epic-gray);
+    border-color: var(--epic-border);
+  }
+  .cat-tab.active, .cat-tab:hover {
+    background: var(--epic-dark);
+    color: #fff;
+    border-color: var(--epic-dark);
+  }
+  .cat-tab[data-cat="Screening"] { border-color: #00B4D8; color: #00B4D8; }
+  .cat-tab[data-cat="Screening"].active, .cat-tab[data-cat="Screening"]:hover { background: #00B4D8; color: #fff; border-color: #00B4D8; }
+  .cat-tab[data-cat="Vitals"] { border-color: #28A745; color: #28A745; }
+  .cat-tab[data-cat="Vitals"].active, .cat-tab[data-cat="Vitals"]:hover { background: #28A745; color: #fff; }
+  .cat-tab[data-cat="Labs"] { border-color: #6F42C1; color: #6F42C1; }
+  .cat-tab[data-cat="Labs"].active, .cat-tab[data-cat="Labs"]:hover { background: #6F42C1; color: #fff; }
+  .cat-tab[data-cat="Orders"] { border-color: #FD7E14; color: #FD7E14; }
+  .cat-tab[data-cat="Orders"].active, .cat-tab[data-cat="Orders"]:hover { background: #FD7E14; color: #fff; }
+  .cat-tab[data-cat="Decision"] { border-color: #C8102E; color: #C8102E; }
+  .cat-tab[data-cat="Decision"].active, .cat-tab[data-cat="Decision"]:hover { background: #C8102E; color: #fff; }
+  .cat-tab[data-cat="Actions"] { border-color: #20C997; color: #20C997; }
+  .cat-tab[data-cat="Actions"].active, .cat-tab[data-cat="Actions"]:hover { background: #20C997; color: #fff; }
+
+  /* Search */
+  .search-wrap { padding: 10px 16px; border-bottom: 1px solid var(--epic-border); }
+  .search-input {
+    width: 100%;
+    padding: 7px 12px 7px 32px;
+    border: 1px solid var(--epic-border);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: #FAFAFA url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236C757D' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
+  }
+  .search-input:focus { outline: none; border-color: var(--epic-teal); background-color: #fff; }
+
+  /* Epic options list */
+  .options-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+  .options-list::-webkit-scrollbar { width: 4px; }
+  .options-list::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
+
+  .option-group { margin-bottom: 4px; }
+  .option-group-header {
+    padding: 6px 16px 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--epic-gray);
+    background: #F8F9FA;
+    border-top: 1px solid #EFEFEF;
+  }
+
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.12s;
+    user-select: none;
+  }
+  .option-item:hover { background: #F0F8FF; }
+  .option-item.selected { background: #E8F4FD; }
+
+  .option-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .option-label {
+    font-size: 13px;
+    color: var(--epic-dark);
+    flex: 1;
+    line-height: 1.3;
+  }
+  .option-tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .add-btn {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .add-btn:hover { transform: scale(1.15); }
+
+  /* Selected queue */
+  .queue-section {
+    border-top: 2px solid var(--epic-border);
+    background: #FAFAFA;
+    max-height: 220px;
+    display: flex;
+    flex-direction: column;
+  }
+  .queue-header {
+    padding: 10px 16px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--epic-border);
+  }
+  .queue-header h2 {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--epic-gray);
+  }
+  .queue-count {
+    background: var(--epic-teal);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+  .queue-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 4px 0;
+  }
+  .queue-list::-webkit-scrollbar { width: 3px; }
+  .queue-list::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
+
+  .queue-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 16px;
+    font-size: 12px;
+    color: var(--epic-dark);
+  }
+  .queue-num {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--epic-dark);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .queue-item-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .remove-btn {
+    margin-left: auto;
+    background: none; border: none;
+    color: #CCC; cursor: pointer;
+    font-size: 14px;
+    padding: 0 2px;
+    transition: color 0.15s;
+  }
+  .remove-btn:hover { color: var(--epic-red); }
+  .drag-handle {
+    color: #CCC; cursor: grab; font-size: 12px; flex-shrink: 0;
+  }
+
+  /* Action buttons */
+  .actions-bar {
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid var(--epic-border);
+    background: #fff;
+  }
+  .btn {
+    flex: 1;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 7px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--epic-dark);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #0F3460; transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-secondary {
+    background: #fff;
+    color: var(--epic-dark);
+    border: 1.5px solid var(--epic-border);
+  }
+  .btn-secondary:hover { background: #F0F2F5; }
+  .btn-save {
+    background: var(--epic-red);
+    color: #fff;
+  }
+  .btn-save:hover { background: #A00D26; transform: translateY(-1px); box-shadow: var(--shadow); }
+
+  /* ── RIGHT PANEL (CANVAS) ── */
+  .right-panel {
+    overflow: auto;
+    padding: 32px;
+    background: #EAECF0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .canvas-toolbar {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .canvas-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--epic-gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+  .zoom-btn {
+    padding: 5px 12px;
+    border: 1px solid var(--epic-border);
+    border-radius: 5px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--epic-dark);
+    font-weight: 600;
+    transition: background 0.12s;
+  }
+  .zoom-btn:hover { background: #F0F2F5; }
+
+  /* Flowchart canvas */
+  #flowchart-canvas {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    padding: 48px 40px 64px;
+    min-width: 700px;
+    max-width: 900px;
+    width: 100%;
+    transition: transform 0.2s;
+    transform-origin: top center;
+  }
+
+  .fc-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--epic-dark);
+    margin-bottom: 8px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .fc-subtitle {
+    text-align: center;
+    font-size: 11px;
+    color: var(--epic-gray);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 40px;
+    letter-spacing: 0.5px;
+  }
+
+  .fc-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* START / END nodes */
+  .fc-node-terminal {
+    background: var(--epic-dark);
+    color: #fff;
+    padding: 12px 40px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 180px;
+  }
+  .fc-node-terminal.end { background: var(--epic-blue); }
+
+  /* Connector arrow */
+  .fc-arrow {
+    width: 2px;
+    height: 28px;
+    background: #CCC;
+    position: relative;
+    margin: 0 auto;
+  }
+  .fc-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid #CCC;
+  }
+  .fc-arrow-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 6px;
+    font-size: 10px;
+    color: var(--epic-gray);
+    white-space: nowrap;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Process node */
+  .fc-node-process {
+    border-radius: 8px;
+    padding: 14px 20px;
+    min-width: 300px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-left: 5px solid;
+    position: relative;
+    background: #fff;
+  }
+  .fc-node-process .node-type {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .fc-node-process .node-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--epic-dark);
+    line-height: 1.3;
+  }
+  .fc-node-process .node-detail {
+    font-size: 11px;
+    color: var(--epic-gray);
+    margin-top: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .fc-node-process .node-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    opacity: 0.4;
+  }
+
+  /* Decision diamond */
+  .fc-decision-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .fc-diamond-outer {
+    width: 220px;
+    height: 110px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .fc-diamond {
+    width: 160px;
+    height: 80px;
+    background: #FFF3CD;
+    border: 2.5px solid #FFC107;
+    transform: rotate(45deg);
+    position: absolute;
+  }
+  .fc-diamond-text {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #856404;
+    padding: 0 20px;
+    line-height: 1.2;
+  }
+  .fc-branch-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    width: 100%;
+    margin-top: 2px;
+  }
+  .fc-branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 200px;
+    flex: 1;
+  }
+  .fc-branch-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--epic-gray);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .fc-branch-yes .fc-branch-label { color: var(--epic-green); }
+  .fc-branch-no .fc-branch-label { color: var(--epic-red); }
+  .fc-branch-connector {
+    width: 1px;
+    height: 20px;
+    background: #CCC;
+    position: relative;
+  }
+  .fc-branch-connector::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 7px solid #CCC;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    color: var(--epic-gray);
+  }
+  .empty-icon { font-size: 64px; opacity: 0.3; margin-bottom: 16px; }
+  .empty-title { font-size: 18px; font-weight: 600; color: #AAA; margin-bottom: 8px; }
+  .empty-sub { font-size: 13px; color: #CCC; line-height: 1.5; }
+
+  /* Legend */
+  .fc-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px dashed #DEDEDE;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px;
+    color: var(--epic-gray);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--epic-dark);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 9999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Print styles */
+  @media print {
+    body { background: white; }
+    header, .left-panel, .canvas-toolbar, .actions-bar { display: none !important; }
+    .app-layout { display: block; }
+    .right-panel { background: white; padding: 0; overflow: visible; }
+    #flowchart-canvas {
+      box-shadow: none;
+      border-radius: 0;
+      max-width: 100%;
+      padding: 20px;
+      transform: none !important;
+    }
+    .fc-legend { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo-badge">EPIC</span>
+  <h1>Clinical Flowchart Generator</h1>
+  <span class="header-sub">v2025.1 · Workflow Design Tool</span>
+</header>
+
+<div class="app-layout">
+
+  <!-- ════ LEFT PANEL ════ -->
+  <div class="left-panel">
+
+    <div class="panel-section">
+      <h2>Flowchart Title</h2>
+      <input class="title-input" id="fc-title-input" type="text" placeholder="e.g. Hypertension Screening Protocol" value="Epic Clinical Screening Workflow">
+    </div>
+
+    <div class="category-tabs" id="cat-tabs">
+      <span class="cat-tab active" data-cat="All">All</span>
+      <span class="cat-tab" data-cat="Screening">Screening</span>
+      <span class="cat-tab" data-cat="Vitals">Vitals</span>
+      <span class="cat-tab" data-cat="Labs">Labs</span>
+      <span class="cat-tab" data-cat="Orders">Orders</span>
+      <span class="cat-tab" data-cat="Decision">Decision</span>
+      <span class="cat-tab" data-cat="Actions">Actions</span>
+    </div>
+
+    <div class="search-wrap">
+      <input class="search-input" id="search-input" type="text" placeholder="Search Epic modules...">
+    </div>
+
+    <div class="options-list" id="options-list"></div>
+
+    <!-- Selected Queue -->
+    <div class="queue-section">
+      <div class="queue-header">
+        <h2>Flow Steps</h2>
+        <span class="queue-count" id="queue-count">0</span>
+      </div>
+      <div class="queue-list" id="queue-list">
+        <div style="padding: 20px 16px; text-align:center; color:#CCC; font-size:12px;">
+          Add steps from the list above
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <button class="btn btn-secondary" onclick="clearQueue()">✕ Clear</button>
+      <button class="btn btn-primary" onclick="buildFlowchart()">⚡ Build Chart</button>
+      <button class="btn btn-save" onclick="savePDF()">⬇ PDF</button>
+    </div>
+
+  </div>
+
+  <!-- ════ RIGHT PANEL ════ -->
+  <div class="right-panel">
+    <div class="canvas-toolbar">
+      <span class="canvas-title">Flowchart Preview</span>
+      <button class="zoom-btn" onclick="zoom(0.1)">＋</button>
+      <button class="zoom-btn" id="zoom-label" onclick="resetZoom()">100%</button>
+      <button class="zoom-btn" onclick="zoom(-0.1)">－</button>
+    </div>
+    <div id="flowchart-canvas">
+      <div class="empty-state">
+        <div class="empty-icon">🏥</div>
+        <div class="empty-title">No flowchart yet</div>
+        <div class="empty-sub">Select Epic modules from the left panel,<br>then click <strong>Build Chart</strong> to generate your workflow.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  EPIC DATA LIBRARY
+// ═══════════════════════════════════════════════
+const EPIC_OPTIONS = [
+  // ── SCREENING ──
+  { id: 'scr_htn',    cat: 'Screening', name: 'Hypertension Screening',         detail: 'BPSystolic, BPDiastolic flowsheet',       color: '#00B4D8', icon: '🩺', tag: 'HTN',   type: 'process' },
+  { id: 'scr_dm2',    cat: 'Screening', name: 'Type 2 Diabetes Screening',      detail: 'HbA1c ≥ 5.7% trigger / fasting glucose',  color: '#00B4D8', icon: '💉', tag: 'DM2',   type: 'process' },
+  { id: 'scr_dep',    cat: 'Screening', name: 'PHQ-9 Depression Screening',     detail: 'Patient-reported SmartForm PHQ9',         color: '#00B4D8', icon: '🧠', tag: 'MH',    type: 'process' },
+  { id: 'scr_anx',    cat: 'Screening', name: 'GAD-7 Anxiety Screening',        detail: 'SmartForm GAD7 — score 0–21',             color: '#00B4D8', icon: '🧠', tag: 'MH',    type: 'process' },
+  { id: 'scr_fall',   cat: 'Screening', name: 'Fall Risk Assessment (Morse)',   detail: 'Morse Fall Scale — Nursing flowsheet',    color: '#00B4D8', icon: '🚶', tag: 'FALLS', type: 'process' },
+  { id: 'scr_pain',   cat: 'Screening', name: 'Pain Screening (NRS)',           detail: 'Numeric Rating Scale 0–10',               color: '#00B4D8', icon: '😣', tag: 'PAIN',  type: 'process' },
+  { id: 'scr_obese',  cat: 'Screening', name: 'BMI / Obesity Screening',        detail: 'Wt, Ht auto-calculated → BMI SmartData',  color: '#00B4D8', icon: '⚖️', tag: 'BMI',   type: 'process' },
+  { id: 'scr_tobac',  cat: 'Screening', name: 'Tobacco / Smoking Screen',       detail: 'Social Hx SmartForm — AUDIT-C',           color: '#00B4D8', icon: '🚬', tag: 'TOB',   type: 'process' },
+  { id: 'scr_sdoh',   cat: 'Screening', name: 'SDOH Screening (AHC-HRSN)',      detail: 'Social Determinants SmartForm',           color: '#00B4D8', icon: '🏠', tag: 'SDOH',  type: 'process' },
+  { id: 'scr_ald',    cat: 'Screening', name: 'Alcohol Use (AUDIT-C)',          detail: 'AUDIT-C SmartForm — score 0–12',          color: '#00B4D8', icon: '🍺', tag: 'AUD',   type: 'process' },
+  { id: 'scr_ca',     cat: 'Screening', name: 'Colorectal Cancer Screening',    detail: 'CRC BPA fires age 45–75',                 color: '#00B4D8', icon: '🎗️', tag: 'CANC',  type: 'process' },
+  { id: 'scr_mam',    cat: 'Screening', name: 'Mammography Screening',          detail: 'Breast Cancer BPA — age/risk criteria',   color: '#00B4D8', icon: '🎗️', tag: 'CANC',  type: 'process' },
+  { id: 'scr_cog',    cat: 'Screening', name: 'Cognitive Screening (MMSE)',     detail: 'MMSE SmartForm — referral trigger',       color: '#00B4D8', icon: '🧩', tag: 'COG',   type: 'process' },
+
+  // ── VITALS ──
+  { id: 'vit_bp',     cat: 'Vitals', name: 'Blood Pressure Reading',        detail: 'Systolic / Diastolic mmHg',           color: '#28A745', icon: '🩸', tag: 'BP',    type: 'process' },
+  { id: 'vit_hr',     cat: 'Vitals', name: 'Heart Rate',                    detail: 'Pulse bpm — rhythm noted',            color: '#28A745', icon: '❤️', tag: 'HR',    type: 'process' },
+  { id: 'vit_temp',   cat: 'Vitals', name: 'Temperature',                   detail: '°F / °C oral, axillary, tympanic',    color: '#28A745', icon: '🌡️', tag: 'TEMP',  type: 'process' },
+  { id: 'vit_rr',     cat: 'Vitals', name: 'Respiratory Rate',              detail: 'Breaths per minute',                  color: '#28A745', icon: '🫁', tag: 'RR',    type: 'process' },
+  { id: 'vit_spo2',   cat: 'Vitals', name: 'SpO2 / Oxygen Saturation',      detail: 'Pulse oximetry %',                    color: '#28A745', icon: '💨', tag: 'O2',    type: 'process' },
+  { id: 'vit_wt',     cat: 'Vitals', name: 'Weight',                        detail: 'kg / lbs — trend tracking',           color: '#28A745', icon: '⚖️', tag: 'WT',    type: 'process' },
+  { id: 'vit_ht',     cat: 'Vitals', name: 'Height',                        detail: 'cm / inches',                         color: '#28A745', icon: '📏', tag: 'HT',    type: 'process' },
+  { id: 'vit_glu',    cat: 'Vitals', name: 'Point-of-Care Blood Glucose',   detail: 'Fingerstick BG mg/dL',                color: '#28A745', icon: '🩸', tag: 'POC',   type: 'process' },
+
+  // ── LABS ──
+  { id: 'lab_cmp',    cat: 'Labs', name: 'Comprehensive Metabolic Panel',  detail: 'CMP — BUN, Cr, LFTs, electrolytes',   color: '#6F42C1', icon: '🔬', tag: 'CMP',   type: 'process' },
+  { id: 'lab_cbc',    cat: 'Labs', name: 'Complete Blood Count (CBC)',      detail: 'CBC w/ diff — WBC, RBC, Hgb, Plt',    color: '#6F42C1', icon: '🔬', tag: 'CBC',   type: 'process' },
+  { id: 'lab_hba1c',  cat: 'Labs', name: 'HbA1c',                          detail: 'Glycosylated hemoglobin %',            color: '#6F42C1', icon: '🔬', tag: 'HBA1C', type: 'process' },
+  { id: 'lab_lipid',  cat: 'Labs', name: 'Lipid Panel',                    detail: 'TC, LDL, HDL, Triglycerides',         color: '#6F42C1', icon: '🔬', tag: 'LIPID', type: 'process' },
+  { id: 'lab_tsh',    cat: 'Labs', name: 'TSH / Thyroid Panel',            detail: 'TSH ± T3/T4 reflex',                  color: '#6F42C1', icon: '🔬', tag: 'TSH',   type: 'process' },
+  { id: 'lab_ua',     cat: 'Labs', name: 'Urinalysis (UA)',                 detail: 'Dipstick + microscopy if indicated',  color: '#6F42C1', icon: '🔬', tag: 'UA',    type: 'process' },
+  { id: 'lab_psa',    cat: 'Labs', name: 'PSA (Prostate Specific Ag)',     detail: 'PSA total/free — age criteria',       color: '#6F42C1', icon: '🔬', tag: 'PSA',   type: 'process' },
+  { id: 'lab_bnp',    cat: 'Labs', name: 'BNP / NT-proBNP',               detail: 'Heart failure biomarker',             color: '#6F42C1', icon: '🔬', tag: 'CARD',  type: 'process' },
+  { id: 'lab_trop',   cat: 'Labs', name: 'Troponin I / T (hs-cTn)',        detail: 'Serial 0hr/2hr/6hr protocol',         color: '#6F42C1', icon: '🔬', tag: 'CARD',  type: 'process' },
+  { id: 'lab_inr',    cat: 'Labs', name: 'PT / INR / aPTT',                detail: 'Coagulation panel',                   color: '#6F42C1', icon: '🔬', tag: 'COAG',  type: 'process' },
+  { id: 'lab_cult',   cat: 'Labs', name: 'Blood / Urine Culture',          detail: 'Micro order — sensitivity & spec',    color: '#6F42C1', icon: '🔬', tag: 'MICRO', type: 'process' },
+
+  // ── ORDERS ──
+  { id: 'ord_ecg',    cat: 'Orders', name: 'ECG / 12-Lead EKG',            detail: 'Cardiology order — auto-routed',      color: '#FD7E14', icon: '📋', tag: 'CARD',  type: 'process' },
+  { id: 'ord_xray',   cat: 'Orders', name: 'Chest X-Ray (CXR)',            detail: 'Radiology order — PA & Lateral',      color: '#FD7E14', icon: '🩻', tag: 'RAD',   type: 'process' },
+  { id: 'ord_ct',     cat: 'Orders', name: 'CT Scan with/without Contrast', detail: 'Radiology order — protocol driven',  color: '#FD7E14', icon: '🩻', tag: 'RAD',   type: 'process' },
+  { id: 'ord_mri',    cat: 'Orders', name: 'MRI Order',                    detail: 'Safety screening → scheduling',       color: '#FD7E14', icon: '🩻', tag: 'RAD',   type: 'process' },
+  { id: 'ord_echo',   cat: 'Orders', name: 'Echocardiogram',               detail: 'Transthoracic echo order',            color: '#FD7E14', icon: '🫀', tag: 'CARD',  type: 'process' },
+  { id: 'ord_rx',     cat: 'Orders', name: 'Medication Order (Rx)',         detail: 'Prescribing workspace — CDS alert',   color: '#FD7E14', icon: '💊', tag: 'MED',   type: 'process' },
+  { id: 'ord_ref',    cat: 'Orders', name: 'Referral Order',               detail: 'Specialty referral — NRC/fax',        color: '#FD7E14', icon: '📤', tag: 'REF',   type: 'process' },
+  { id: 'ord_adm',    cat: 'Orders', name: 'Admit Order / Bed Request',    detail: 'Bed management — ADT trigger',        color: '#FD7E14', icon: '🛏️', tag: 'ADM',   type: 'process' },
+  { id: 'ord_diet',   cat: 'Orders', name: 'Diet / Nutrition Order',       detail: 'Dietitian consult order',             color: '#FD7E14', icon: '🥗', tag: 'DIET',  type: 'process' },
+  { id: 'ord_pt',     cat: 'Orders', name: 'Physical Therapy Consult',     detail: 'PT/OT order — functional assessment', color: '#FD7E14', icon: '🏃', tag: 'PT',    type: 'process' },
+
+  // ── DECISION POINTS ──
+  { id: 'dec_bpHigh', cat: 'Decision', name: 'BP ≥ 140/90 mmHg?',         detail: 'Yes → HTN protocol / No → routine f/u', color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'Start HTN Protocol', no: 'Routine F/U' },
+  { id: 'dec_a1c',    cat: 'Decision', name: 'HbA1c ≥ 6.5%?',            detail: 'Yes → DM diagnosis / No → Pre-DM check', color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'DM Diagnosis Path', no: 'Pre-DM Monitoring' },
+  { id: 'dec_phq',    cat: 'Decision', name: 'PHQ-9 Score ≥ 10?',         detail: 'Yes → MH referral / No → watchful wait', color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'MH Referral', no: 'Watchful Waiting' },
+  { id: 'dec_allerg', cat: 'Decision', name: 'Known Drug Allergies?',      detail: 'Yes → Allergy review / No → proceed', color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'Allergy Review', no: 'Proceed with Rx' },
+  { id: 'dec_risk',   cat: 'Decision', name: 'High-Risk Patient Flag?',   detail: 'Yes → escalate / No → standard care',  color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'Escalate Care', no: 'Standard Protocol' },
+  { id: 'dec_consent',cat: 'Decision', name: 'Informed Consent Obtained?', detail: 'Yes → proceed / No → obtain consent',  color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'Proceed', no: 'Obtain Consent' },
+  { id: 'dec_insur',  cat: 'Decision', name: 'Insurance Authorization?',  detail: 'Yes → schedule / No → PA workflow',    color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'Schedule Procedure', no: 'Prior Auth Workflow' },
+  { id: 'dec_fall',   cat: 'Decision', name: 'Morse Score ≥ 45?',         detail: 'Yes → fall precautions / No → standard', color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'Fall Precautions', no: 'Standard Protocol' },
+  { id: 'dec_temp',   cat: 'Decision', name: 'Temp > 38.3°C (101°F)?',    detail: 'Yes → sepsis screen / No → monitor',  color: '#FFC107', icon: '⚠️', tag: 'RULE', type: 'decision', yes: 'Sepsis Screening', no: 'Monitor Vitals' },
+
+  // ── ACTIONS ──
+  { id: 'act_notify',  cat: 'Actions', name: 'Send Provider In-Basket Msg', detail: 'In-Basket notification to PCP/specialist', color: '#20C997', icon: '📨', tag: 'COMM', type: 'process' },
+  { id: 'act_bpa',     cat: 'Actions', name: 'Best Practice Advisory (BPA)', detail: 'CDS alert fires in order entry',           color: '#20C997', icon: '🔔', tag: 'CDS',  type: 'process' },
+  { id: 'act_educ',    cat: 'Actions', name: 'Patient Education Materials',  detail: 'AVS auto-attach — Krames/Healthwise',      color: '#20C997', icon: '📄', tag: 'EDUC', type: 'process' },
+  { id: 'act_myc',     cat: 'Actions', name: 'MyChart Patient Message',      detail: 'Secure message → patient portal',          color: '#20C997', icon: '💬', tag: 'PT',   type: 'process' },
+  { id: 'act_doc',     cat: 'Actions', name: 'Document in SmartForm',        detail: 'Clinical documentation → encounter',       color: '#20C997', icon: '📝', tag: 'DOC',  type: 'process' },
+  { id: 'act_enc',     cat: 'Actions', name: 'Schedule Follow-up Visit',     detail: 'Scheduling order → Epic Cadence',          color: '#20C997', icon: '📅', tag: 'SCHED',type: 'process' },
+  { id: 'act_ppe',     cat: 'Actions', name: 'Activate Isolation Protocol',  detail: 'Infection control workflow trigger',       color: '#20C997', icon: '🦺', tag: 'IC',   type: 'process' },
+  { id: 'act_disc',    cat: 'Actions', name: 'Discharge Workflow',           detail: 'Discharge checklist → AVS generation',     color: '#20C997', icon: '🏠', tag: 'DISC', type: 'process' },
+  { id: 'act_transfer',cat: 'Actions', name: 'Transfer of Care',            detail: 'eHOS / ICU transfer — handoff note',       color: '#20C997', icon: '🚑', tag: 'XFR',  type: 'process' },
+];
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let selectedItems = [];
+let currentCat = 'All';
+let searchTerm = '';
+let zoomLevel = 1.0;
+
+// ═══════════════════════════════════════════════
+//  RENDER OPTIONS LIST
+// ═══════════════════════════════════════════════
+function renderOptions() {
+  const list = document.getElementById('options-list');
+  const filtered = EPIC_OPTIONS.filter(o => {
+    const matchCat = currentCat === 'All' || o.cat === currentCat;
+    const matchSearch = !searchTerm ||
+      o.name.toLowerCase().includes(searchTerm) ||
+      o.detail.toLowerCase().includes(searchTerm) ||
+      o.tag.toLowerCase().includes(searchTerm);
+    return matchCat && matchSearch;
+  });
+
+  // Group by category
+  const groups = {};
+  filtered.forEach(o => {
+    if (!groups[o.cat]) groups[o.cat] = [];
+    groups[o.cat].push(o);
+  });
+
+  list.innerHTML = '';
+  Object.entries(groups).forEach(([cat, items]) => {
+    const grp = document.createElement('div');
+    grp.className = 'option-group';
+    grp.innerHTML = `<div class="option-group-header">${cat}</div>`;
+    items.forEach(item => {
+      const isSelected = selectedItems.some(s => s.id === item.id);
+      const row = document.createElement('div');
+      row.className = 'option-item' + (isSelected ? ' selected' : '');
+      row.innerHTML = `
+        <div class="option-dot" style="background:${item.color}"></div>
+        <div class="option-label">
+          <div>${item.name}</div>
+          <div style="font-size:10px;color:#999;font-family:'IBM Plex Mono',monospace;margin-top:1px">${item.detail}</div>
+        </div>
+        <span class="option-tag" style="background:${item.color}20;color:${item.color}">${item.tag}</span>
+        <button class="add-btn" style="border-color:${item.color};color:${item.color}" onclick="toggleItem('${item.id}')">
+          ${isSelected ? '✓' : '+'}
+        </button>
+      `;
+      grp.appendChild(row);
+    });
+    list.appendChild(grp);
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:32px;text-align:center;color:#CCC;font-size:13px;">No modules match your search</div>`;
+  }
+}
+
+function toggleItem(id) {
+  const item = EPIC_OPTIONS.find(o => o.id === id);
+  if (!item) return;
+  const idx = selectedItems.findIndex(s => s.id === id);
+  if (idx === -1) {
+    selectedItems.push(item);
+    showToast(`➕ Added: ${item.name}`);
+  } else {
+    selectedItems.splice(idx, 1);
+    showToast(`✕ Removed: ${item.name}`);
+  }
+  renderOptions();
+  renderQueue();
+}
+
+function renderQueue() {
+  const list = document.getElementById('queue-list');
+  document.getElementById('queue-count').textContent = selectedItems.length;
+
+  if (!selectedItems.length) {
+    list.innerHTML = `<div style="padding:16px;text-align:center;color:#CCC;font-size:12px;">Add steps from the list above</div>`;
+    return;
+  }
+
+  list.innerHTML = selectedItems.map((item, i) => `
+    <div class="queue-item" draggable="true" data-idx="${i}" 
+         ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)">
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <div class="queue-num">${i+1}</div>
+      <div class="queue-item-dot" style="background:${item.color}"></div>
+      <span style="flex:1;line-height:1.2">${item.name}</span>
+      <button class="remove-btn" onclick="removeItem(${i})" title="Remove">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeItem(idx) {
+  selectedItems.splice(idx, 1);
+  renderOptions();
+  renderQueue();
+}
+
+function clearQueue() {
+  selectedItems = [];
+  renderOptions();
+  renderQueue();
+  document.getElementById('flowchart-canvas').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">🏥</div>
+      <div class="empty-title">No flowchart yet</div>
+      <div class="empty-sub">Select Epic modules from the left panel,<br>then click <strong>Build Chart</strong> to generate your workflow.</div>
+    </div>`;
+  showToast('Cleared all steps');
+}
+
+// ═══════════════════════════════════════════════
+//  DRAG & DROP REORDER
+// ═══════════════════════════════════════════════
+let dragIdx = null;
+function dragStart(e) { dragIdx = +e.currentTarget.dataset.idx; }
+function dragOver(e) { e.preventDefault(); }
+function dragDrop(e) {
+  const toIdx = +e.currentTarget.dataset.idx;
+  if (dragIdx === null || dragIdx === toIdx) return;
+  const item = selectedItems.splice(dragIdx, 1)[0];
+  selectedItems.splice(toIdx, 0, item);
+  dragIdx = null;
+  renderQueue();
+}
+
+// ═══════════════════════════════════════════════
+//  BUILD FLOWCHART
+// ═══════════════════════════════════════════════
+function buildFlowchart() {
+  if (!selectedItems.length) {
+    showToast('⚠️ Add at least one step first');
+    return;
+  }
+
+  const title = document.getElementById('fc-title-input').value || 'Epic Clinical Workflow';
+  const canvas = document.getElementById('flowchart-canvas');
+  const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+  let html = `
+    <div class="fc-title">${escapeHtml(title)}</div>
+    <div class="fc-subtitle">Generated ${now} · Epic Flowchart Generator · ${selectedItems.length} step${selectedItems.length !== 1 ? 's' : ''}</div>
+    <div class="fc-flow">
+      <div class="fc-node-terminal">▶ START</div>
+  `;
+
+  selectedItems.forEach((item, i) => {
+    // Arrow from previous
+    html += `<div class="fc-arrow"></div>`;
+
+    if (item.type === 'decision') {
+      html += `
+        <div class="fc-decision-wrap">
+          <div class="fc-diamond-outer">
+            <div class="fc-diamond"></div>
+            <div class="fc-diamond-text">${escapeHtml(item.name)}</div>
+          </div>
+          <div class="fc-branch-row">
+            <div class="fc-branch fc-branch-yes">
+              <div class="fc-branch-label">✓ YES</div>
+              <div class="fc-branch-connector"></div>
+              <div class="fc-node-process" style="border-left-color:#28A745;min-width:160px;max-width:200px">
+                <div class="node-type" style="color:#28A745">Outcome</div>
+                <div class="node-name" style="font-size:12px">${escapeHtml(item.yes || 'Yes Path')}</div>
+              </div>
+            </div>
+            <div class="fc-branch fc-branch-no">
+              <div class="fc-branch-label">✕ NO</div>
+              <div class="fc-branch-connector"></div>
+              <div class="fc-node-process" style="border-left-color:#C8102E;min-width:160px;max-width:200px">
+                <div class="node-type" style="color:#C8102E">Outcome</div>
+                <div class="node-name" style="font-size:12px">${escapeHtml(item.no || 'No Path')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="fc-node-process" style="border-left-color:${item.color}">
+          <div class="node-type" style="color:${item.color}">${item.cat} · ${item.tag}</div>
+          <div class="node-name">${item.icon} ${escapeHtml(item.name)}</div>
+          <div class="node-detail">${escapeHtml(item.detail)}</div>
+        </div>
+      `;
+    }
+  });
+
+  // Arrow + END
+  html += `<div class="fc-arrow"></div>
+    <div class="fc-node-terminal end">◼ END</div>
+  </div>`;
+
+  // Legend
+  const usedCats = [...new Set(selectedItems.map(i => i.cat))];
+  const catColors = { Screening:'#00B4D8', Vitals:'#28A745', Labs:'#6F42C1', Orders:'#FD7E14', Decision:'#FFC107', Actions:'#20C997' };
+  html += `<div class="fc-legend">`;
+  usedCats.forEach(cat => {
+    html += `<div class="legend-item"><div class="legend-dot" style="background:${catColors[cat]||'#999'}"></div>${cat}</div>`;
+  });
+  html += `<div class="legend-item"><div style="width:24px;height:2px;background:#CCC;margin:4px 0"></div>Flow</div>`;
+  html += `</div>`;
+
+  canvas.innerHTML = html;
+  showToast('✅ Flowchart built!');
+}
+
+// ═══════════════════════════════════════════════
+//  PDF SAVE
+// ═══════════════════════════════════════════════
+function savePDF() {
+  if (document.getElementById('flowchart-canvas').querySelector('.empty-state')) {
+    showToast('⚠️ Build the flowchart first');
+    return;
+  }
+  showToast('🖨️ Opening print dialog...');
+  setTimeout(() => window.print(), 300);
+}
+
+// ═══════════════════════════════════════════════
+//  ZOOM
+// ═══════════════════════════════════════════════
+function zoom(delta) {
+  zoomLevel = Math.min(1.6, Math.max(0.5, zoomLevel + delta));
+  document.getElementById('flowchart-canvas').style.transform = `scale(${zoomLevel})`;
+  document.getElementById('zoom-label').textContent = Math.round(zoomLevel * 100) + '%';
+}
+function resetZoom() {
+  zoomLevel = 1.0;
+  document.getElementById('flowchart-canvas').style.transform = 'scale(1)';
+  document.getElementById('zoom-label').textContent = '100%';
+}
+
+// ═══════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══════════════════════════════════════════════
+//  EVENT LISTENERS
+// ═══════════════════════════════════════════════
+document.getElementById('cat-tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.cat-tab');
+  if (!tab) return;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  currentCat = tab.dataset.cat;
+  renderOptions();
+});
+
+document.getElementById('search-input').addEventListener('input', e => {
+  searchTerm = e.target.value.toLowerCase().trim();
+  renderOptions();
+});
+
+// Init
+renderOptions();
+renderQueue();
+</script>
+</body>
+</html>
