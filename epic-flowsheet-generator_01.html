@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epic Flowsheet Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D1117;
+  --surface: #161B22;
+  --surface2: #1C2333;
+  --surface3: #21262D;
+  --border: #30363D;
+  --border-light: #21262D;
+  --text: #E6EDF3;
+  --text-muted: #8B949E;
+  --text-dim: #484F58;
+  --accent: #2F81F7;
+  --accent-dim: #1F6FEB22;
+  --accent-border: #2F81F755;
+  --red: #F85149;
+  --green: #3FB950;
+  --yellow: #D29922;
+  --orange: #DB6D28;
+  --purple: #BC8CFF;
+  --teal: #39D2C0;
+  --pink: #FF7B72;
+
+  --cat-screen: #39D2C0;
+  --cat-vitals: #3FB950;
+  --cat-labs: #BC8CFF;
+  --cat-orders: #DB6D28;
+  --cat-decision: #D29922;
+  --cat-actions: #2F81F7;
+
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 50;
+}
+.epic-logo {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--red);
+  border: 1.5px solid var(--red);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+header h1 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.2px;
+}
+.header-divider { width: 1px; height: 20px; background: var(--border); }
+.header-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.hdr-btn {
+  padding: 5px 14px;
+  border-radius: 5px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.hdr-btn-ghost { background: transparent; color: var(--text-muted); }
+.hdr-btn-ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
+.hdr-btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.hdr-btn-primary:hover { background: #388bfd; transform: translateY(-1px); }
+.hdr-btn-danger { background: var(--red); color: #fff; border-color: var(--red); }
+.hdr-btn-danger:hover { background: #ff6b63; transform: translateY(-1px); }
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+/* Flowsheet meta */
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.meta-field label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  display: block;
+  margin-bottom: 3px;
+  letter-spacing: 0.3px;
+}
+.meta-field input, .meta-field select {
+  width: 100%;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 5px 8px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.meta-field input:focus, .meta-field select:focus { border-color: var(--accent); }
+.meta-field.full { grid-column: 1 / -1; }
+.meta-field select option { background: var(--surface3); }
+
+/* Cat tabs */
+.cat-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.cat-tab {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--mono);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.12s;
+  color: var(--text-muted);
+  border-color: var(--border);
+  background: transparent;
+  letter-spacing: 0.3px;
+}
+.cat-tab[data-cat="All"].active, .cat-tab[data-cat="All"]:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+.cat-tab[data-cat="Screening"]  { --c: var(--cat-screen); }
+.cat-tab[data-cat="Vitals"]     { --c: var(--cat-vitals); }
+.cat-tab[data-cat="Labs"]       { --c: var(--cat-labs); }
+.cat-tab[data-cat="Orders"]     { --c: var(--cat-orders); }
+.cat-tab[data-cat="Decision"]   { --c: var(--cat-decision); }
+.cat-tab[data-cat="Actions"]    { --c: var(--cat-actions); }
+.cat-tab:not([data-cat="All"]).active,
+.cat-tab:not([data-cat="All"]):hover {
+  background: var(--c);
+  color: #000;
+  border-color: var(--c);
+}
+
+/* Search */
+.search-wrap { padding: 8px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.search-input {
+  width: 100%;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 10px 6px 30px;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%238B949E' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-dim); }
+
+/* Options list */
+.options-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+  min-height: 0;
+}
+.options-list::-webkit-scrollbar { width: 3px; }
+.options-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.opt-group-hdr {
+  padding: 8px 16px 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.opt-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  user-select: none;
+}
+.opt-item:hover { background: var(--surface2); }
+.opt-item.selected { background: var(--accent-dim); }
+
+.opt-pip {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.opt-info { flex: 1; min-width: 0; }
+.opt-name { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opt-sub { font-size: 10px; color: var(--text-muted); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.opt-dtype {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 600;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+}
+.opt-add {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.12s;
+  line-height: 1;
+  font-weight: 700;
+}
+.opt-add:hover { transform: scale(1.2); }
+
+/* Queue at bottom */
+.queue-panel {
+  border-top: 2px solid var(--border);
+  max-height: 190px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+.queue-hdr {
+  padding: 8px 16px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.queue-hdr-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  flex: 1;
+}
+.queue-count-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-family: var(--mono);
+}
+.queue-list { overflow-y: auto; flex: 1; padding: 3px 0; }
+.queue-list::-webkit-scrollbar { width: 2px; }
+.queue-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+.q-item {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: grab;
+}
+.q-item:hover { background: var(--surface2); }
+.q-handle { color: var(--text-dim); font-size: 11px; flex-shrink: 0; }
+.q-num {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--surface3);
+  color: var(--text-muted);
+  font-size: 8px;
+  font-family: var(--mono);
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.q-pip { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.q-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-remove {
+  background: none; border: none;
+  color: var(--text-dim); cursor: pointer;
+  font-size: 12px;
+  padding: 0 2px;
+  transition: color 0.12s;
+  flex-shrink: 0;
+}
+.q-remove:hover { color: var(--red); }
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  overflow: auto;
+  background: var(--bg);
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Flowsheet container */
+.flowsheet-wrap {
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 8px 40px rgba(0,0,0,0.4);
+  min-width: 800px;
+}
+
+/* Epic Flowsheet Header */
+.fs-header {
+  background: #003087;
+  color: #fff;
+  padding: 14px 20px 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+.fs-header-left {}
+.fs-title {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.2px;
+  margin-bottom: 4px;
+}
+.fs-subtitle {
+  font-size: 11px;
+  color: #A8C7FF;
+  font-family: var(--mono);
+  letter-spacing: 0.3px;
+}
+.fs-header-right {
+  text-align: right;
+}
+.fs-header-right .fs-sub-row {
+  font-size: 10px;
+  color: #A8C7FF;
+  font-family: var(--mono);
+  line-height: 1.6;
+}
+
+/* Patient info bar */
+.fs-patient-bar {
+  background: #E8F0FE;
+  border-bottom: 2px solid #003087;
+  padding: 6px 20px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.fs-patient-field {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.fs-patient-field .pf-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #003087;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.fs-patient-field .pf-val {
+  font-size: 11px;
+  color: #1a1a2e;
+  font-family: var(--mono);
+  border-bottom: 1px dotted #999;
+  min-width: 80px;
+}
+
+/* Column header bar */
+.fs-col-bar {
+  background: #1565C0;
+  display: grid;
+  border-bottom: 2px solid #0D47A1;
+}
+.fs-col-hdr {
+  padding: 6px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #E3F2FD;
+  font-family: var(--mono);
+  text-align: center;
+  letter-spacing: 0.5px;
+  border-right: 1px solid #1976D2;
+  text-transform: uppercase;
+}
+.fs-col-hdr.row-label-col { text-align: left; background: #0D47A1; font-size: 11px; }
+
+/* Group header row */
+.fs-group-hdr {
+  background: #F5F5F5;
+  border-bottom: 1px solid #E0E0E0;
+  border-top: 2px solid #1565C0;
+  display: flex;
+  align-items: center;
+  padding: 5px 12px;
+  gap: 8px;
+}
+.fs-group-hdr .grp-icon { font-size: 13px; }
+.fs-group-hdr .grp-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1565C0;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  flex: 1;
+}
+.fs-group-hdr .grp-tag {
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+}
+
+/* Flowsheet data row */
+.fs-data-row {
+  display: grid;
+  border-bottom: 1px solid #F0F0F0;
+  transition: background 0.1s;
+}
+.fs-data-row:hover { background: #FAFBFF; }
+.fs-data-row.alt { background: #FDFDFD; }
+.fs-data-row.alt:hover { background: #F5F7FF; }
+
+.fs-cell {
+  padding: 5px 10px;
+  border-right: 1px solid #EEEEEE;
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+}
+.fs-cell.row-label {
+  background: #FAFAFA;
+  border-right: 2px solid #E0E0E0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+}
+.fsr-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1A1A2E;
+  font-family: 'IBM Plex Sans', sans-serif;
+  line-height: 1.2;
+}
+.fsr-detail {
+  font-size: 9px;
+  color: #9E9E9E;
+  font-family: var(--mono);
+  letter-spacing: 0.3px;
+}
+.fsr-type-badge {
+  font-size: 8px;
+  font-family: var(--mono);
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+}
+
+/* Data input cells */
+.fs-input-cell {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #1A1A2E;
+  text-align: center;
+  outline: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background 0.12s;
+}
+.fs-input-cell:focus {
+  background: #E3F2FD;
+  outline: 2px solid #1565C0;
+  outline-offset: 1px;
+}
+.fs-input-cell::placeholder { color: #BDBDBD; font-size: 10px; }
+
+select.fs-input-cell {
+  cursor: pointer;
+  -webkit-appearance: none;
+  text-align: center;
+  font-size: 11px;
+}
+select.fs-input-cell:focus { background: #E3F2FD; }
+
+/* Normal range indicator */
+.fs-cell.data-cell { justify-content: center; }
+.cell-unit {
+  font-size: 9px;
+  color: #BDBDBD;
+  font-family: var(--mono);
+  margin-left: 2px;
+  white-space: nowrap;
+}
+
+/* Signature / footer row */
+.fs-footer {
+  background: #F5F5F5;
+  border-top: 2px solid #1565C0;
+  padding: 10px 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.fs-footer-field label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #9E9E9E;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 3px;
+}
+.fs-footer-line {
+  border: none;
+  border-bottom: 1px solid #BDBDBD;
+  background: transparent;
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #1A1A2E;
+  outline: none;
+  padding: 2px 0;
+}
+
+/* Info / watermark row */
+.fs-watermark {
+  background: #003087;
+  padding: 5px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.fs-watermark span {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #5B87C5;
+  letter-spacing: 0.5px;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+  gap: 12px;
+}
+.empty-icon { font-size: 56px; opacity: 0.2; }
+.empty-title { font-size: 16px; font-weight: 600; color: var(--text-muted); }
+.empty-sub { font-size: 12px; color: var(--text-dim); line-height: 1.6; max-width: 360px; }
+.empty-cta {
+  margin-top: 8px;
+  padding: 8px 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.empty-cta:hover { background: #388bfd; transform: translateY(-1px); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  background: var(--surface3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--mono);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: all 0.2s;
+  z-index: 9999;
+  letter-spacing: 0.3px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* Print */
+@media print {
+  body { background: white; height: auto; overflow: visible; }
+  header, .sidebar, .canvas-toolbar { display: none !important; }
+  .layout { display: block; height: auto; }
+  .main-content { padding: 0; overflow: visible; background: white; }
+  .flowsheet-wrap { box-shadow: none; min-width: auto; }
+  .empty-state { display: none !important; }
+  @page { margin: 0.5in; size: landscape; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <span class="epic-logo">EPIC</span>
+  <div class="header-divider"></div>
+  <h1>Flowsheet Builder</h1>
+  <div class="header-divider"></div>
+  <span class="header-meta">ClinDoc · SmartForm · FSR Design Tool</span>
+  <div class="header-right">
+    <button class="hdr-btn hdr-btn-ghost" onclick="clearAll()">⟳ Reset</button>
+    <button class="hdr-btn hdr-btn-primary" onclick="buildFlowsheet()">▶ Generate Flowsheet</button>
+    <button class="hdr-btn hdr-btn-danger" onclick="savePDF()">⬇ Export PDF</button>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Meta fields -->
+    <div class="sidebar-section">
+      <div class="section-label">Flowsheet Properties</div>
+      <div class="meta-grid">
+        <div class="meta-field full">
+          <label>FLOWSHEET NAME</label>
+          <input id="fs-name" type="text" value="Adult Primary Care Screening" placeholder="e.g. Hypertension Management">
+        </div>
+        <div class="meta-field">
+          <label>DEPARTMENT</label>
+          <select id="fs-dept">
+            <option>Primary Care</option>
+            <option>Cardiology</option>
+            <option>Endocrinology</option>
+            <option>Oncology</option>
+            <option>Psychiatry</option>
+            <option>Neurology</option>
+            <option>Obstetrics</option>
+            <option>Pediatrics</option>
+            <option>Urgent Care</option>
+            <option>Inpatient Med</option>
+            <option>ICU / Critical Care</option>
+            <option>ED / Emergency</option>
+            <option>Surgery</option>
+            <option>Rehabilitation</option>
+          </select>
+        </div>
+        <div class="meta-field">
+          <label>ENCOUNTER TYPE</label>
+          <select id="fs-enc">
+            <option>Office Visit</option>
+            <option>Annual Wellness</option>
+            <option>Follow-Up</option>
+            <option>New Patient</option>
+            <option>Telehealth</option>
+            <option>Inpatient</option>
+            <option>Observation</option>
+            <option>Procedure</option>
+            <option>Pre-Op</option>
+            <option>Post-Op</option>
+          </select>
+        </div>
+        <div class="meta-field">
+          <label>TIME COLUMNS</label>
+          <select id="fs-cols">
+            <option value="1">Single Entry</option>
+            <option value="2">2 Time Points</option>
+            <option value="3" selected>3 Time Points</option>
+            <option value="4">4 Time Points</option>
+          </select>
+        </div>
+        <div class="meta-field">
+          <label>FLOWSHEET ID</label>
+          <input id="fs-id" type="text" value="FS-2025-001" placeholder="FS-####">
+        </div>
+      </div>
+    </div>
+
+    <!-- Category tabs -->
+    <div class="cat-tabs" id="cat-tabs">
+      <span class="cat-tab active" data-cat="All">ALL</span>
+      <span class="cat-tab" data-cat="Screening">SCREEN</span>
+      <span class="cat-tab" data-cat="Vitals">VITALS</span>
+      <span class="cat-tab" data-cat="Labs">LABS</span>
+      <span class="cat-tab" data-cat="Orders">ORDERS</span>
+      <span class="cat-tab" data-cat="Decision">RULES</span>
+      <span class="cat-tab" data-cat="Actions">ACTIONS</span>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <input class="search-input" id="search-input" type="text" placeholder="Search FSR name, data type, SmartData...">
+    </div>
+
+    <!-- Options list -->
+    <div class="options-list" id="options-list"></div>
+
+    <!-- Queue -->
+    <div class="queue-panel">
+      <div class="queue-hdr">
+        <span class="queue-hdr-label">Selected FSRs</span>
+        <span class="queue-count-badge" id="q-count">0</span>
+      </div>
+      <div class="queue-list" id="queue-list">
+        <div style="padding:14px 16px;text-align:center;color:var(--text-dim);font-size:11px;font-family:var(--mono)">
+          No rows selected yet
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content" id="main-content">
+    <div id="flowsheet-output">
+      <div class="empty-state">
+        <div class="empty-icon">🏥</div>
+        <div class="empty-title">No Flowsheet Generated</div>
+        <div class="empty-sub">Select FSR rows from the left panel, configure your flowsheet properties, then click Generate Flowsheet.</div>
+        <button class="empty-cta" onclick="loadDemo()">Load Demo Flowsheet</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// FSR DATA LIBRARY
+// Each FSR = a flowsheet row with data type, units, input options
+// ═══════════════════════════════════════════
+const FSR_DATA = [
+  // ── SCREENING ──
+  { id:'s1',  cat:'Screening', group:'Screening Tools',       color:'#39D2C0', icon:'🩺',
+    name:'Blood Pressure Screening',       smartdata:'BP_SYSTOLIC / BP_DIASTOLIC', dtype:'Numeric', unit:'mmHg',
+    ref:'<120/80 normal',   options:null,  desc:'Systolic over diastolic, auto-calc HTN flag' },
+  { id:'s2',  cat:'Screening', group:'Screening Tools',       color:'#39D2C0', icon:'🩺',
+    name:'PHQ-9 Depression Score',         smartdata:'PHQ9_TOTAL_SCORE',           dtype:'Numeric', unit:'/27',
+    ref:'0–4 minimal',      options:null,  desc:'Total score from SmartForm PHQ9' },
+  { id:'s3',  cat:'Screening', group:'Screening Tools',       color:'#39D2C0', icon:'🩺',
+    name:'GAD-7 Anxiety Score',            smartdata:'GAD7_TOTAL_SCORE',           dtype:'Numeric', unit:'/21',
+    ref:'0–4 minimal',      options:null,  desc:'Total score from SmartForm GAD7' },
+  { id:'s4',  cat:'Screening', group:'Screening Tools',       color:'#39D2C0', icon:'🧠',
+    name:'Cognitive Screen (MMSE)',        smartdata:'MMSE_SCORE',                 dtype:'Numeric', unit:'/30',
+    ref:'≥24 normal',       options:null,  desc:'Mini-Mental State Exam total' },
+  { id:'s5',  cat:'Screening', group:'Screening Tools',       color:'#39D2C0', icon:'🚶',
+    name:'Fall Risk – Morse Scale',        smartdata:'MORSE_FALL_SCORE',           dtype:'Numeric', unit:'pts',
+    ref:'<25 low risk',     options:null,  desc:'Morse Fall Scale total score' },
+  { id:'s6',  cat:'Screening', group:'Screening Tools',       color:'#39D2C0', icon:'🍺',
+    name:'AUDIT-C Alcohol Screen',         smartdata:'AUDIT_C_SCORE',             dtype:'Numeric', unit:'/12',
+    ref:'M<4 F<3 neg',      options:null,  desc:'Alcohol Use Disorders Identification Test-C' },
+  { id:'s7',  cat:'Screening', group:'Social History',        color:'#39D2C0', icon:'🚬',
+    name:'Tobacco Use Status',             smartdata:'TOBACCO_USE_STATUS',         dtype:'Discrete', unit:'',
+    ref:'',                 options:['Never','Former','Current','Unknown'], desc:'Smoking/tobacco status from Social Hx' },
+  { id:'s8',  cat:'Screening', group:'Social History',        color:'#39D2C0', icon:'🏠',
+    name:'Housing Stability (SDOH)',       smartdata:'SDOH_HOUSING',              dtype:'Discrete', unit:'',
+    ref:'',                 options:['Stable','At Risk','Unstable','Homeless'], desc:'AHC-HRSN social determinants screen' },
+  { id:'s9',  cat:'Screening', group:'Social History',        color:'#39D2C0', icon:'🍽️',
+    name:'Food Security (SDOH)',           smartdata:'SDOH_FOOD',                 dtype:'Discrete', unit:'',
+    ref:'',                 options:['Secure','At Risk','Insecure'], desc:'Hunger Vital Sign — food insecurity screen' },
+  { id:'s10', cat:'Screening', group:'Social History',        color:'#39D2C0', icon:'🎗️',
+    name:'Colorectal Cancer Screen Due',  smartdata:'CRC_SCREEN_STATUS',          dtype:'Discrete', unit:'',
+    ref:'',                 options:['Complete','Due','Overdue','Declined','N/A'], desc:'CRC BPA status age 45–75' },
+  { id:'s11', cat:'Screening', group:'Social History',        color:'#39D2C0', icon:'🎗️',
+    name:'Mammography Screen Status',     smartdata:'MAMMO_SCREEN_STATUS',        dtype:'Discrete', unit:'',
+    ref:'',                 options:['Complete','Due','Overdue','Declined','N/A'], desc:'Breast cancer screening BPA status' },
+  { id:'s12', cat:'Screening', group:'Pain',                  color:'#39D2C0', icon:'😣',
+    name:'Pain Score (NRS 0–10)',         smartdata:'PAIN_NRS_SCORE',             dtype:'Numeric', unit:'/10',
+    ref:'0 = no pain',      options:null,  desc:'Numeric Rating Scale — patient reported' },
+  { id:'s13', cat:'Screening', group:'Pain',                  color:'#39D2C0', icon:'📍',
+    name:'Pain Location',                 smartdata:'PAIN_LOCATION',              dtype:'Text', unit:'',
+    ref:'',                 options:null,  desc:'Free text — anatomical pain location' },
+  { id:'s14', cat:'Screening', group:'Pain',                  color:'#39D2C0', icon:'📊',
+    name:'Pain Quality / Character',      smartdata:'PAIN_QUALITY',               dtype:'Discrete', unit:'',
+    ref:'',                 options:['Sharp','Dull','Burning','Aching','Stabbing','Pressure','Throbbing'], desc:'SmartList pain descriptor' },
+
+  // ── VITALS ──
+  { id:'v1',  cat:'Vitals', group:'Core Vitals',              color:'#3FB950', icon:'💉',
+    name:'Systolic Blood Pressure',       smartdata:'BP_SYSTOLIC',               dtype:'Numeric', unit:'mmHg',
+    ref:'90–139',           options:null,  desc:'Systolic BP — arm, position noted' },
+  { id:'v2',  cat:'Vitals', group:'Core Vitals',              color:'#3FB950', icon:'💉',
+    name:'Diastolic Blood Pressure',      smartdata:'BP_DIASTOLIC',              dtype:'Numeric', unit:'mmHg',
+    ref:'60–89',            options:null,  desc:'Diastolic BP' },
+  { id:'v3',  cat:'Vitals', group:'Core Vitals',              color:'#3FB950', icon:'❤️',
+    name:'Heart Rate (Pulse)',            smartdata:'PULSE',                     dtype:'Numeric', unit:'bpm',
+    ref:'60–100',           options:null,  desc:'Heart rate, bpm, rhythm noted' },
+  { id:'v4',  cat:'Vitals', group:'Core Vitals',              color:'#3FB950', icon:'🌡️',
+    name:'Temperature',                   smartdata:'TEMPERATURE',               dtype:'Numeric', unit:'°F',
+    ref:'97.8–99.1°F',      options:null,  desc:'Oral/tympanic/axillary — note method' },
+  { id:'v5',  cat:'Vitals', group:'Core Vitals',              color:'#3FB950', icon:'🫁',
+    name:'Respiratory Rate',             smartdata:'RESP_RATE',                  dtype:'Numeric', unit:'/min',
+    ref:'12–20',            options:null,  desc:'Breaths per minute — observed' },
+  { id:'v6',  cat:'Vitals', group:'Core Vitals',              color:'#3FB950', icon:'💨',
+    name:'SpO2 (Oxygen Saturation)',      smartdata:'SPO2',                      dtype:'Numeric', unit:'%',
+    ref:'≥95%',             options:null,  desc:'Pulse oximetry — room air or O2 noted' },
+  { id:'v7',  cat:'Vitals', group:'Anthropometrics',          color:'#3FB950', icon:'⚖️',
+    name:'Weight',                        smartdata:'WEIGHT',                    dtype:'Numeric', unit:'lbs',
+    ref:'',                 options:null,  desc:'Measured weight — note clothing' },
+  { id:'v8',  cat:'Vitals', group:'Anthropometrics',          color:'#3FB950', icon:'📏',
+    name:'Height',                        smartdata:'HEIGHT',                    dtype:'Numeric', unit:'in',
+    ref:'',                 options:null,  desc:'Measured or reported height' },
+  { id:'v9',  cat:'Vitals', group:'Anthropometrics',          color:'#3FB950', icon:'📐',
+    name:'BMI (Calculated)',              smartdata:'BMI_CALCULATED',            dtype:'Calc', unit:'kg/m²',
+    ref:'18.5–24.9',        options:null,  desc:'Auto-calculated from Wt/Ht — SmartData link' },
+  { id:'v10', cat:'Vitals', group:'Anthropometrics',          color:'#3FB950', icon:'📎',
+    name:'Waist Circumference',          smartdata:'WAIST_CIRCUM',              dtype:'Numeric', unit:'in',
+    ref:'M<40 F<35',        options:null,  desc:'Measured at iliac crest level' },
+  { id:'v11', cat:'Vitals', group:'Specialty Vitals',         color:'#3FB950', icon:'🩸',
+    name:'Point-of-Care Blood Glucose',  smartdata:'POC_BLOOD_GLUCOSE',         dtype:'Numeric', unit:'mg/dL',
+    ref:'70–140',           options:null,  desc:'Fingerstick glucometer result' },
+  { id:'v12', cat:'Vitals', group:'Specialty Vitals',         color:'#3FB950', icon:'🔢',
+    name:'GCS Total Score',              smartdata:'GCS_TOTAL',                 dtype:'Numeric', unit:'/15',
+    ref:'15 = normal',      options:null,  desc:'Glasgow Coma Scale — E+V+M' },
+
+  // ── LABS ──
+  { id:'l1',  cat:'Labs', group:'Metabolic',                  color:'#BC8CFF', icon:'🔬',
+    name:'Sodium (Na)',                   smartdata:'LAB_NA',                    dtype:'Numeric', unit:'mEq/L',
+    ref:'136–145',          options:null,  desc:'CMP component' },
+  { id:'l2',  cat:'Labs', group:'Metabolic',                  color:'#BC8CFF', icon:'🔬',
+    name:'Potassium (K)',                 smartdata:'LAB_K',                     dtype:'Numeric', unit:'mEq/L',
+    ref:'3.5–5.0',          options:null,  desc:'CMP component' },
+  { id:'l3',  cat:'Labs', group:'Metabolic',                  color:'#BC8CFF', icon:'🔬',
+    name:'Creatinine',                   smartdata:'LAB_CREATININE',            dtype:'Numeric', unit:'mg/dL',
+    ref:'M 0.7–1.3',        options:null,  desc:'Renal function — CMP' },
+  { id:'l4',  cat:'Labs', group:'Metabolic',                  color:'#BC8CFF', icon:'🔬',
+    name:'eGFR',                         smartdata:'LAB_EGFR',                  dtype:'Numeric', unit:'mL/min',
+    ref:'≥60',              options:null,  desc:'Estimated GFR — CKD-EPI formula' },
+  { id:'l5',  cat:'Labs', group:'Metabolic',                  color:'#BC8CFF', icon:'🔬',
+    name:'HbA1c',                        smartdata:'LAB_HGBA1C',                dtype:'Numeric', unit:'%',
+    ref:'<5.7 normal',      options:null,  desc:'Glycated hemoglobin — DM monitoring' },
+  { id:'l6',  cat:'Labs', group:'Metabolic',                  color:'#BC8CFF', icon:'🔬',
+    name:'Fasting Glucose',              smartdata:'LAB_FASTING_GLUCOSE',       dtype:'Numeric', unit:'mg/dL',
+    ref:'70–99',            options:null,  desc:'Fasting plasma glucose' },
+  { id:'l7',  cat:'Labs', group:'Lipids',                     color:'#BC8CFF', icon:'🔬',
+    name:'Total Cholesterol',            smartdata:'LAB_TOTAL_CHOL',            dtype:'Numeric', unit:'mg/dL',
+    ref:'<200',             options:null,  desc:'Lipid panel component' },
+  { id:'l8',  cat:'Labs', group:'Lipids',                     color:'#BC8CFF', icon:'🔬',
+    name:'LDL Cholesterol',              smartdata:'LAB_LDL',                   dtype:'Numeric', unit:'mg/dL',
+    ref:'<100 optimal',     options:null,  desc:'Lipid panel — primary ASCVD target' },
+  { id:'l9',  cat:'Labs', group:'Lipids',                     color:'#BC8CFF', icon:'🔬',
+    name:'HDL Cholesterol',              color:'#BC8CFF', icon:'🔬',             dtype:'Numeric', unit:'mg/dL',
+    ref:'M>40 F>50',        options:null,  desc:'Protective lipoprotein' },
+  { id:'l10', cat:'Labs', group:'Lipids',                     color:'#BC8CFF', icon:'🔬',
+    name:'Triglycerides',                smartdata:'LAB_TRIGLYCERIDES',         dtype:'Numeric', unit:'mg/dL',
+    ref:'<150',             options:null,  desc:'Fasting lipid panel' },
+  { id:'l11', cat:'Labs', group:'Hematology',                 color:'#BC8CFF', icon:'🔬',
+    name:'WBC',                          smartdata:'LAB_WBC',                   dtype:'Numeric', unit:'K/µL',
+    ref:'4.5–11.0',         options:null,  desc:'White blood cell count — CBC' },
+  { id:'l12', cat:'Labs', group:'Hematology',                 color:'#BC8CFF', icon:'🔬',
+    name:'Hemoglobin',                   smartdata:'LAB_HGB',                   dtype:'Numeric', unit:'g/dL',
+    ref:'M 13.5–17.5',      options:null,  desc:'CBC — oxygen-carrying capacity' },
+  { id:'l13', cat:'Labs', group:'Hematology',                 color:'#BC8CFF', icon:'🔬',
+    name:'Platelet Count',               smartdata:'LAB_PLT',                   dtype:'Numeric', unit:'K/µL',
+    ref:'150–400',          options:null,  desc:'CBC — thrombocyte count' },
+  { id:'l14', cat:'Labs', group:'Endocrine',                  color:'#BC8CFF', icon:'🔬',
+    name:'TSH',                          smartdata:'LAB_TSH',                   dtype:'Numeric', unit:'mIU/L',
+    ref:'0.4–4.0',          options:null,  desc:'Thyroid stimulating hormone' },
+  { id:'l15', cat:'Labs', group:'Cardiac',                    color:'#BC8CFF', icon:'🔬',
+    name:'Troponin I (hs-cTnI)',         smartdata:'LAB_TROPONIN_I',            dtype:'Numeric', unit:'ng/L',
+    ref:'<19 ng/L',         options:null,  desc:'High-sensitivity cardiac troponin' },
+  { id:'l16', cat:'Labs', group:'Cardiac',                    color:'#BC8CFF', icon:'🔬',
+    name:'BNP / NT-proBNP',             smartdata:'LAB_BNP',                   dtype:'Numeric', unit:'pg/mL',
+    ref:'<100 pg/mL',       options:null,  desc:'Heart failure biomarker' },
+
+  // ── ORDERS ──
+  { id:'o1',  cat:'Orders', group:'Procedures Ordered',       color:'#DB6D28', icon:'📋',
+    name:'ECG Ordered',                  smartdata:'ORD_ECG_STATUS',            dtype:'Discrete', unit:'',
+    ref:'',                 options:['Ordered','Completed','Pending','Not Indicated'], desc:'12-lead ECG — auto-route to Cardiology' },
+  { id:'o2',  cat:'Orders', group:'Procedures Ordered',       color:'#DB6D28', icon:'🩻',
+    name:'Chest X-Ray Status',           smartdata:'ORD_CXR_STATUS',            dtype:'Discrete', unit:'',
+    ref:'',                 options:['Ordered','Completed','Pending','Not Indicated'], desc:'PA & Lateral — Radiology order' },
+  { id:'o3',  cat:'Orders', group:'Procedures Ordered',       color:'#DB6D28', icon:'🩻',
+    name:'CT Scan Ordered',              smartdata:'ORD_CT_STATUS',             dtype:'Discrete', unit:'',
+    ref:'',                 options:['Ordered','Completed','Pending','Not Indicated'], desc:'CT w/ or w/o contrast — protocol per indication' },
+  { id:'o4',  cat:'Orders', group:'Procedures Ordered',       color:'#DB6D28', icon:'🫀',
+    name:'Echocardiogram Status',        smartdata:'ORD_ECHO_STATUS',           dtype:'Discrete', unit:'',
+    ref:'',                 options:['Ordered','Completed','Pending','Not Indicated'], desc:'TTE — Cardiology order' },
+  { id:'o5',  cat:'Orders', group:'Medications',              color:'#DB6D28', icon:'💊',
+    name:'Medication Reconciliation',    smartdata:'MED_RECONCILE_STATUS',      dtype:'Discrete', unit:'',
+    ref:'',                 options:['Complete','Updated','Pending','Refused'], desc:'Med rec performed — ambulatory reconciliation' },
+  { id:'o6',  cat:'Orders', group:'Medications',              color:'#DB6D28', icon:'💉',
+    name:'Immunization Status',          smartdata:'IMM_STATUS',                dtype:'Discrete', unit:'',
+    ref:'',                 options:['Up to Date','Overdue','Partial','Refused','Unknown'], desc:'Immunization forecast — Epic Immunizations module' },
+  { id:'o7',  cat:'Orders', group:'Referrals',                color:'#DB6D28', icon:'📤',
+    name:'Specialty Referral Placed',    smartdata:'REF_STATUS',                dtype:'Discrete', unit:'',
+    ref:'',                 options:['Placed','Pending Auth','Completed','Not Needed'], desc:'Referral order — auto-route per specialty' },
+  { id:'o8',  cat:'Orders', group:'Referrals',                color:'#DB6D28', icon:'👩‍⚕️',
+    name:'Care Management Referral',     smartdata:'CM_REFERRAL_STATUS',        dtype:'Discrete', unit:'',
+    ref:'',                 options:['Placed','Active','Completed','Declined'], desc:'CM/SW referral — complex care coordination' },
+
+  // ── DECISION / RULES ──
+  { id:'d1',  cat:'Decision', group:'Clinical Decision Support', color:'#D29922', icon:'⚠️',
+    name:'HTN Stage Classification',     smartdata:'HTN_STAGE',                 dtype:'Discrete', unit:'',
+    ref:'',                 options:['Normal','Elevated','Stage 1','Stage 2','Crisis'], desc:'Auto-calculated from BP reading — CDS' },
+  { id:'d2',  cat:'Decision', group:'Clinical Decision Support', color:'#D29922', icon:'⚠️',
+    name:'Diabetes Risk Category',       smartdata:'DM_RISK_LEVEL',             dtype:'Discrete', unit:'',
+    ref:'',                 options:['Low','Prediabetes','Diabetes – Controlled','Diabetes – Uncontrolled'], desc:'Driven by HbA1c & fasting glucose' },
+  { id:'d3',  cat:'Decision', group:'Clinical Decision Support', color:'#D29922', icon:'⚠️',
+    name:'ASCVD 10-Year Risk',           smartdata:'ASCVD_RISK_PCT',            dtype:'Numeric', unit:'%',
+    ref:'<7.5% low',        options:null,  desc:'Pooled Cohort Equations — auto-calc CDS' },
+  { id:'d4',  cat:'Decision', group:'Clinical Decision Support', color:'#D29922', icon:'⚠️',
+    name:'BMI Category',                 smartdata:'BMI_CATEGORY',              dtype:'Discrete', unit:'',
+    ref:'',                 options:['Underweight','Normal','Overweight','Obese Class I','Obese Class II','Obese Class III'], desc:'Auto-classified from calculated BMI' },
+  { id:'d5',  cat:'Decision', group:'Clinical Decision Support', color:'#D29922', icon:'🚨',
+    name:'Sepsis Alert (NEWS2)',         smartdata:'SEPSIS_FLAG',               dtype:'Discrete', unit:'',
+    ref:'',                 options:['No Alert','Low Risk','Medium Risk','High Risk – ACTIVATE'], desc:'NEWS2 aggregate score — auto-fires BPA' },
+  { id:'d6',  cat:'Decision', group:'Clinical Decision Support', color:'#D29922', icon:'🔔',
+    name:'BPA Acknowledged',             smartdata:'BPA_ACKNOWLEDGE_STATUS',    dtype:'Discrete', unit:'',
+    ref:'',                 options:['Accepted','Override – Clinically Inappropriate','Override – Will Address Separately','Snooze 7 Days'], desc:'CDS BPA disposition tracking' },
+  { id:'d7',  cat:'Decision', group:'Care Gaps',               color:'#D29922', icon:'📋',
+    name:'Care Gap Closure Status',      smartdata:'CARE_GAP_STATUS',           dtype:'Discrete', unit:'',
+    ref:'',                 options:['Closed','Open','Excluded','In Progress'], desc:'Quality measure care gap — Epic Healthy Planet' },
+
+  // ── ACTIONS ──
+  { id:'a1',  cat:'Actions', group:'Documentation',           color:'#2F81F7', icon:'📝',
+    name:'Provider Attestation',         smartdata:'PROV_ATTEST_STATUS',        dtype:'Discrete', unit:'',
+    ref:'',                 options:['Attested','Pending','Reviewed – No Changes'], desc:'Provider review and sign-off on flowsheet' },
+  { id:'a2',  cat:'Actions', group:'Documentation',           color:'#2F81F7', icon:'📄',
+    name:'SmartForm Completed',          smartdata:'SMARTFORM_STATUS',          dtype:'Discrete', unit:'',
+    ref:'',                 options:['Complete','Incomplete','Not Indicated','Patient Refused'], desc:'Encounter SmartForm documentation status' },
+  { id:'a3',  cat:'Actions', group:'Communication',           color:'#2F81F7', icon:'📨',
+    name:'In-Basket Sent to PCP',        smartdata:'INBASKET_SENT',             dtype:'Discrete', unit:'',
+    ref:'',                 options:['Sent','Not Needed','Pending'], desc:'In-Basket message routed to primary care provider' },
+  { id:'a4',  cat:'Actions', group:'Communication',           color:'#2F81F7', icon:'💬',
+    name:'MyChart Message Sent',         smartdata:'MYCHART_MSG_SENT',          dtype:'Discrete', unit:'',
+    ref:'',                 options:['Sent','Not Indicated','Opted Out'], desc:'Secure patient portal message — MyChart' },
+  { id:'a5',  cat:'Actions', group:'Communication',           color:'#2F81F7', icon:'📞',
+    name:'Patient Education Provided',   smartdata:'PT_EDUC_STATUS',            dtype:'Discrete', unit:'',
+    ref:'',                 options:['Provided','Reinforced','Refused','Deferred'], desc:'Krames/Healthwise handout — AVS auto-attach' },
+  { id:'a6',  cat:'Actions', group:'Scheduling',              color:'#2F81F7', icon:'📅',
+    name:'Follow-Up Scheduled',          smartdata:'FOLLOWUP_SCHED',            dtype:'Discrete', unit:'',
+    ref:'',                 options:['Scheduled','Awaiting Slot','Patient to Call','Not Needed'], desc:'Epic Cadence — scheduling order placed' },
+  { id:'a7',  cat:'Actions', group:'Scheduling',              color:'#2F81F7', icon:'🔁',
+    name:'Follow-Up Interval',           smartdata:'FOLLOWUP_INTERVAL',         dtype:'Discrete', unit:'',
+    ref:'',                 options:['1 Week','2 Weeks','1 Month','3 Months','6 Months','1 Year','PRN'], desc:'Next encounter interval — clinical decision' },
+  { id:'a8',  cat:'Actions', group:'Care Coordination',       color:'#2F81F7', icon:'🏠',
+    name:'Discharge Instructions Given', smartdata:'DISCHARGE_INSTRUCT',        dtype:'Discrete', unit:'',
+    ref:'',                 options:['Given – Verbal','Given – Written','Given – Both','N/A – Outpatient'], desc:'Discharge checklist item — AVS generation' },
+  { id:'a9',  cat:'Actions', group:'Care Coordination',       color:'#2F81F7', icon:'🚑',
+    name:'Transition of Care Note',      smartdata:'TOC_NOTE_STATUS',           dtype:'Discrete', unit:'',
+    ref:'',                 options:['Sent','Pending','Not Required'], desc:'Handoff to receiving facility / PCP — Direct Messaging' },
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let selected = [];
+let activeCat = 'All';
+let searchTerm = '';
+let dragIdx = null;
+
+// ═══════════════════════════════════════════
+// RENDER LEFT PANEL
+// ═══════════════════════════════════════════
+const dtypeColors = {
+  'Numeric':  { bg:'#1f6feb33', text:'#2F81F7' },
+  'Discrete': { bg:'#3fb95022', text:'#3FB950' },
+  'Text':     { bg:'#bc8cff22', text:'#BC8CFF' },
+  'Calc':     { bg:'#db6d2822', text:'#DB6D28' },
+};
+
+function renderOptions() {
+  const el = document.getElementById('options-list');
+  const filtered = FSR_DATA.filter(o => {
+    const mc = activeCat === 'All' || o.cat === activeCat;
+    const ms = !searchTerm || o.name.toLowerCase().includes(searchTerm)
+      || o.smartdata.toLowerCase().includes(searchTerm)
+      || o.cat.toLowerCase().includes(searchTerm)
+      || o.dtype.toLowerCase().includes(searchTerm);
+    return mc && ms;
+  });
+
+  const groups = {};
+  filtered.forEach(o => { if (!groups[o.group]) groups[o.group] = []; groups[o.group].push(o); });
+
+  el.innerHTML = '';
+  if (!filtered.length) {
+    el.innerHTML = `<div style="padding:32px 16px;text-align:center;color:var(--text-dim);font-size:11px;font-family:var(--mono)">No FSRs match filter</div>`;
+    return;
+  }
+
+  Object.entries(groups).forEach(([grp, items]) => {
+    const g = document.createElement('div');
+    g.innerHTML = `<div class="opt-group-hdr">${grp}</div>`;
+    items.forEach(item => {
+      const isSel = selected.some(s => s.id === item.id);
+      const dtc = dtypeColors[item.dtype] || dtypeColors['Text'];
+      const row = document.createElement('div');
+      row.className = 'opt-item' + (isSel ? ' selected' : '');
+      row.innerHTML = `
+        <div class="opt-pip" style="background:${item.color}"></div>
+        <div class="opt-info">
+          <div class="opt-name">${item.name}</div>
+          <div class="opt-sub">${item.smartdata}</div>
+        </div>
+        <span class="opt-dtype" style="background:${dtc.bg};color:${dtc.text}">${item.dtype}</span>
+        <button class="opt-add" style="border-color:${item.color};color:${isSel?'#000':item.color};background:${isSel?item.color:'transparent'}"
+          onclick="toggleItem('${item.id}')">
+          ${isSel ? '✓' : '+'}
+        </button>
+      `;
+      g.appendChild(row);
+    });
+    el.appendChild(g);
+  });
+}
+
+function toggleItem(id) {
+  const item = FSR_DATA.find(o => o.id === id);
+  if (!item) return;
+  const idx = selected.findIndex(s => s.id === id);
+  if (idx === -1) { selected.push(item); showToast(`+ ${item.name}`); }
+  else { selected.splice(idx, 1); showToast(`− ${item.name}`); }
+  renderOptions();
+  renderQueue();
+}
+
+function renderQueue() {
+  const el = document.getElementById('queue-list');
+  document.getElementById('q-count').textContent = selected.length;
+  if (!selected.length) {
+    el.innerHTML = `<div style="padding:12px 16px;text-align:center;color:var(--text-dim);font-size:11px;font-family:var(--mono)">No rows selected yet</div>`;
+    return;
+  }
+  el.innerHTML = selected.map((item, i) => `
+    <div class="q-item" draggable="true" data-idx="${i}"
+      ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)">
+      <span class="q-handle">⠿</span>
+      <div class="q-num">${i+1}</div>
+      <div class="q-pip" style="background:${item.color}"></div>
+      <span class="q-name">${item.name}</span>
+      <button class="q-remove" onclick="removeItem(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeItem(i) { selected.splice(i, 1); renderOptions(); renderQueue(); }
+
+function dragStart(e) { dragIdx = +e.currentTarget.dataset.idx; }
+function dragOver(e) { e.preventDefault(); }
+function dragDrop(e) {
+  const to = +e.currentTarget.dataset.idx;
+  if (dragIdx === null || dragIdx === to) return;
+  const item = selected.splice(dragIdx, 1)[0];
+  selected.splice(to, 0, item);
+  dragIdx = null;
+  renderQueue();
+}
+
+// ═══════════════════════════════════════════
+// BUILD FLOWSHEET
+// ═══════════════════════════════════════════
+function buildFlowsheet() {
+  if (!selected.length) { showToast('⚠ Select at least one FSR first'); return; }
+
+  const fsName = document.getElementById('fs-name').value || 'Clinical Flowsheet';
+  const fsDept = document.getElementById('fs-dept').value;
+  const fsEnc  = document.getElementById('fs-enc').value;
+  const fsId   = document.getElementById('fs-id').value;
+  const numCols = parseInt(document.getElementById('fs-cols').value);
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+
+  // Group selected FSRs by group
+  const groups = {};
+  selected.forEach(item => {
+    if (!groups[item.group]) groups[item.group] = [];
+    groups[item.group].push(item);
+  });
+
+  // Build column headers
+  const labelW = 260;
+  const colW   = 120;
+  const totalW = labelW + colW * numCols + (numCols > 1 ? colW * 0.7 : 0);
+
+  const timeLabels = numCols === 1
+    ? ['Entry 1']
+    : numCols === 2
+    ? ['T1 – Initial','T2 – Follow-up']
+    : numCols === 3
+    ? ['T1 – Initial','T2 – 30 min','T3 – 1 hr']
+    : ['T1 – Initial','T2 – 30 min','T3 – 1 hr','T4 – 2 hr'];
+
+  const gridCols = `${labelW}px ${Array(numCols).fill(colW+'px').join(' ')} ${numCols > 1 ? Math.round(colW*0.7)+'px' : ''}`;
+
+  let colHdrs = `<div class="fs-col-hdr row-label-col" style="min-width:${labelW}px">Flowsheet Row (FSR)</div>`;
+  timeLabels.forEach(t => colHdrs += `<div class="fs-col-hdr">${t}</div>`);
+  if (numCols > 1) colHdrs += `<div class="fs-col-hdr">Notes / Flags</div>`;
+
+  // Build group category color map
+  const catColor = {'Screening':'#39D2C0','Vitals':'#3FB950','Labs':'#BC8CFF','Orders':'#DB6D28','Decision':'#D29922','Actions':'#2F81F7'};
+
+  // Build rows
+  let rowsHTML = '';
+  let rowIdx = 0;
+  Object.entries(groups).forEach(([grpName, items]) => {
+    const c = catColor[items[0].cat] || '#888';
+    const dtag = items[0].cat.toUpperCase();
+    rowsHTML += `
+      <div class="fs-group-hdr">
+        <span class="grp-icon">${items[0].icon}</span>
+        <span class="grp-name">${grpName}</span>
+        <span class="grp-tag" style="background:${c}22;color:${c}">${dtag}</span>
+      </div>`;
+
+    items.forEach(item => {
+      const dtc = dtypeColors[item.dtype] || dtypeColors['Text'];
+      const isAlt = rowIdx % 2 === 1;
+      let cellsHTML = '';
+
+      for (let c = 0; c < numCols; c++) {
+        let inputEl = '';
+        if (item.dtype === 'Discrete' && item.options) {
+          inputEl = `<select class="fs-input-cell">
+            <option value="" disabled selected>—</option>
+            ${item.options.map(o => `<option>${o}</option>`).join('')}
+          </select>`;
+        } else if (item.dtype === 'Calc') {
+          inputEl = `<input class="fs-input-cell" type="text" placeholder="auto" readonly style="color:#DB6D28;font-style:italic">`;
+        } else if (item.dtype === 'Text') {
+          inputEl = `<input class="fs-input-cell" type="text" placeholder="enter...">`;
+        } else {
+          inputEl = `<input class="fs-input-cell" type="text" inputmode="decimal" placeholder="—">`;
+        }
+        cellsHTML += `<div class="fs-cell data-cell">${inputEl}${item.unit ? `<span class="cell-unit">${item.unit}</span>` : ''}</div>`;
+      }
+
+      // Notes column
+      const notesCell = numCols > 1
+        ? `<div class="fs-cell data-cell"><input class="fs-input-cell" type="text" placeholder="flag..." style="font-size:10px"></div>`
+        : '';
+
+      rowsHTML += `
+        <div class="fs-data-row${isAlt ? ' alt' : ''}" style="grid-template-columns:${gridCols}">
+          <div class="fs-cell row-label" style="min-width:${labelW}px">
+            <div class="fsr-name">${item.name}</div>
+            <div class="fsr-detail">${item.smartdata}</div>
+            <div class="fsr-type-badge" style="background:${dtc.bg};color:${dtc.text}">${item.dtype}${item.ref ? ' · ' + item.ref : ''}</div>
+          </div>
+          ${cellsHTML}
+          ${notesCell}
+        </div>`;
+      rowIdx++;
+    });
+  });
+
+  const html = `
+  <div class="flowsheet-wrap" id="flowsheet-inner">
+
+    <div class="fs-header">
+      <div class="fs-header-left">
+        <div class="fs-title">${esc(fsName)}</div>
+        <div class="fs-subtitle">${fsDept} · ${fsEnc} · ${selected.length} FSR${selected.length!==1?'s':''}</div>
+      </div>
+      <div class="fs-header-right">
+        <div class="fs-sub-row">ID: ${esc(fsId)}</div>
+        <div class="fs-sub-row">Generated: ${dateStr} ${timeStr}</div>
+        <div class="fs-sub-row">Epic ClinDoc v2025.1</div>
+      </div>
+    </div>
+
+    <div class="fs-patient-bar">
+      <div class="fs-patient-field"><span class="pf-label">Patient:</span><span class="pf-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+      <div class="fs-patient-field"><span class="pf-label">MRN:</span><span class="pf-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+      <div class="fs-patient-field"><span class="pf-label">DOB:</span><span class="pf-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+      <div class="fs-patient-field"><span class="pf-label">Provider:</span><span class="pf-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+      <div class="fs-patient-field"><span class="pf-label">Date:</span><span class="pf-val">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    </div>
+
+    <div class="fs-col-bar" style="grid-template-columns:${gridCols}">
+      ${colHdrs}
+    </div>
+
+    ${rowsHTML}
+
+    <div class="fs-footer">
+      <div class="fs-footer-field"><label>Completed By</label><input class="fs-footer-line" type="text" placeholder="Provider name / credential"></div>
+      <div class="fs-footer-field"><label>NPI / Prov ID</label><input class="fs-footer-line" type="text" placeholder="NPI #"></div>
+      <div class="fs-footer-field"><label>Signature</label><input class="fs-footer-line" type="text" placeholder="Electronic signature"></div>
+      <div class="fs-footer-field"><label>Date / Time Signed</label><input class="fs-footer-line" type="text" placeholder="${dateStr} ${timeStr}"></div>
+    </div>
+
+    <div class="fs-watermark">
+      <span>EPIC CLINDOC · ${esc(fsId)} · ${fsDept.toUpperCase()}</span>
+      <span>CONFIDENTIAL – FOR CLINICAL USE ONLY</span>
+      <span>Generated ${dateStr}</span>
+    </div>
+
+  </div>`;
+
+  document.getElementById('flowsheet-output').innerHTML = html;
+  showToast('✅ Flowsheet generated — ' + selected.length + ' FSRs');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function clearAll() {
+  selected = [];
+  renderOptions();
+  renderQueue();
+  document.getElementById('flowsheet-output').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">🏥</div>
+      <div class="empty-title">No Flowsheet Generated</div>
+      <div class="empty-sub">Select FSR rows from the left panel, configure your flowsheet properties, then click Generate Flowsheet.</div>
+      <button class="empty-cta" onclick="loadDemo()">Load Demo Flowsheet</button>
+    </div>`;
+  showToast('Reset complete');
+}
+
+function savePDF() {
+  const inner = document.getElementById('flowsheet-inner');
+  if (!inner) { showToast('⚠ Generate a flowsheet first'); return; }
+  showToast('🖨 Opening print dialog...');
+  setTimeout(() => window.print(), 300);
+}
+
+function loadDemo() {
+  const demoIds = ['v1','v2','v3','v4','v5','v6','v7','v8','v9','s1','s2','s12','l5','l7','l8','d1','d2','a2','a5','a6'];
+  selected = demoIds.map(id => FSR_DATA.find(o => o.id === id)).filter(Boolean);
+  renderOptions();
+  renderQueue();
+  buildFlowsheet();
+}
+
+// Events
+document.getElementById('cat-tabs').addEventListener('click', e => {
+  const t = e.target.closest('.cat-tab'); if (!t) return;
+  document.querySelectorAll('.cat-tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  activeCat = t.dataset.cat;
+  renderOptions();
+});
+document.getElementById('search-input').addEventListener('input', e => {
+  searchTerm = e.target.value.toLowerCase().trim();
+  renderOptions();
+});
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+renderOptions();
+renderQueue();
+</script>
+</body>
+</html>
