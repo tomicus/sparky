@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM Assessment Flowsheet — Epic EMR</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f2f0;
+    --surface: #ffffff;
+    --border: #c8cfc8;
+    --border-strong: #8fa08f;
+    --header-bg: #2c4a3e;
+    --header-text: #e8f0ec;
+    --row-alt: #f5f7f5;
+    --accent-green: #3a7d5e;
+    --accent-light: #7dba9e;
+    --accent-amber: #c07a22;
+    --accent-red: #b03a2e;
+    --score-low: #2e6b4a;
+    --score-mid: #c07a22;
+    --score-high: #8b1a1a;
+    --text: #1a2e24;
+    --text-muted: #5a7a6a;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --radio-size: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 29px, #dde5dd 29px, #dde5dd 30px),
+      repeating-linear-gradient(90deg, transparent, transparent 29px, #dde5dd 29px, #dde5dd 30px);
+    background-size: 30px 30px;
+  }
+
+  .shell {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 3px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08);
+    overflow: hidden;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    border-bottom: 3px solid var(--accent-light);
+  }
+
+  .topbar-logo {
+    background: #1a3028;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-right: 1px solid #3d6b55;
+    min-width: 130px;
+  }
+
+  .topbar-logo .icon {
+    width: 28px; height: 28px;
+    background: var(--accent-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: #1a3028;
+    font-weight: 700;
+    font-family: var(--mono);
+    flex-shrink: 0;
+  }
+
+  .topbar-logo .brand {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    line-height: 1.2;
+  }
+
+  .topbar-meta {
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .topbar-meta .title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #e8f0ec;
+  }
+
+  .topbar-meta .subtitle {
+    font-size: 11px;
+    color: #9bbfab;
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
+  }
+
+  .topbar-right {
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 3px;
+    border-left: 1px solid #3d6b55;
+  }
+
+  .topbar-right .ts {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #9bbfab;
+  }
+
+  .topbar-right .dept {
+    font-size: 10px;
+    background: #3a7d5e;
+    color: #c8e8d8;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* ── PATIENT BANNER ── */
+  .pt-banner {
+    background: #e8ede8;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .pt-field {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .pt-field label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  .pt-field span {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .pt-field span.mono {
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .allergy-flag {
+    margin-left: auto;
+    background: #fff3cd;
+    border: 1px solid #c07a22;
+    color: #7a4a0a;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  /* ── FLOWSHEET TABLE ── */
+  .flowsheet-wrap {
+    overflow-x: auto;
+  }
+
+  .section-header {
+    background: #dce8e0;
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    padding: 7px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-header .sh-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    font-family: var(--mono);
+  }
+
+  .section-header .sh-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-header .sh-time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  table.flowsheet {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  table.flowsheet thead tr {
+    background: #2c4a3e;
+    color: #c8e0d0;
+  }
+
+  table.flowsheet thead th {
+    padding: 9px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+    text-align: left;
+    border-right: 1px solid #3d6b55;
+    white-space: nowrap;
+  }
+
+  table.flowsheet thead th:last-child { border-right: none; }
+  table.flowsheet thead th.col-row { width: 38%; }
+  table.flowsheet thead th.col-val { width: 42%; }
+  table.flowsheet thead th.col-score { width: 12%; text-align: center; }
+  table.flowsheet thead th.col-flag { width: 8%; text-align: center; }
+
+  table.flowsheet tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  table.flowsheet tbody tr:nth-child(even) { background: var(--row-alt); }
+  table.flowsheet tbody tr:hover { background: #eaf2ec; }
+
+  table.flowsheet td {
+    padding: 12px 16px;
+    vertical-align: top;
+    font-size: 13px;
+  }
+
+  td.row-label {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 12.5px;
+    border-right: 1px solid var(--border);
+    line-height: 1.4;
+  }
+
+  td.row-label .row-num {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    display: block;
+    letter-spacing: 0.08em;
+  }
+
+  td.row-options {
+    border-right: 1px solid var(--border);
+  }
+
+  .options-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .radio-opt {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 2px;
+    transition: background 0.1s;
+    user-select: none;
+  }
+
+  .radio-opt:hover { background: #d8eae0; }
+
+  .radio-opt input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: var(--radio-size);
+    height: var(--radio-size);
+    border: 2px solid var(--border-strong);
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    position: relative;
+    background: white;
+  }
+
+  .radio-opt input[type="radio"]:checked {
+    border-color: var(--accent-green);
+    background: var(--accent-green);
+    box-shadow: inset 0 0 0 3px white;
+  }
+
+  .radio-opt input[type="radio"]:checked + .opt-text {
+    color: var(--accent-green);
+    font-weight: 600;
+  }
+
+  .opt-text {
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .opt-score {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    background: #e8ede8;
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  td.col-score-val {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    vertical-align: middle;
+    border-right: 1px solid var(--border);
+  }
+
+  td.col-score-val.has-score {
+    color: var(--accent-green);
+  }
+
+  td.col-flag-val {
+    text-align: center;
+    vertical-align: middle;
+    font-size: 16px;
+  }
+
+  /* ── SCORE PANEL ── */
+  .score-panel {
+    border-top: 2px solid var(--border-strong);
+    padding: 20px 24px;
+    background: #f5f7f5;
+  }
+
+  .score-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .score-panel-header h3 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  .score-total-display {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: color 0.4s, transform 0.2s;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  .score-total-display.level-0 { color: var(--score-low); }
+  .score-total-display.level-1 { color: var(--score-mid); }
+  .score-total-display.level-2 { color: var(--score-high); }
+
+  .score-bar-wrap {
+    height: 10px;
+    background: #dde5dd;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1), background 0.4s;
+    background: var(--accent-green);
+  }
+
+  .score-bar-fill.level-1 { background: var(--accent-amber); }
+  .score-bar-fill.level-2 { background: var(--accent-red); }
+
+  .score-bands {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .band {
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 14px;
+    background: white;
+    transition: all 0.3s;
+  }
+
+  .band.active-band {
+    border-width: 2px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+
+  .band.active-band.level-0 { border-color: var(--score-low); background: #f0f8f4; }
+  .band.active-band.level-1 { border-color: var(--score-mid); background: #fdf6ec; }
+  .band.active-band.level-2 { border-color: var(--score-high); background: #fdf0ee; }
+
+  .band-range {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+
+  .band.level-0 .band-range { color: var(--score-low); }
+  .band.level-1 .band-range { color: var(--score-mid); }
+  .band.level-2 .band-range { color: var(--score-high); }
+
+  .band-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .band-desc {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .band-indicator {
+    display: none;
+    margin-top: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  .active-band .band-indicator { display: block; }
+  .active-band.level-0 .band-indicator { color: var(--score-low); }
+  .active-band.level-1 .band-indicator { color: var(--score-mid); }
+  .active-band.level-2 .band-indicator { color: var(--score-high); }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: #2c4a3e;
+    color: #9bbfab;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .footer .sig {
+    color: #5a9a7a;
+  }
+
+  .footer .status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── SUBMIT BTN ── */
+  .actions-bar {
+    padding: 14px 24px;
+    border-top: 1px solid var(--border);
+    background: #edf2ed;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  .btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent-green);
+    color: white;
+    border: 1px solid #2a6048;
+  }
+
+  .btn-primary:hover { background: #2a6048; }
+
+  .btn-secondary {
+    background: white;
+    color: var(--text-muted);
+    border: 1px solid var(--border-strong);
+  }
+
+  .btn-secondary:hover { background: #e8ede8; }
+
+  .completion-pct {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-right: auto;
+  }
+
+  .completion-pct span {
+    font-weight: 700;
+    color: var(--accent-green);
+  }
+
+  /* Disclaimer */
+  .disclaimer {
+    font-size: 10px;
+    color: var(--text-muted);
+    padding: 8px 24px 12px;
+    background: #f5f7f5;
+    font-style: italic;
+    border-top: 1px dashed var(--border);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 600px) {
+    .score-bands { grid-template-columns: 1fr; }
+    .pt-banner { gap: 12px; }
+    .topbar { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="icon">E</div>
+      <div class="brand">Epic<br>EMR</div>
+    </div>
+    <div class="topbar-meta">
+      <div class="title">PM Assessment Flowsheet</div>
+      <div class="subtitle">DEPT: Project Management · VERSION 1.0 · ICD-10: Z99.9</div>
+    </div>
+    <div class="topbar-right">
+      <div class="ts" id="timestamp">—</div>
+      <div class="dept">PM Vitals</div>
+    </div>
+  </div>
+
+  <!-- PATIENT BANNER -->
+  <div class="pt-banner">
+    <div class="pt-field">
+      <label>Patient</label>
+      <span>Current Project Manager</span>
+    </div>
+    <div class="pt-field">
+      <label>MRN</label>
+      <span class="mono" id="mrn">—</span>
+    </div>
+    <div class="pt-field">
+      <label>DOB</label>
+      <span class="mono">Project Kickoff Date</span>
+    </div>
+    <div class="pt-field">
+      <label>Provider</label>
+      <span>Self-Assessment Protocol</span>
+    </div>
+    <div class="pt-field">
+      <label>Encounter</label>
+      <span class="mono">Daily Standup Visit</span>
+    </div>
+    <div class="allergy-flag">⚠ NKDA: No Known Deadline Adherence</div>
+  </div>
+
+  <!-- SECTION HEADER -->
+  <div class="section-header">
+    <span class="sh-label">§ PM Vitals</span>
+    <div class="sh-line"></div>
+    <span class="sh-time">Assessment Window: Today · Charted by: Self</span>
+  </div>
+
+  <!-- FLOWSHEET TABLE -->
+  <div class="flowsheet-wrap">
+    <table class="flowsheet">
+      <thead>
+        <tr>
+          <th class="col-row">Row / Assessment Parameter</th>
+          <th class="col-val">Observation Options</th>
+          <th class="col-score">Score</th>
+          <th class="col-flag">Flag</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- ROW 1 -->
+        <tr>
+          <td class="row-label">
+            <span class="row-num">FS-001 · COGNITION</span>
+            Did you remember where you saved the project plan today?
+          </td>
+          <td class="row-options">
+            <div class="options-group">
+              <label class="radio-opt">
+                <input type="radio" name="r1" value="0" onchange="updateScore()">
+                <span class="opt-text">Yes</span>
+                <span class="opt-score">0 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r1" value="3" onchange="updateScore()">
+                <span class="opt-text">No</span>
+                <span class="opt-score">3 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r1" value="7" onchange="updateScore()">
+                <span class="opt-text">What project plan?</span>
+                <span class="opt-score">7 pts</span>
+              </label>
+            </div>
+          </td>
+          <td class="col-score-val" id="s1">—</td>
+          <td class="col-flag-val" id="f1"></td>
+        </tr>
+
+        <!-- ROW 2 -->
+        <tr>
+          <td class="row-label">
+            <span class="row-num">FS-002 · VERSION CONTROL</span>
+            How many versions of the same document exist?
+          </td>
+          <td class="row-options">
+            <div class="options-group">
+              <label class="radio-opt">
+                <input type="radio" name="r2" value="0" onchange="updateScore()">
+                <span class="opt-text">1</span>
+                <span class="opt-score">0 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r2" value="3" onchange="updateScore()">
+                <span class="opt-text">2–5</span>
+                <span class="opt-score">3 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r2" value="7" onchange="updateScore()">
+                <span class="opt-text">We don't speak of that</span>
+                <span class="opt-score">7 pts</span>
+              </label>
+            </div>
+          </td>
+          <td class="col-score-val" id="s2">—</td>
+          <td class="col-flag-val" id="f2"></td>
+        </tr>
+
+        <!-- ROW 3 -->
+        <tr>
+          <td class="row-label">
+            <span class="row-num">FS-003 · VERBAL FLUENCY</span>
+            Have you used the phrase "let me circle back" today?
+          </td>
+          <td class="row-options">
+            <div class="options-group">
+              <label class="radio-opt">
+                <input type="radio" name="r3" value="0" onchange="updateScore()">
+                <span class="opt-text">No</span>
+                <span class="opt-score">0 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r3" value="3" onchange="updateScore()">
+                <span class="opt-text">1–3 times</span>
+                <span class="opt-score">3 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r3" value="7" onchange="updateScore()">
+                <span class="opt-text">It's my personality now</span>
+                <span class="opt-score">7 pts</span>
+              </label>
+            </div>
+          </td>
+          <td class="col-score-val" id="s3">—</td>
+          <td class="col-flag-val" id="f3"></td>
+        </tr>
+
+        <!-- ROW 4 -->
+        <tr>
+          <td class="row-label">
+            <span class="row-num">FS-004 · INBOX STATUS</span>
+            Current inbox condition
+          </td>
+          <td class="row-options">
+            <div class="options-group">
+              <label class="radio-opt">
+                <input type="radio" name="r4" value="0" onchange="updateScore()">
+                <span class="opt-text">Under control</span>
+                <span class="opt-score">0 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r4" value="3" onchange="updateScore()">
+                <span class="opt-text">Mild concern</span>
+                <span class="opt-score">3 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r4" value="7" onchange="updateScore()">
+                <span class="opt-text">Send help</span>
+                <span class="opt-score">7 pts</span>
+              </label>
+            </div>
+          </td>
+          <td class="col-score-val" id="s4">—</td>
+          <td class="col-flag-val" id="f4"></td>
+        </tr>
+
+        <!-- ROW 5 -->
+        <tr>
+          <td class="row-label">
+            <span class="row-num">FS-005 · ACTION ITEM BURDEN</span>
+            Number of action items assigned to yourself
+          </td>
+          <td class="row-options">
+            <div class="options-group">
+              <label class="radio-opt">
+                <input type="radio" name="r5" value="0" onchange="updateScore()">
+                <span class="opt-text">0–5</span>
+                <span class="opt-score">0 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r5" value="3" onchange="updateScore()">
+                <span class="opt-text">6–20</span>
+                <span class="opt-score">3 pts</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="r5" value="7" onchange="updateScore()">
+                <span class="opt-text">I am the action item</span>
+                <span class="opt-score">7 pts</span>
+              </label>
+            </div>
+          </td>
+          <td class="col-score-val" id="s5">—</td>
+          <td class="col-flag-val" id="f5"></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SCORE PANEL -->
+  <div class="score-panel">
+    <div class="score-panel-header">
+      <h3>Composite PM Score · Interpretation</h3>
+      <div class="score-total-display" id="totalScore">—</div>
+    </div>
+    <div class="score-bar-wrap">
+      <div class="score-bar-fill" id="scoreBar"></div>
+    </div>
+    <div class="score-bands">
+      <div class="band level-0" id="band0">
+        <div class="band-range">0 – 10</div>
+        <div class="band-label">Highly Organized PM</div>
+        <div class="band-desc">Single source of truth. Inbox zero. You make the rest of us uncomfortable.</div>
+        <div class="band-indicator">▲ Current Range</div>
+      </div>
+      <div class="band level-1" id="band1">
+        <div class="band-range">11 – 20</div>
+        <div class="band-label">Typical PM</div>
+        <div class="band-desc">Functional chaos. The project ships eventually. Synergy is felt but not measurable.</div>
+        <div class="band-indicator">▲ Current Range</div>
+      </div>
+      <div class="band level-2" id="band2">
+        <div class="band-range">21+</div>
+        <div class="band-label">Project Management by Vibes</div>
+        <div class="band-desc">Agile in spirit. Waterfall in regret. The Gantt chart is more of a suggestion.</div>
+        <div class="band-indicator">▲ Current Range</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions-bar">
+    <div class="completion-pct">Completion: <span id="pctDisplay">0%</span></div>
+    <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+    <button class="btn btn-primary" onclick="signChart()">Sign &amp; Submit Chart</button>
+  </div>
+
+  <div class="disclaimer" id="disclaimer" style="display:none">
+    ✦ Clinician Note: Score reflects self-reported data. Results are non-billable. Do not use for performance reviews, though HR may already be aware.
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="sig">Charted by: PM Self-Assessment Module v4.2.1</div>
+    <div class="status">
+      <div class="status-dot"></div>
+      CONNECTED · EPIC 2024
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Timestamp & MRN
+  const now = new Date();
+  document.getElementById('timestamp').textContent = now.toLocaleString('en-US', {
+    month:'2-digit', day:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+  document.getElementById('mrn').textContent = 'MRN-' + Math.floor(Math.random() * 9000000 + 1000000);
+
+  function updateScore() {
+    let total = 0;
+    let answered = 0;
+    const maxPts = [7, 7, 7, 7, 7];
+
+    for (let i = 1; i <= 5; i++) {
+      const sel = document.querySelector(`input[name="r${i}"]:checked`);
+      const scoreCell = document.getElementById(`s${i}`);
+      const flagCell = document.getElementById(`f${i}`);
+      if (sel) {
+        const v = parseInt(sel.value);
+        total += v;
+        answered++;
+        scoreCell.textContent = v;
+        scoreCell.classList.add('has-score');
+        flagCell.textContent = v >= 7 ? '🚨' : v >= 3 ? '⚠️' : '✅';
+      }
+    }
+
+    const totalEl = document.getElementById('totalScore');
+    const bar = document.getElementById('scoreBar');
+
+    if (answered === 0) {
+      totalEl.textContent = '—';
+      totalEl.className = 'score-total-display';
+      bar.style.width = '0%';
+      bar.className = 'score-bar-fill';
+      ['band0','band1','band2'].forEach(id => {
+        const b = document.getElementById(id);
+        b.classList.remove('active-band','level-0','level-1','level-2');
+        b.classList.add(`level-${['0','1','2'][['band0','band1','band2'].indexOf(id)]}`);
+      });
+      document.getElementById('pctDisplay').textContent = '0%';
+      return;
+    }
+
+    totalEl.textContent = total;
+    const pct = Math.round((answered / 5) * 100);
+    document.getElementById('pctDisplay').textContent = pct + '%';
+
+    // Score level
+    let level;
+    if (total <= 10) level = 0;
+    else if (total <= 20) level = 1;
+    else level = 2;
+
+    totalEl.className = `score-total-display level-${level}`;
+
+    // Bar (max possible = 35)
+    const barPct = Math.min((total / 35) * 100, 100);
+    bar.style.width = barPct + '%';
+    bar.className = `score-bar-fill${level > 0 ? ' level-' + level : ''}`;
+
+    // Bands
+    ['band0','band1','band2'].forEach((id, idx) => {
+      const b = document.getElementById(id);
+      b.className = `band level-${idx}`;
+      if (idx === level) b.classList.add('active-band');
+    });
+  }
+
+  function clearAll() {
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    for (let i = 1; i <= 5; i++) {
+      document.getElementById(`s${i}`).textContent = '—';
+      document.getElementById(`s${i}`).classList.remove('has-score');
+      document.getElementById(`f${i}`).textContent = '';
+    }
+    document.getElementById('disclaimer').style.display = 'none';
+    updateScore();
+  }
+
+  function signChart() {
+    const answered = document.querySelectorAll('input[type="radio"]:checked').length;
+    if (answered < 5) {
+      alert('Please complete all 5 assessment rows before signing.');
+      return;
+    }
+    document.getElementById('disclaimer').style.display = 'block';
+    document.getElementById('disclaimer').scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
