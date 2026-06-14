@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCHIN Epic Clinician & Staff Training Portal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            var errorDiv = document.createElement('div');
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '0';
+            errorDiv.style.left = '0';
+            errorDiv.style.width = '100%';
+            errorDiv.style.backgroundColor = '#ef4444';
+            errorDiv.style.color = '#ffffff';
+            errorDiv.style.padding = '16px';
+            errorDiv.style.zIndex = '99999';
+            errorDiv.style.fontSize = '14px';
+            errorDiv.style.fontFamily = 'monospace';
+            errorDiv.style.whiteSpace = 'pre-wrap';
+            errorDiv.innerHTML = '<strong>Client-Side JS Error:</strong> ' + message + '<br>Source: ' + source + ' (Line: ' + lineno + ')';
+            document.body.appendChild(errorDiv);
+            return false;
+        };
+    </script>
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="material-icons-round logo-icon">auto_stories</span>
+                <div class="logo-text">
+                    <h2>OCHIN Academy</h2>
+                    <span class="subtitle">Epic Training Portal</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Home</span>
+                    <button class="nav-item active" data-target="dashboard">
+                        <span class="material-icons-round">dashboard</span>
+                        <span>Dashboard</span>
+                    </button>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Training Modules</span>
+                    <div id="module-navigation-list">
+                        <!-- Dynamic Module list will go here -->
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">Reference & Resources</span>
+                    <button class="nav-item" data-target="qna-guide">
+                        <span class="material-icons-round">question_answer</span>
+                        <span>Go-Live Q&A (1-100)</span>
+                    </button>
+                    <button class="nav-item" data-target="differences-sheet">
+                        <span class="material-icons-round">compare_arrows</span>
+                        <span>OCHIN vs Full Epic</span>
+                    </button>
+                    <button class="nav-item" data-target="quiz-tab">
+                        <span class="material-icons-round">assignment_turned_in</span>
+                        <span>Confidence Quiz</span>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>Total Progress</span>
+                        <span id="overall-progress-percentage">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="overall-progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="theme-toggle-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    <button id="theme-toggle-btn" class="theme-btn">
+                        <span class="material-icons-round">light_mode</span>
+                        <span id="theme-btn-text">Light Mode</span>
+                    </button>
+                    <button id="reset-progress-btn" class="theme-btn" style="border-color: rgba(239, 68, 68, 0.4);">
+                        <span class="material-icons-round" style="color: var(--danger-color); font-size: 18px;">restart_alt</span>
+                        <span style="color: var(--danger-color);">Reset Progress</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-search">
+                    <span class="material-icons-round search-icon">search</span>
+                    <input type="text" id="global-search" placeholder="Search training, questions, or workflows...">
+                </div>
+                <div class="header-profile">
+                    <div class="user-info">
+                        <span class="user-role">OCHIN Trainee</span>
+                        <span class="user-status">Ready for Go-Live</span>
+                    </div>
+                    <div class="user-avatar">
+                        <span class="material-icons-round">account_circle</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Body Containers -->
+            <div class="content-body">
+                
+                <!-- DASHBOARD TAB -->
+                <section id="dashboard" class="tab-content active">
+                    <div class="welcome-banner">
+                        <div class="welcome-text">
+                            <h1>Master OCHIN Epic</h1>
+                            <p>Welcome to the interactive OCHIN Epic Trainer. Learn the specific workflows of the collaborative database built for community health centers and safety-net clinics.</p>
+                        </div>
+                        <div class="welcome-stats">
+                            <div class="stat-card">
+                                <span class="stat-num" id="stat-completed-modules">0/5</span>
+                                <span class="stat-label">Modules Done</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-num" id="stat-read-questions">0/100</span>
+                                <span class="stat-label">Q&A Read</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card primary-card">
+                            <h3>Next Up in Your Training</h3>
+                            <div id="next-module-preview">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>Key OCHIN Features to Know</h3>
+                            <ul class="quick-tips-list">
+                                <li>
+                                    <span class="material-icons-round text-primary">groups</span>
+                                    <div>
+                                        <strong>Shared Database:</strong> Clinicians share SmartPhrases, preference lists, and patient charts across multiple clinics.
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="material-icons-round text-success">analytics</span>
+                                    <div>
+                                        <strong>UDS & HRSA Metrics:</strong> Check-in and charting require specific UDS demographic and clinical metrics.
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="material-icons-round text-warning">attach_money</span>
+                                    <div>
+                                        <strong>FQHC Billing:</strong> Sliding Fee Scales and specific encounter rate codes must be correctly designated.
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULE VIEW TAB (Dynamically populated) -->
+                <section id="module-viewer" class="tab-content">
+                    <div class="module-header-block">
+                        <button class="back-to-dashboard-btn" id="back-to-dash-btn">
+                            <span class="material-icons-round">arrow_back</span> Back to Dashboard
+                        </button>
+                        <h1 id="active-module-title">Module Title</h1>
+                        <p id="active-module-desc">Module Description</p>
+                    </div>
+
+                    <div class="module-layout-grid">
+                        <!-- Module Content Area -->
+                        <div class="module-body-card">
+                            <div id="module-pages-container">
+                                <!-- Dynamic pages content -->
+                            </div>
+                            
+                            <div class="module-navigation-buttons">
+                                <button id="prev-page-btn" class="btn btn-secondary">
+                                    <span class="material-icons-round">navigate_before</span> Previous
+                                </button>
+                                <span id="module-page-indicator">Page 1 of 5</span>
+                                <button id="next-page-btn" class="btn btn-primary">
+                                    Next <span class="material-icons-round">navigate_next</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Module Sidebar Progress -->
+                        <div class="module-sidebar-card">
+                            <h3>Module Progress</h3>
+                            <div class="page-list-navigation" id="module-pages-sidebar-list">
+                                <!-- Dynamic clickable pages list -->
+                            </div>
+                            <div class="completion-checkbox-wrapper">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="mark-module-complete">
+                                    <span class="checkmark"></span>
+                                    Mark Module as Completed
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GO-LIVE Q&A TAB -->
+                <section id="qna-guide" class="tab-content">
+                    <div class="tab-header-block">
+                        <h1>Go-Live Reference Guide (Questions 1 - 100)</h1>
+                        <p>Search and filter the top go-live questions regarding OCHIN Epic configuration, shared records, workflows, and troubleshooting.</p>
+                        
+                        <div class="filters-row">
+                            <div class="search-wrapper">
+                                <span class="material-icons-round">search</span>
+                                <input type="text" id="qna-search" placeholder="Filter questions by keywords...">
+                            </div>
+                            <div class="filter-buttons">
+                                <button class="filter-btn active" data-category="all">All</button>
+                                <button class="filter-btn" data-category="general">General</button>
+                                <button class="filter-btn" data-category="frontdesk">Front Desk</button>
+                                <button class="filter-btn" data-category="clinical">Clinical</button>
+                                <button class="filter-btn" data-category="billing">Billing</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="qna-list" id="qna-list-container">
+                        <!-- Questions will load dynamically here -->
+                    </div>
+                </section>
+
+                <!-- DIFFERENCES SHEET TAB -->
+                <section id="differences-sheet" class="tab-content">
+                    <div class="tab-header-block">
+                        <h1>OCHIN Epic vs. Standard Full Epic</h1>
+                        <p>Understanding these fundamental architectural and operational differences is key to successful go-live adoption.</p>
+                    </div>
+
+                    <div class="comparison-grid">
+                        <div class="comparison-card">
+                            <div class="comparison-header full-epic">
+                                <h3>Standard "Full" Epic</h3>
+                                <p>Typical Single Health System Deployment</p>
+                            </div>
+                            <ul>
+                                <li><strong>Isolated Database:</strong> Built solely for one healthcare organization. Custom configurations are isolated.</li>
+                                <li><strong>Independent Master Files:</strong> Provider, medication, and procedure records are unique to the organization.</li>
+                                <li><strong>Direct Billing Config:</strong> Billing rules tailored to standard commercial, Medicare, and Medicaid fee-for-service.</li>
+                                <li><strong>Full Local Build Control:</strong> System analysts can modify clinical templates, flowsheets, and forms instantly to match local requests.</li>
+                            </ul>
+                        </div>
+
+                        <div class="comparison-card highlight-card">
+                            <div class="comparison-header ochin-epic">
+                                <h3>OCHIN Collaborative Epic</h3>
+                                <p>Shared Safety-Net/FQHC Collaborative Instance</p>
+                            </div>
+                            <ul>
+                                <li><strong>Shared Database instance:</strong> One instance shared by hundreds of clinics. A patient chart updated at Clinic A is visible at Clinic B in real-time.</li>
+                                <li><strong>Shared Master Files:</strong> Providers share clinical preference lists, medication files, and order templates to lower maintenance overhead.</li>
+                                <li><strong>FQHC & UDS Integration:</strong> Heavy focus on sliding scale fees, HRSA federal metrics, and social determinants of health (PRAPARE).</li>
+                                <li><strong>Collaborative Decision Making:</strong> System customization changes must be reviewed collaboratively to prevent disrupting other members.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- QUIZ TAB -->
+                <section id="quiz-tab" class="tab-content">
+                    <div class="tab-header-block">
+                        <h1>OCHIN Epic Confidence Quiz</h1>
+                        <p>Complete this multiple-choice interactive quiz to assess your readiness for Go-Live. You must score 80% or higher to pass.</p>
+                    </div>
+                    
+                    <div class="quiz-layout-box">
+                        <div class="dashboard-card" id="quiz-container">
+                            <div id="quiz-question-box">
+                                <!-- Loaded dynamically via app.js -->
+                            </div>
+                            <div class="quiz-nav-row" style="display: flex; justify-content: space-between; margin-top: 24px;">
+                                <button class="btn btn-secondary" id="quiz-prev-btn" style="display: none;">Previous</button>
+                                <button class="btn btn-primary" id="quiz-next-btn">Start Quiz</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data-modules.js"></script>
+    <script src="data-questions.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
