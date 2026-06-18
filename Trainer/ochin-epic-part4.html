@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 4: Medications &amp; Prescriptions</title>
+<style>
+  :root {
+    --navy:#0D2B4E; --teal:#006D75; --teal-lt:#00A3AD;
+    --gold:#E8A020; --gold-lt:#F5C842;
+    --cream:#F4F8FA; --white:#FFFFFF;
+    --gray1:#1A2B3C; --gray2:#3D5166; --gray3:#7A93A8;
+    --gray4:#C5D5E0; --gray5:#EDF2F5;
+    --red:#C0392B; --green:#1E7E4C; --purple:#6B3FA0;
+    --shadow:0 2px 12px rgba(13,43,78,.13);
+    --radius:10px;
+    --font-body:'Segoe UI','Arial',sans-serif;
+    --font-mono:'Consolas','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);background:var(--cream);color:var(--gray1);min-height:100vh;}
+
+  #topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo-box{background:var(--teal-lt);color:#fff;font-weight:800;font-size:15px;padding:5px 10px;border-radius:6px;}
+  .bar-title{font-size:17px;font-weight:600;}
+  .bar-sub{font-size:11px;color:var(--gray4);margin-top:1px;}
+  .pbwrap{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gray4);}
+  .pbtrack{width:160px;height:7px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;}
+  .pbfill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s;}
+  .ubadge{background:rgba(255,255,255,.12);border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;}
+
+  #layout{display:flex;min-height:calc(100vh - 60px);}
+
+  #sidebar{width:260px;flex-shrink:0;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding-bottom:20px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;border-right:1px solid rgba(255,255,255,.07);}
+  #sidebar::-webkit-scrollbar{width:4px;}
+  #sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+  .sb-sec{padding:18px 20px 6px;}
+  .sb-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal-lt);text-transform:uppercase;margin-bottom:8px;}
+  .ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.78);transition:background .15s;margin-bottom:2px;}
+  .ni:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .ni.active{background:var(--teal);color:#fff;}
+  .ni.locked{opacity:.4;cursor:not-allowed;}
+  .ni .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+  .ni .lbl{flex:1;}
+  .ni .badge{font-size:10px;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 7px;font-weight:700;}
+  .ni .chk{font-size:13px;color:#4cd964;}
+  .ndiv{height:1px;background:rgba(255,255,255,.08);margin:10px 20px;}
+
+  #main{flex:1;padding:36px 44px;max-width:900px;}
+
+  .stabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px;}
+  .stab{padding:7px 16px;border-radius:20px;border:1.5px solid var(--gray4);font-size:12px;font-weight:600;cursor:pointer;color:var(--gray2);background:#fff;transition:all .15s;}
+  .stab:hover{border-color:var(--teal);color:var(--teal);}
+  .stab.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .sc{display:none;}
+  .sc.active{display:block;}
+
+  .ph{background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 100%);color:#fff;border-radius:var(--radius);padding:28px 32px 24px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .ph::after{content:'';position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .ph .mt{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px;}
+  .ph h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+  .ph p{font-size:14px;color:rgba(255,255,255,.8);max-width:560px;line-height:1.6;}
+  .ph .meta{display:flex;gap:20px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.65);}
+
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card h3{font-size:14px;font-weight:700;color:var(--teal);margin:18px 0 8px;}
+  .card p{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:10px;}
+  .card ul,.card ol{padding-left:20px;}
+  .card li{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:5px;}
+
+  .ib{border-left:4px solid var(--teal);background:var(--gray5);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.6;color:var(--gray2);}
+  .ib.tip{border-color:var(--gold);background:#FFFBF0;}
+  .ib.warn{border-color:var(--red);background:#FFF5F5;}
+  .ib.key{border-color:var(--navy);background:#F0F4FF;}
+  .ib.green{border-color:var(--green);background:#EEF9F3;}
+  .ib.purple{border-color:var(--purple);background:#F5F0FF;}
+  .ib strong{color:var(--gray1);}
+
+  .sl{counter-reset:s;list-style:none;padding:0;}
+  .sl li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--gray5);}
+  .sl li:last-child{border-bottom:none;}
+  .sl li::before{content:counter(s);background:var(--teal);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .sl li .st{flex:1;font-size:13.5px;line-height:1.6;color:var(--gray2);}
+  .sl li .st strong{color:var(--gray1);display:block;margin-bottom:3px;}
+
+  .ct{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+  .ct th{background:var(--navy);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px;}
+  .ct td{padding:9px 14px;border-bottom:1px solid var(--gray4);color:var(--gray2);vertical-align:top;}
+  .ct tr:nth-child(even) td{background:var(--gray5);}
+  .ct .yes{color:var(--green);font-weight:700;}
+  .ct .no{color:var(--red);font-weight:700;}
+  .ct .warn-cell{color:var(--gold);font-weight:700;}
+
+  /* RX MOCK */
+  .rx-mock{background:#1A2B3C;border-radius:10px;overflow:hidden;margin:16px 0;box-shadow:0 4px 18px rgba(0,0,0,.22);font-family:var(--font-mono);}
+  .rx-bar{background:var(--navy);padding:8px 14px;display:flex;align-items:center;gap:8px;}
+  .rx-dot{width:10px;height:10px;border-radius:50%;}
+  .rx-body{padding:16px 20px;font-size:12px;color:#B8D4E8;line-height:1.9;white-space:pre;overflow-x:auto;}
+  .rg{color:#F5C842;font-weight:700;}
+  .rt{color:#00C9D4;}
+  .rw{color:#fff;font-weight:700;}
+  .rd{color:#546E7A;}
+  .rr{color:#EF9A9A;}
+  .rgn{color:#A5D6A7;}
+
+  /* DRUG ALERT BOX */
+  .alert-box{border:2px solid var(--red);border-radius:8px;background:#FFF0EF;padding:14px 18px;margin:14px 0;display:flex;gap:12px;align-items:flex-start;}
+  .alert-box .alert-icon{font-size:22px;flex-shrink:0;margin-top:1px;}
+  .alert-box .alert-body{flex:1;}
+  .alert-box .alert-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px;}
+  .alert-box .alert-text{font-size:12.5px;color:var(--gray2);line-height:1.6;}
+  .alert-box.warn-box{border-color:var(--gold);background:#FFFBF0;}
+  .alert-box.warn-box .alert-title{color:#9a6c00;}
+
+  /* CONTROLLED SUB BADGE */
+  .cs-badge{display:inline-block;background:var(--purple);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin:2px;}
+  .cs-badge.cii{background:var(--red);}
+  .cs-badge.ciii{background:#C05C00;}
+  .cs-badge.civ{background:var(--gold);color:var(--navy);}
+  .cs-badge.cv{background:var(--teal);}
+
+  .chip{display:inline-block;background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;margin:2px;}
+  .chip.gold{background:var(--gold);color:var(--navy);}
+  .chip.red{background:var(--red);}
+  .chip.gray{background:var(--gray3);}
+  .chip.purple{background:var(--purple);}
+
+  .qc{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .qc h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .qsub{font-size:13px;color:var(--gray3);margin-bottom:18px;}
+  .qq{margin-bottom:20px;}
+  .qt{font-size:13.5px;font-weight:600;color:var(--gray1);margin-bottom:10px;}
+  .qn{color:var(--teal);margin-right:6px;}
+  .qopts{display:flex;flex-direction:column;gap:7px;}
+  .qo{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--gray4);border-radius:8px;cursor:pointer;font-size:13px;transition:border-color .15s,background .15s;}
+  .qo:hover{border-color:var(--teal);background:var(--gray5);}
+  .qo.sel{border-color:var(--teal);background:#E8F6F8;}
+  .qo.correct{border-color:var(--green);background:#E8F5EE;color:var(--green);font-weight:600;}
+  .qo.wrong{border-color:var(--red);background:#FFF0EF;color:var(--red);}
+  .qo input{accent-color:var(--teal);}
+  .qfb{font-size:12.5px;margin-top:8px;padding:8px 12px;border-radius:6px;display:none;}
+  .qfb.show{display:block;}
+  .qfb.ok{background:#E8F5EE;color:var(--green);}
+  .qfb.bad{background:#FFF0EF;color:var(--red);}
+  .qrow{display:flex;align-items:center;gap:14px;margin-top:6px;}
+  .qsc{font-size:14px;font-weight:700;color:var(--navy);}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .bp{background:var(--teal);color:#fff;}
+  .bg{background:var(--gold);color:var(--navy);}
+  .bo{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+
+  .mnav{display:flex;gap:12px;margin-top:30px;padding-top:20px;border-top:1px solid var(--gray4);}
+
+  #si{position:fixed;top:60px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal-lt),var(--gold));transform-origin:left;transform:scaleX(0);z-index:200;transition:transform .1s;}
+
+  @media(max-width:780px){#sidebar{display:none;}#main{padding:20px 16px;}}
+</style>
+</head>
+<body>
+<div id="si"></div>
+
+<div id="topbar">
+  <div class="brand">
+    <div class="logo-box">OCHIN</div>
+    <div>
+      <div class="bar-title">Epic Training Portal</div>
+      <div class="bar-sub">Part 4 of 8 · Medications &amp; Prescriptions</div>
+    </div>
+  </div>
+  <div class="pbwrap">
+    <span>Module Progress</span>
+    <div class="pbtrack"><div class="pbfill" id="pbf" style="width:0%"></div></div>
+    <span id="ppct">0%</span>
+  </div>
+  <div class="ubadge">👤 Learner</div>
+</div>
+
+<div id="layout">
+  <nav id="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Part 4 Sections</div>
+      <div class="ni active" onclick="show('s1',this)"><span class="ico">💊</span><span class="lbl">4.1 · Med List Overview</span><span class="chk" id="c1" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s2',this)"><span class="ico">➕</span><span class="lbl">4.2 · Ordering Medications</span><span class="chk" id="c2" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s3',this)"><span class="ico">📱</span><span class="lbl">4.3 · e-Prescribing (eRx)</span><span class="chk" id="c3" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s4',this)"><span class="ico">⚠️</span><span class="lbl">4.4 · Drug Alerts &amp; Safety</span><span class="chk" id="c4" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s5',this)"><span class="ico">🔴</span><span class="lbl">4.5 · Controlled Substances</span><span class="chk" id="c5" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s6',this)"><span class="ico">🔄</span><span class="lbl">4.6 · Refills &amp; Renewals</span><span class="chk" id="c6" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s7',this)"><span class="ico">🏷️</span><span class="lbl">4.7 · 340B Drug Program</span><span class="chk" id="c7" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('quiz',this)"><span class="ico">📝</span><span class="lbl">Module Quiz</span></div>
+    </div>
+    <div class="ndiv"></div>
+    <div class="sb-sec">
+      <div class="sb-lbl">All Parts</div>
+      <div class="ni" onclick="alert('Load ochin-epic-part1.html')"><span class="ico">🏥</span><span class="lbl">Part 1 · Overview &amp; Login</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part2.html')"><span class="ico">🪪</span><span class="lbl">Part 2 · Check-In</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part3.html')"><span class="ico">📝</span><span class="lbl">Part 3 · Documentation</span><span class="chk">✓</span></div>
+      <div class="ni active"><span class="ico">💊</span><span class="lbl">Part 4 · Medications (HERE)</span></div>
+      <div class="ni locked"><span class="ico">🔬</span><span class="lbl">Part 5 · Orders &amp; Results</span><span class="badge">Coming</span></div>
+      <div class="ni locked"><span class="ico">📅</span><span class="lbl">Part 6 · Scheduling &amp; Billing</span><span class="badge">Coming</span></div>
+      <div class="ni locked"><span class="ico">📖</span><span class="lbl">Part 7 · Top 100 Q&amp;A</span><span class="badge">Coming</span></div>
+      <div class="ni locked"><span class="ico">🎓</span><span class="lbl">Part 8 · Final Assessment</span><span class="badge">Coming</span></div>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <div class="ph">
+      <div class="mt">Module 4 of 6 · Part 4 of 8</div>
+      <h1>Medications &amp; Prescriptions</h1>
+      <p>Master Ochin Epic's medication management: reviewing the active med list, ordering new medications, e-prescribing to pharmacies, understanding drug safety alerts, managing controlled substances with PDMP, processing refill requests, and navigating the 340B drug program.</p>
+      <div class="meta">
+        <span>⏱ ~40 min</span>
+        <span>🎯 Providers · Nurses · MAs · Pharmacy Staff</span>
+        <span>📋 7 sections · Quiz at end</span>
+      </div>
+    </div>
+
+    <div class="stabs">
+      <div class="stab active" onclick="show('s1',null)">4.1 Med List</div>
+      <div class="stab" onclick="show('s2',null)">4.2 Ordering</div>
+      <div class="stab" onclick="show('s3',null)">4.3 eRx</div>
+      <div class="stab" onclick="show('s4',null)">4.4 Drug Alerts</div>
+      <div class="stab" onclick="show('s5',null)">4.5 Controlled Rx</div>
+      <div class="stab" onclick="show('s6',null)">4.6 Refills</div>
+      <div class="stab" onclick="show('s7',null)">4.7 340B</div>
+      <div class="stab" onclick="show('quiz',null)">📝 Quiz</div>
+    </div>
+
+    <!-- ═══ 4.1 MED LIST ═══ -->
+    <div class="sc active" id="sec-s1">
+      <div class="card">
+        <h2><span>💊</span> 4.1 The Medication List in Ochin Epic</h2>
+        <p>The <strong>Medication List</strong> (also called the <em>Medication Reconciliation</em> list) is one of the most clinically critical sections of the Epic chart. It shows every medication the patient is currently taking — prescribed, over-the-counter, vitamins, and herbal supplements. Keeping it accurate is a patient safety imperative.</p>
+
+        <h3>Accessing the Medication List</h3>
+        <ul>
+          <li>Patient chart → <strong>Medications</strong> tab (top toolbar), or</li>
+          <li>Chart navigator → <strong>Medications</strong> section during a visit note, or</li>
+          <li>Patient header bar → click the medication count link (e.g., "5 Meds")</li>
+        </ul>
+
+        <h3>Medication List Sections</h3>
+        <table class="ct">
+          <thead><tr><th>Section</th><th>What It Shows</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Active Medications</strong></td><td>Currently prescribed and being taken. These appear in every visit note and the AVS.</td></tr>
+            <tr><td><strong>Patient-Reported Medications</strong></td><td>OTC drugs, supplements, vitamins the patient told the MA/nurse about. Not prescribed here but need to be reconciled.</td></tr>
+            <tr><td><strong>Historical Medications</strong></td><td>Previously prescribed medications that have been discontinued. Still visible for reference.</td></tr>
+            <tr><td><strong>Pending Medications</strong></td><td>Ordered but not yet dispensed or confirmed active. Check if these should be moved to Active.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="rx-mock">
+          <div class="rx-bar">
+            <div class="rx-dot" style="background:#ff5f57"></div>
+            <div class="rx-dot" style="background:#febc2e"></div>
+            <div class="rx-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.4);font-size:11px;margin-left:8px;font-family:sans-serif">Epic — Medication List</span>
+          </div>
+          <div class="rx-body"><span class="rw">GARCIA, MARIA L.</span>  MRN: 00123456   DOB: 03/22/1978
+<span class="rd">──────────────────────────────────────────────────────────────────</span>
+<span class="rg">ACTIVE MEDICATIONS</span>                          Last Reconciled: <span class="rt">06/01/2026</span>
+<span class="rd">──────────────────────────────────────────────────────────────────</span>
+  <span class="rw">Metformin 1000 mg tablet</span>        Take 1 tablet by mouth TWICE DAILY with meals
+    Dispense: 60  Refills: 5   Ordered: Smith, J MD  04/15/2026  <span class="rgn">⬤ Active</span>
+
+  <span class="rw">Lisinopril 10 mg tablet</span>          Take 1 tablet by mouth ONCE DAILY
+    Dispense: 30  Refills: 11  Ordered: Smith, J MD  01/10/2026  <span class="rgn">⬤ Active</span>
+
+  <span class="rw">Atorvastatin 20 mg tablet</span>        Take 1 tablet by mouth at BEDTIME
+    Dispense: 30  Refills: 5   Ordered: Smith, J MD  01/10/2026  <span class="rgn">⬤ Active</span>
+<span class="rd">──────────────────────────────────────────────────────────────────</span>
+<span class="rg">PATIENT-REPORTED</span>
+  Vitamin D3 2000 IU   (OTC - patient self-reports)
+  Fish Oil 1000 mg     (OTC - patient self-reports)
+<span class="rd">──────────────────────────────────────────────────────────────────</span>
+  <span class="rt">[ + Add Medication ]</span>  <span class="rg">[ Reconcile ]</span>  [ Discontinue ]  [ History ]</div>
+        </div>
+
+        <h3>Medication Reconciliation</h3>
+        <p>At every visit, clinical staff must <strong>reconcile</strong> the medication list — verifying with the patient that every medication on the list is still being taken as prescribed, and updating the list accordingly. This is a Joint Commission and FQHC quality standard.</p>
+
+        <ol class="sl">
+          <li><div class="st"><strong>Ask the patient to confirm each medication</strong><br>Read each medication name and dose aloud. Ask: "Are you still taking this? At the same dose?" Document any discrepancies.</div></li>
+          <li><div class="st"><strong>Update changed medications</strong><br>If a dose changed or a medication was stopped by another provider: click the medication → <em>Edit</em> to update the dose, or <em>Discontinue</em> if stopped.</div></li>
+          <li><div class="st"><strong>Add any new medications not on the list</strong><br>Including OTC drugs, supplements, and medications prescribed elsewhere. Click <em>Add Medication</em> → set as Patient-Reported if not prescribed by your clinic.</div></li>
+          <li><div class="st"><strong>Click "Mark as Reviewed" or "Reconcile"</strong><br>This documents that reconciliation was performed today, updating the "Last Reconciled" date visible to all providers.</div></li>
+        </ol>
+
+        <div class="ib warn">
+          <strong>⚠️ Reconciliation ≠ Just Reviewing:</strong> Simply clicking through the medication screen without asking the patient does not constitute reconciliation. You must verbally confirm each medication with the patient (or their guardian). Unreconciled medications are a leading cause of adverse drug events.
+        </div>
+      </div>
+      <div class="mnav">
+        <button class="btn bp" onclick="mark('s1');show('s2',null)">Next: Ordering Medications →</button>
+      </div>
+    </div>
+
+    <!-- ═══ 4.2 ORDERING MEDICATIONS ═══ -->
+    <div class="sc" id="sec-s2">
+      <div class="card">
+        <h2><span>➕</span> 4.2 Ordering New Medications</h2>
+        <p>Providers order medications directly in Ochin Epic through the <strong>Medications activity</strong> or from within the visit note's Assessment &amp; Plan section. All outpatient prescriptions flow through Epic's e-prescribing system.</p>
+
+        <h3>Step-by-Step: Ordering a New Medication</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Navigate to Medications tab → click "Order Medication" (or "+ Add")</strong><br>Alternatively, within the note editor's Assessment &amp; Plan, type the medication name to launch the order entry.</div></li>
+          <li><div class="st"><strong>Search for the medication by name or drug class</strong><br>Type the generic name first — Epic displays both brand and generic options. Select the correct formulation (tablet, capsule, liquid, patch, inhaler, injection).<br><br>
+            Example: Type <code>metformin</code> → select <em>metformin 500 mg tablet</em> or <em>metformin 1000 mg tablet</em>
+          </div></li>
+          <li><div class="st"><strong>Enter the Order Details</strong><br>A structured order form opens. Fill in all required fields (see table below).</div></li>
+          <li><div class="st"><strong>Review drug interaction and allergy alerts</strong><br>Epic automatically checks the new medication against the patient's allergy list and current medications. Review all alerts before proceeding (see Section 4.4).</div></li>
+          <li><div class="st"><strong>Select the pharmacy</strong><br>Epic displays the patient's preferred pharmacy. Confirm or change. For controlled substances, additional steps apply (Section 4.5).</div></li>
+          <li><div class="st"><strong>Sign the order</strong><br>Click <em>Sign</em> (or <em>Sign &amp; Send</em> to transmit to pharmacy immediately). The prescription is sent electronically to the pharmacy via Surescripts.</div></li>
+        </ol>
+
+        <h3>Required Fields for Every Medication Order</h3>
+        <table class="ct">
+          <thead><tr><th>Field</th><th>What to Enter</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Medication</strong></td><td>Generic name + strength + form</td><td>Metformin 1000 mg tablet</td></tr>
+            <tr><td><strong>Dose</strong></td><td>Amount per administration</td><td>1 tablet (1000 mg)</td></tr>
+            <tr><td><strong>Route</strong></td><td>How it's taken</td><td>By mouth (oral)</td></tr>
+            <tr><td><strong>Frequency</strong></td><td>How often</td><td>Twice daily (BID)</td></tr>
+            <tr><td><strong>Patient Instructions (Sig)</strong></td><td>Plain-language directions for the label</td><td>"Take 1 tablet by mouth twice daily with meals"</td></tr>
+            <tr><td><strong>Quantity to Dispense</strong></td><td>Total pills/units to give</td><td>60 tablets (30-day supply BID)</td></tr>
+            <tr><td><strong>Days Supply</strong></td><td>How many days the supply covers</td><td>30 days</td></tr>
+            <tr><td><strong>Refills</strong></td><td>Number of refills authorized (0–11)</td><td>5 refills (6-month supply total)</td></tr>
+            <tr><td><strong>Indication / Diagnosis</strong></td><td>ICD-10 code or problem; required for many payors</td><td>E11.9 — Type 2 Diabetes</td></tr>
+            <tr><td><strong>Earliest Fill Date</strong></td><td>When pharmacy can dispense (auto-calculated)</td><td>Auto-set based on days supply</td></tr>
+            <tr><td><strong>Prior Auth</strong></td><td>Required for many brand-name drugs</td><td>Select "Prior Auth Needed" if required</td></tr>
+          </tbody>
+        </table>
+
+        <div class="rx-mock">
+          <div class="rx-bar">
+            <div class="rx-dot" style="background:#ff5f57"></div>
+            <div class="rx-dot" style="background:#febc2e"></div>
+            <div class="rx-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.4);font-size:11px;margin-left:8px;font-family:sans-serif">Epic — New Medication Order</span>
+          </div>
+          <div class="rx-body"><span class="rg">NEW PRESCRIPTION — GARCIA, MARIA L.</span>
+<span class="rd">────────────────────────────────────────────────────────────────</span>
+  Medication:    <span class="rw">Metformin HCl 1000 mg tablet</span>   <span class="rgn">Generic available</span>
+  Dose:          <span class="rw">1 tablet</span>
+  Route:         <span class="rw">By mouth (PO)</span>
+  Frequency:     <span class="rw">Twice daily (BID)</span>
+  Patient Sig:   <span class="rw">"Take 1 tablet by mouth TWICE DAILY with meals"</span>
+  Quantity:      <span class="rw">60 tablets</span>     Days Supply: <span class="rw">30</span>
+  Refills:       <span class="rw">5</span>               (covers 6 months)
+  Indication:    <span class="rw">E11.9 — Type 2 Diabetes Mellitus</span>
+  Pharmacy:      <span class="rt">⬤ Walgreens #4521 — 123 Main St, Portland OR</span>
+  Prescriber:    Smith, John MD   DEA: AS1234567   NPI: 1234567890
+<span class="rd">────────────────────────────────────────────────────────────────</span>
+<span class="rr">  ⚠ DRUG INTERACTION CHECK: No interactions found</span>
+<span class="rgn">  ✓ ALLERGY CHECK: No known allergies to this drug class</span>
+<span class="rd">────────────────────────────────────────────────────────────────</span>
+  <span class="rt">[ Sign &amp; Send to Pharmacy ]</span>   [ Sign — Hold ]   [ Cancel ]</div>
+        </div>
+
+        <h3>Dispense as Written (DAW) vs. Generic Substitution</h3>
+        <p>By default, pharmacies substitute generic equivalents unless you mark <strong>DAW (Dispense as Written)</strong>. Only use DAW when there is a clinical reason to require the brand-name drug (e.g., narrow therapeutic index drugs like levothyroxine, or patient stability on a specific formulation). DAW without justification increases patient cost and may trigger payor audits.</p>
+
+        <h3>Medication Order Sets</h3>
+        <p>Ochin Epic includes pre-built <strong>Order Sets</strong> for common conditions — groups of medications and orders frequently ordered together. Example: a "Diabetes Initial Management" order set may include Metformin, HbA1c lab, referral to diabetes education, and ophthalmology referral, all placed with one click. Access via: Orders → Order Sets → search by condition.</p>
+
+        <div class="ib tip">
+          <strong>💡 Tip — Favorite Orders:</strong> Add frequently ordered medications to your <em>Favorites</em> list in Epic. From any medication order: click the star icon ⭐ to favorite it. Next time, your favorites appear at the top of search results, saving time every day.
+        </div>
+      </div>
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s1',null)">← Back</button>
+        <button class="btn bp" onclick="mark('s2');show('s3',null)">Next: e-Prescribing →</button>
+      </div>
+    </div>
+
+    <!-- ═══ 4.3 E-PRESCRIBING ═══ -->
+    <div class="sc" id="sec-s3">
+      <div class="card">
+        <h2><span>📱</span> 4.3 Electronic Prescribing (eRx) in Ochin Epic</h2>
+        <p>Ochin Epic transmits prescriptions electronically to pharmacies through <strong>Surescripts</strong>, the national e-prescribing network. This eliminates paper prescriptions (except in limited situations), reduces errors from illegible handwriting, and speeds up the dispensing process for patients.</p>
+
+        <h3>How eRx Works</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Provider signs the prescription in Epic</strong><br>Clicking "Sign &amp; Send" initiates an electronic transmission via Surescripts.</div></li>
+          <li><div class="st"><strong>The prescription routes to the selected pharmacy</strong><br>The patient's preferred pharmacy is pre-loaded from their registration. The provider can change it at order time.</div></li>
+          <li><div class="st"><strong>The pharmacy receives it in seconds</strong><br>The pharmacy's system receives the prescription electronically, verifies the information, and begins filling — often before the patient leaves the clinic.</div></li>
+          <li><div class="st"><strong>Pharmacy can send electronic messages back</strong><br>If the pharmacy has questions, needs a prior auth, or has a formulary substitution request, they send an electronic <em>Pharmacy Message</em> that appears in the prescriber's Epic <strong>In Basket</strong>.</div></li>
+        </ol>
+
+        <h3>Preferred Pharmacy Setup</h3>
+        <p>The patient's preferred pharmacy is stored in their Epic registration. To view or update:</p>
+        <ul>
+          <li>Patient chart → <strong>Patient → Pharmacy</strong>, or</li>
+          <li>During medication ordering, click the pharmacy field → search for a pharmacy by name, city, or zip code</li>
+          <li>Pharmacies in the Surescripts network are indicated with an <span class="chip">⚡ eRx</span> badge — only these accept electronic prescriptions</li>
+          <li>If a patient uses a mail-order pharmacy, confirm it is in the Surescripts network; some require fax instead</li>
+        </ul>
+
+        <h3>When a Paper Prescription is Still Required</h3>
+        <table class="ct">
+          <thead><tr><th>Situation</th><th>Reason</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Schedule II controlled substances (in some states)</td><td>EPCS (Electronic Prescribing for Controlled Substances) regulations vary; many states now allow e-prescribing for CII</td><td>Check your state law; if EPCS enabled, use Epic EPCS workflow</td></tr>
+            <tr><td>Pharmacy not on Surescripts network</td><td>Independent/compounding pharmacies may not be electronically connected</td><td>Print or call in the prescription</td></tr>
+            <tr><td>Patient requests paper copy</td><td>Patient preference or for record-keeping</td><td>Print from Epic → Prescriptions → Print</td></tr>
+            <tr><td>System outage or connectivity issue</td><td>Technical failure</td><td>Use clinic's downtime procedure; paper Rx with provider wet signature</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Electronic Prescribing for Controlled Substances (EPCS)</h3>
+        <p>Ochin Epic supports <strong>EPCS</strong> — electronic prescribing of Schedule II–V controlled substances where permitted by state law. EPCS requires additional identity verification:</p>
+        <ul>
+          <li>Providers must complete a one-time <strong>EPCS enrollment</strong> with Ochin (identity proofing per DEA requirements)</li>
+          <li>Every EPCS prescription requires <strong>two-factor authentication</strong> at time of signing — your Epic password PLUS a one-time code from the Duo app or a hard token</li>
+          <li>EPCS is logged and audited — all electronically prescribed controlled substances create a tamper-evident audit trail</li>
+          <li>If your state requires paper for Schedule II, Epic will prompt you and generate a printable prescription instead</li>
+        </ul>
+
+        <div class="ib key">
+          <strong>🔑 Ochin EPCS Status:</strong> Ochin has enabled EPCS across its network. Most Ochin member states support e-prescribing for Schedule III–V. Schedule II varies — consult your clinic's pharmacy policy and your state's PDMP/prescribing regulations.
+        </div>
+
+        <h3>Pharmacy Change Requests &amp; Formulary Alerts</h3>
+        <p>After sending a prescription, you may receive an <strong>In Basket — Pharmacy Message</strong> from the pharmacy. Common types:</p>
+        <table class="ct">
+          <thead><tr><th>Message Type</th><th>Meaning</th><th>Your Action</th></tr></thead>
+          <tbody>
+            <tr><td>Formulary Alternative</td><td>The prescribed drug is not covered; pharmacy suggests a covered alternative</td><td>Review the alternative; if clinically appropriate, approve the change or send a new Rx</td></tr>
+            <tr><td>Prior Authorization Required</td><td>Payor requires pre-approval before dispensing</td><td>Start a PA through Epic or contact the insurance company</td></tr>
+            <tr><td>Drug Unavailable / Back Order</td><td>Pharmacy cannot obtain the medication</td><td>Prescribe an equivalent alternative or direct patient to another pharmacy</td></tr>
+            <tr><td>Clarification Needed</td><td>Pharmacist has a question about the dose or directions</td><td>Respond through In Basket → Pharmacy Messages</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ib tip">
+          <strong>💡 Tip — Check Your In Basket for Pharmacy Messages Daily:</strong> Pharmacy messages that go unanswered delay patient medication access. Make it a habit to check In Basket → Pharmacy Messages at the start and end of every clinic session. Unresolved messages are also tracked in compliance reports.
+        </div>
+      </div>
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s2',null)">← Back</button>
+        <button class="btn bp" onclick="mark('s3');show('s4',null)">Next: Drug Alerts &amp; Safety →</button>
+      </div>
+    </div>
+
+    <!-- ═══ 4.4 DRUG ALERTS ═══ -->
+    <div class="sc" id="sec-s4">
+      <div class="card">
+        <h2><span>⚠️</span> 4.4 Drug Alerts &amp; Medication Safety in Epic</h2>
+        <p>Every time you order a medication in Epic, the system automatically runs safety checks in the background and displays alerts if issues are detected. Understanding these alerts — and when to override vs. when to stop — is a critical patient safety skill.</p>
+
+        <h3>Types of Drug Alerts in Ochin Epic</h3>
+
+        <div class="alert-box">
+          <div class="alert-icon">🚫</div>
+          <div class="alert-body">
+            <div class="alert-title">HARD STOP — Allergy Alert (Cannot Override)</div>
+            <div class="alert-text">The medication you ordered belongs to a drug class the patient is allergic to. Example: ordering Amoxicillin for a patient with a documented Penicillin allergy triggers a hard stop. You <strong>cannot proceed</strong> without removing the order or documenting a clinical override with a valid reason. These are rare but absolute.</div>
+          </div>
+        </div>
+
+        <div class="alert-box warn-box">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-body">
+            <div class="alert-title">SOFT STOP — Drug Interaction Warning (Can Override with Reason)</div>
+            <div class="alert-text">A potential interaction exists between the new medication and something already on the patient's medication list. You can override with a clinical justification. Example: Warfarin + Aspirin — a common combination that requires monitoring but may be clinically appropriate. Read every interaction alert carefully before overriding.</div>
+          </div>
+        </div>
+
+        <div class="alert-box warn-box">
+          <div class="alert-icon">📊</div>
+          <div class="alert-body">
+            <div class="alert-title">DOSING ALERT — Dose Outside Normal Range</div>
+            <div class="alert-text">The dose you entered is above or below the standard range for this medication (per patient weight, age, or renal function). Epic checks renal dosing automatically if a recent creatinine/eGFR is in the chart. Always verify dose is appropriate for the patient's current kidney function, especially for Metformin, NSAIDs, and antibiotics.</div>
+          </div>
+        </div>
+
+        <div class="alert-box warn-box">
+          <div class="alert-icon">👶</div>
+          <div class="alert-body">
+            <div class="alert-title">PEDIATRIC WEIGHT-BASED DOSING ALERT</div>
+            <div class="alert-text">For pediatric patients, many medications are dosed by weight (mg/kg). Epic calculates the recommended dose range if a current weight is in the flowsheet. If no weight is documented, enter the patient's weight before ordering weight-based medications.</div>
+          </div>
+        </div>
+
+        <h3>Drug-Drug Interaction Severity Levels</h3>
+        <table class="ct">
+          <thead><tr><th>Severity</th><th>What It Means</th><th>Typical Response</th></tr></thead>
+          <tbody>
+            <tr><td><span style="color:var(--red);font-weight:700">■ Contraindicated</span></td><td>Combination should never be used. Serious harm likely.</td><td>Do not prescribe. Choose an alternative.</td></tr>
+            <tr><td><span style="color:#C05C00;font-weight:700">■ Severe</span></td><td>Potentially life-threatening interaction. Use only if benefit outweighs risk with close monitoring.</td><td>Consult with pharmacist. Document clinical justification if proceeding.</td></tr>
+            <tr><td><span style="color:var(--gold);font-weight:700">■ Moderate</span></td><td>Interaction may cause adverse effects; monitoring needed.</td><td>Consider alternatives. If proceeding, counsel patient and plan monitoring.</td></tr>
+            <tr><td><span style="color:var(--green);font-weight:700">■ Minor</span></td><td>Interaction unlikely to cause significant harm.</td><td>Acknowledge alert; usually safe to proceed.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Best Practice Advisories (BPAs) — Medication-Related</h3>
+        <p>In addition to drug safety alerts at ordering, Epic's <strong>Best Practice Advisories</strong> can fire during medication ordering for broader clinical reminders:</p>
+        <ul>
+          <li><strong>NSAID + CKD:</strong> "Patient has CKD Stage 3 — NSAIDs may worsen renal function. Consider alternatives."</li>
+          <li><strong>Opioid Prescribing:</strong> "Patient is on long-term opioid therapy. Consider PDMP check before prescribing." (see Section 4.5)</li>
+          <li><strong>Statin for Diabetic Patients:</strong> "Patient has Type 2 DM without a statin on the med list. Consider initiating statin therapy per guidelines."</li>
+          <li><strong>Pregnancy + Teratogenic Drug:</strong> "Patient is pregnant. This medication has teratogenic risk (Category D/X). Use with caution or avoid."</li>
+        </ul>
+
+        <h3>Alert Fatigue and Responsible Overriding</h3>
+        <p>Epic presents many alerts — some critical, some routine. <strong>Alert fatigue</strong> occurs when providers click through alerts without reading them because they appear too frequently. This is a documented patient safety risk.</p>
+
+        <div class="ib warn">
+          <strong>⚠️ Golden Rule:</strong> Read every alert completely before clicking Override or Acknowledge. If you are overriding a drug interaction, you must select a clinically valid override reason from the dropdown — not just "Clinically appropriate" without thought. Override reasons are logged and may be reviewed in audits. Never click through alerts rapidly without reading them.
+        </div>
+
+        <div class="ib tip">
+          <strong>💡 Tip — Allergy Reconciliation:</strong> Alerts are only as good as the data behind them. If a patient says they are NOT actually allergic to Penicillin (it was "sensitivity" or a GI side effect, not a true allergy), update the allergy entry to reflect the correct reaction type. This prevents unnecessary allergy alerts and avoids restricting patients from effective antibiotic options.
+        </div>
+      </div>
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s3',null)">← Back</button>
+        <button class="btn bp" onclick="mark('s4');show('s5',null)">Next: Controlled Substances →</button>
+      </div>
+    </div>
+
+    <!-- ═══ 4.5 CONTROLLED SUBSTANCES ═══ -->
+    <div class="sc" id="sec-s5">
+      <div class="card">
+        <h2><span>🔴</span> 4.5 Controlled Substances &amp; PDMP in Ochin Epic</h2>
+        <p>Controlled substances require additional clinical and regulatory steps in Ochin Epic. Community health centers serve many patients with complex pain, mental health, and addiction histories — safe and responsible controlled substance prescribing is a core FQHC competency.</p>
+
+        <h3>DEA Schedule Reference</h3>
+        <table class="ct">
+          <thead><tr><th>Schedule</th><th>Examples</th><th>Prescribing Restrictions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="cs-badge cii">Schedule II</span></td>
+              <td>Oxycodone, Hydrocodone, Morphine, Fentanyl, Adderall (amphetamine), Ritalin (methylphenidate), Cocaine (medical)</td>
+              <td>No refills allowed. New Rx required each month. Many states require EPCS or triplicate paper. DEA 222 form for dispensing.</td>
+            </tr>
+            <tr>
+              <td><span class="cs-badge ciii">Schedule III</span></td>
+              <td>Buprenorphine/naloxone (Suboxone), Testosterone, Codeine combos (Tylenol #3), Ketamine</td>
+              <td>Up to 5 refills in 6 months. EPCS available in most states.</td>
+            </tr>
+            <tr>
+              <td><span class="cs-badge civ">Schedule IV</span></td>
+              <td>Benzodiazepines (Xanax, Klonopin, Valium), Ambien (zolpidem), Tramadol, Ativan</td>
+              <td>Up to 5 refills in 6 months. EPCS available.</td>
+            </tr>
+            <tr>
+              <td><span class="cs-badge cv">Schedule V</span></td>
+              <td>Cough syrups with small amounts of codeine (Robitussin AC), Lyrica (pregabalin), Lacosamide</td>
+              <td>Up to 5 refills in 6 months. Some OTC in small quantities in certain states.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>PDMP Integration in Ochin Epic</h3>
+        <p>The <strong>Prescription Drug Monitoring Program (PDMP)</strong> is a state-run database tracking all controlled substance prescriptions dispensed to a patient across all prescribers and pharmacies in the state. Ochin Epic integrates directly with most state PDMPs, allowing providers to check a patient's prescription history without leaving Epic.</p>
+
+        <ol class="sl">
+          <li><div class="st"><strong>When to check the PDMP</strong><br>Before prescribing any Schedule II–IV controlled substance. Many states legally require a PDMP check. Ochin's BPA system may automatically prompt you when ordering a controlled substance if a check is overdue.</div></li>
+          <li><div class="st"><strong>How to access in Ochin Epic</strong><br>From the patient's chart: <em>Chart → PDMP</em> tab, or click the PDMP button that appears in the medication order window when ordering a controlled substance. Epic launches the state PDMP report embedded in the chart.</div></li>
+          <li><div class="st"><strong>Review the PDMP report</strong><br>Look for: multiple prescribers (doctor shopping), overlapping prescriptions, high morphine milligram equivalents (MME), early refills, and any medications not listed in the Epic med list.</div></li>
+          <li><div class="st"><strong>Document your PDMP review</strong><br>A PDMP check must be documented in the patient's chart. Ochin Epic has a structured PDMP documentation flowsheet — enter the date of check and findings. Some clinics have a SmartPhrase (<code>.pdmp</code>) for this.</div></li>
+          <li><div class="st"><strong>Address any concerns before prescribing</strong><br>If the PDMP shows concerning patterns, discuss with the patient before prescribing. Consider consultation with addiction medicine, a pain specialist, or your clinic's behavioral health team.</div></li>
+        </ol>
+
+        <div class="ib purple">
+          <strong>🟣 Buprenorphine (Suboxone) in Ochin FQHCs:</strong> Many Ochin member clinics offer <strong>Medication-Assisted Treatment (MAT)</strong> for opioid use disorder using buprenorphine/naloxone. Prescribing buprenorphine previously required a DEA X waiver, but as of 2023 federal law eliminated the waiver requirement — any DEA-registered provider may now prescribe buprenorphine for OUD. Ochin has specific workflows for MAT initiation, monitoring, and PDMP documentation. Check with your clinic's MAT coordinator for the local workflow.
+        </div>
+
+        <h3>Controlled Substance Ordering Workflow in Epic</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Order the controlled substance</strong> from the Medications activity (same as any medication).</div></li>
+          <li><div class="st"><strong>Epic prompts for PDMP check</strong> if your state requires it or if your clinic has configured this BPA. Complete the PDMP check in-chart.</div></li>
+          <li><div class="st"><strong>Sign with two-factor authentication (EPCS)</strong><br>If using EPCS: enter your Epic password + approve the Duo push or enter a one-time code. This satisfies the DEA's two-factor requirement for electronic controlled substance prescriptions.</div></li>
+          <li><div class="st"><strong>For Schedule II: no refills</strong><br>The refill field will be locked to 0. You must write a new prescription each month. You can post-date a CII prescription up to 90 days in advance in states that allow it (check your state law).</div></li>
+          <li><div class="st"><strong>Print if required</strong><br>If EPCS is not available for this drug class in your state, print the prescription on tamper-evident paper and sign with wet signature.</div></li>
+        </ol>
+
+        <h3>Controlled Substance Agreement</h3>
+        <p>For patients on chronic opioid or benzodiazepine therapy, most Ochin clinics require a signed <strong>Controlled Substance Agreement (CSA)</strong>. In Epic:</p>
+        <ul>
+          <li>Document the CSA in <em>Chart → Consents</em> or attach a scanned signed copy in Media Manager</li>
+          <li>Ochin has a BPA that fires if a patient is on long-term controlled substances without a current CSA on file</li>
+          <li>CSAs typically require annual renewal and include patient education about risks, safe storage, and naloxone</li>
+        </ul>
+
+        <div class="ib warn">
+          <strong>⚠️ Never pre-sign controlled substance prescriptions</strong> or allow non-prescribers to complete and sign controlled substance orders. Every controlled substance prescription must be completed and signed by the licensed prescriber at the time of prescribing. Epic's audit log tracks every action — pre-signing is a DEA violation and grounds for license revocation.
+        </div>
+      </div>
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s4',null)">← Back</button>
+        <button class="btn bp" onclick="mark('s5');show('s6',null)">Next: Refills &amp; Renewals →</button>
+      </div>
+    </div>
+
+    <!-- ═══ 4.6 REFILLS ═══ -->
+    <div class="sc" id="sec-s6">
+      <div class="card">
+        <h2><span>🔄</span> 4.6 Refill Requests &amp; Medication Renewals</h2>
+        <p>Refill management is one of the highest-volume tasks in Ochin Epic. Refill requests come in through multiple channels — from pharmacies electronically, from patients via MyChart, and by phone — all routing to the provider's <strong>In Basket</strong>.</p>
+
+        <h3>Sources of Refill Requests</h3>
+        <table class="ct">
+          <thead><tr><th>Source</th><th>Where It Appears in Epic</th><th>How to Process</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Pharmacy (electronic refill request)</strong></td><td>In Basket → Refill Requests (Rx Renewal)</td><td>Review, approve or deny electronically. Response sent back to pharmacy automatically.</td></tr>
+            <tr><td><strong>Patient via MyChart</strong></td><td>In Basket → MyChart Messages → Rx Refill Request</td><td>Review patient request; process renewal in Medications activity.</td></tr>
+            <tr><td><strong>Phone call to clinic</strong></td><td>MA/nurse creates Telephone Encounter → routes to provider In Basket as a refill task</td><td>Provider reviews, approves, and sends renewal to pharmacy.</td></tr>
+            <tr><td><strong>Walk-in / visit request</strong></td><td>During visit — ordered directly in Medications activity</td><td>Renew directly during the visit encounter.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Processing a Refill from In Basket</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Open In Basket → Refill Requests folder</strong><br>Each request shows: patient name, medication, pharmacy, last fill date, and days since last visit.</div></li>
+          <li><div class="st"><strong>Review clinical appropriateness before approving</strong><br>Check: Is the medication still appropriate? When was the last visit? Are there outstanding labs or monitoring needs? Is this a controlled substance requiring a PDMP check? Is the SFS or insurance coverage current?</div></li>
+          <li><div class="st"><strong>Approve: click "Renew" or "Approve Refill"</strong><br>A renewal order is created with the same medication, dose, and directions. Review and modify if needed, then sign. The renewal is transmitted electronically to the pharmacy.</div></li>
+          <li><div class="st"><strong>Deny with reason: click "Deny"</strong><br>Select a reason from the dropdown: "Patient needs to be seen first," "Controlled substance — new Rx required," "Medication discontinued," "Not our patient," etc. A denial message is sent back to the pharmacy electronically.</div></li>
+          <li><div class="st"><strong>For borderline cases — create a task for your nurse/MA</strong><br>If you need more information (recent labs, updated weight, etc.) before approving, send a task via In Basket to your MA to gather the information and route back to you.</div></li>
+        </ol>
+
+        <div class="rx-mock">
+          <div class="rx-bar">
+            <div class="rx-dot" style="background:#ff5f57"></div>
+            <div class="rx-dot" style="background:#febc2e"></div>
+            <div class="rx-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.4);font-size:11px;margin-left:8px;font-family:sans-serif">In Basket — Refill Requests</span>
+          </div>
+          <div class="rx-body"><span class="rg">IN BASKET — REFILL REQUESTS (3 pending)</span>
+<span class="rd">──────────────────────────────────────────────────────────────────</span>
+<span class="rw">1. GARCIA, MARIA L.</span>  Metformin 1000 mg    Walgreens #4521
+   Last filled: 05/15/2026   Last visit: 04/15/2026   <span class="rgn">✓ Recent visit</span>
+   <span class="rt">[ Renew ]</span>  <span class="rr">[ Deny ]</span>  [ Open Chart ]
+
+<span class="rw">2. JONES, ROBERT T.</span>  Oxycodone 5 mg       CVS #2218
+   Last filled: 05/10/2026   Last visit: <span class="rr">02/01/2026 — 4 months ago!</span>
+   <span class="rr">⚠ Controlled substance — PDMP check required</span>
+   <span class="rt">[ Renew ]</span>  <span class="rr">[ Deny ]</span>  [ Open Chart ]
+
+<span class="rw">3. PATEL, SUNITA K.</span>   Lisinopril 20 mg    Rite Aid #0087
+   Last filled: 05/01/2026   Last visit: 03/22/2026   <span class="rgn">✓ Recent visit</span>
+   <span class="rr">⚠ No recent BMP/Potassium on file — monitor K+ with ACE inhibitor</span>
+   <span class="rt">[ Renew ]</span>  <span class="rr">[ Deny ]</span>  [ Open Chart ]
+<span class="rd">──────────────────────────────────────────────────────────────────</span></div>
+        </div>
+
+        <h3>Refill Policies — Common Clinical Guidelines</h3>
+        <ul>
+          <li><strong>Chronic medications (HTN, diabetes, thyroid):</strong> Refillable with 90-day supply if patient has had a visit in the past 12 months and labs are current</li>
+          <li><strong>Controlled substances (CII):</strong> No refills — must be seen or assessed; new prescription required each time</li>
+          <li><strong>CIII–CIV controlled substances:</strong> May refill up to 5 times in 6 months; still requires clinical assessment at each refill if used chronically</li>
+          <li><strong>Antibiotics, acute meds:</strong> Generally not refilled without a new assessment — encourage same-day or virtual visit</li>
+          <li><strong>Inhalers, EpiPens:</strong> May refill if clinically appropriate; confirm diagnosis and current need</li>
+        </ul>
+
+        <div class="ib tip">
+          <strong>💡 Tip — Refill Batching:</strong> Many providers set aside a specific In Basket check time (e.g., morning and end of day) to batch-process refill requests rather than interrupting patient care throughout the day. Some clinics have MAs pre-screen refill requests and only route complex or controlled substance requests to the provider.
+        </div>
+
+        <div class="ib warn">
+          <strong>⚠️ Refill without a visit has limits:</strong> Refilling chronic medications for patients who have not been seen in over 12 months is a clinical and legal risk. Epic will flag patients with no recent visit. These patients should be contacted to schedule an appointment before further refills are authorized.
+        </div>
+      </div>
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s5',null)">← Back</button>
+        <button class="btn bp" onclick="mark('s6');show('s7',null)">Next: 340B Drug Program →</button>
+      </div>
+    </div>
+
+    <!-- ═══ 4.7 340B ═══ -->
+    <div class="sc" id="sec-s7">
+      <div class="card">
+        <h2><span>🏷️</span> 4.7 The 340B Drug Pricing Program in Ochin Epic</h2>
+        <p>The <strong>340B Drug Pricing Program</strong> (named for Section 340B of the Public Health Service Act) allows eligible healthcare organizations — including FQHCs — to purchase outpatient drugs at significantly reduced prices (up to 50% below commercial cost). This is a major financial benefit for Ochin member clinics and directly supports affordable care for low-income patients.</p>
+
+        <h3>Why 340B Matters at Your Clinic</h3>
+        <ul>
+          <li>340B allows your clinic to buy medications cheaply and dispense or prescribe them to eligible patients, generating revenue that funds clinic operations and patient services</li>
+          <li>Many FQHCs operate an <strong>in-house pharmacy</strong> or contract pharmacy arrangement to maximize 340B savings</li>
+          <li>340B savings fund sliding fee discounts, care coordination, behavioral health services, and other mission-critical programs</li>
+          <li>HRSA audits 340B compliance — accurate Epic documentation is essential</li>
+        </ul>
+
+        <h3>340B Patient Eligibility in Ochin Epic</h3>
+        <p>Not every patient or every prescription qualifies for 340B pricing. The drug must be prescribed to a <strong>340B-eligible patient</strong> by a provider working at a <strong>340B-registered site</strong> for a covered outpatient service.</p>
+
+        <table class="ct">
+          <thead><tr><th>340B Eligibility Criterion</th><th>How Epic Tracks It</th></tr></thead>
+          <tbody>
+            <tr><td>Patient is a patient of the FQHC (established relationship)</td><td>Patient registered in Epic under the 340B-covered organization</td></tr>
+            <tr><td>Visit is an outpatient encounter at a 340B-registered site</td><td>Encounter location in Epic must match a HRSA-registered site</td></tr>
+            <tr><td>Prescribing provider is employed by or contracted with the covered entity</td><td>Provider's NPI and employment relationship documented in Epic</td></tr>
+            <tr><td>Prescription is for an outpatient medication (not inpatient)</td><td>Encounter type in Epic = Outpatient</td></tr>
+          </tbody>
+        </table>
+
+        <h3>How 340B Works in Ochin Epic Prescribing</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Provider prescribes as normal</strong><br>The medication order and e-prescription process is identical to any other prescription. No additional steps are required at the time of ordering for most 340B workflows.</div></li>
+          <li><div class="st"><strong>Epic flags eligible prescriptions automatically</strong><br>Based on the patient, encounter type, provider, and site, Ochin Epic can flag prescriptions as <strong>340B eligible</strong> in the background. These flags route to the in-house or contract pharmacy.</div></li>
+          <li><div class="st"><strong>Pharmacy dispenses from 340B inventory</strong><br>The clinic's pharmacy or contract pharmacy purchases the drug at 340B pricing and dispenses it. The billing difference (commercial price charged to insurance minus 340B acquisition cost) is the "340B spread" — revenue to the clinic.</div></li>
+          <li><div class="st"><strong>Compliance documentation</strong><br>Epic maintains the prescription records needed for 340B audits: encounter date, provider, patient eligibility, drug dispensed, and lot tracking. Do not alter encounter dates or provider attributions — this corrupts 340B compliance data.</div></li>
+        </ol>
+
+        <div class="ib key">
+          <strong>🔑 Split-Billing:</strong> Some Ochin clinics use <strong>split-billing software</strong> that integrates with Epic to automatically identify 340B-eligible vs. non-340B prescriptions and manage dual inventories. If your clinic uses split-billing, your pharmacy or billing staff will train you on the specific workflow. As a prescriber, you generally do not need to manually flag 340B — the system does it based on your documentation accuracy.
+        </div>
+
+        <h3>What Providers Need to Know About 340B Compliance</h3>
+        <ul>
+          <li><strong>Document the encounter correctly:</strong> The visit must be documented as an outpatient encounter at your 340B-registered site. Do not change the encounter location in Epic without clinical reason — it can disqualify 340B eligibility.</li>
+          <li><strong>Do not divert 340B drugs:</strong> 340B drugs must be dispensed to eligible patients — never given to staff, samples, or ineligible individuals. Diversion is a federal violation with severe penalties.</li>
+          <li><strong>Telehealth encounters:</strong> 340B eligibility for telemedicine visits has specific rules. Check with your compliance officer — the patient's location and encounter type in Epic must be correctly documented.</li>
+          <li><strong>Contract pharmacy:</strong> If your clinic uses a contract pharmacy (e.g., a Walgreens or local pharmacy the clinic has a 340B agreement with), prescriptions sent to that pharmacy from eligible patients are handled under the 340B agreement. The pharmacy distinction matters in Epic's routing.</li>
+        </ul>
+
+        <div class="ib tip">
+          <strong>💡 Tip — In-House Pharmacy:</strong> If your clinic operates an in-house pharmacy, Epic can display 340B drug pricing directly in the medication ordering screen. When prescribing, you may see a cost comparison: "340B Price: $2.40 / Retail Price: $18.00." This helps providers understand the value being generated for the clinic and encourages directing patients to the in-house pharmacy when clinically appropriate.
+        </div>
+
+        <div class="ib warn">
+          <strong>⚠️ 340B Audits Are Real:</strong> HRSA conducts regular 340B audits. Non-compliance findings can result in repayment demands of hundreds of thousands of dollars and removal from the 340B program — which would devastate a clinic's budget. Every staff member who touches prescribing, billing, or pharmacy must understand their role in maintaining 340B compliance.
+        </div>
+      </div>
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s6',null)">← Back</button>
+        <button class="btn bg" onclick="mark('s7');show('quiz',null)">Take the Module 4 Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══ QUIZ ═══ -->
+    <div class="sc" id="sec-quiz">
+      <div class="qc">
+        <h2>📝 Module 4 Knowledge Check</h2>
+        <div class="qsub">Answer all 8 questions. Score 7/8 or higher to complete this module.</div>
+
+        <div class="qq">
+          <div class="qt"><span class="qn">1.</span> A provider orders Amoxicillin for a patient with a documented Penicillin allergy. What type of alert fires in Epic?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q1" value="a"> A soft stop that can be overridden with a reason</label>
+            <label class="qo"><input type="radio" name="q1" value="b"> A hard stop allergy alert that cannot be overridden without removing the order</label>
+            <label class="qo"><input type="radio" name="q1" value="c"> A Best Practice Advisory that can be acknowledged and ignored</label>
+            <label class="qo"><input type="radio" name="q1" value="d"> No alert — Epic only checks for the exact drug name, not drug class</label>
+          </div>
+          <div class="qfb" id="fb1"></div>
+        </div>
+
+        <div class="qq">
+          <div class="qt"><span class="qn">2.</span> A patient's refill request for Oxycodone 5mg arrives in your In Basket. Their last visit was 4 months ago. What is the MOST appropriate action?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q2" value="a"> Approve immediately — chronic pain patients always need refills</label>
+            <label class="qo"><input type="radio" name="q2" value="b"> Deny and require the patient to be seen; check PDMP before prescribing any further controlled substances</label>
+            <label class="qo"><input type="radio" name="q2" value="c"> Approve but reduce the quantity to 5 pills</label>
+            <label class="qo"><input type="radio" name="q2" value="d"> Have the MA approve it without provider review</label>
+          </div>
+          <div class="qfb" id="fb2"></div>
+        </div>
+
+        <div class="qq">
+          <div class="qt"><span class="qn">3.</span> What does EPCS stand for, and what extra step does it require when signing a controlled substance prescription in Epic?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q3" value="a"> Electronic Patient Care System — requires a supervisor cosignature</label>
+            <label class="qo"><input type="radio" name="q3" value="b"> Electronic Prescribing for Controlled Substances — requires two-factor authentication (password + Duo/token)</label>
+            <label class="qo"><input type="radio" name="q3" value="c"> Extended Prescription Compliance System — requires a printed backup copy</label>
+            <label class="qo"><input type="radio" name="q3" value="d"> Electronic Pharmacy Communication Standard — requires fax confirmation</label>
+          </div>
+          <div class="qfb" id="fb3"></div>
+        </div>
+
+        <div class="qq">
+          <div class="qt"><span class="qn">4.</span> A pharmacy sends a message to your In Basket saying a drug you prescribed is "not on formulary." What does this mean?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q4" value="a"> The pharmacy does not carry the drug at all</label>
+            <label class="qo"><input type="radio" name="q4" value="b"> The patient's insurance does not cover the prescribed drug; a covered alternative may be available</label>
+            <label class="qo"><input type="radio" name="q4" value="c"> The drug requires a DEA number to dispense</label>
+            <label class="qo"><input type="radio" name="q4" value="d"> The prescription was not transmitted electronically</label>
+          </div>
+          <div class="qfb" id="fb4"></div>
+        </div>
+
+        <div class="qq">
+          <div class="qt"><span class="qn">5.</span> How many refills are allowed for a Schedule II controlled substance in Epic?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q5" value="a"> Up to 5 refills in 6 months</label>
+            <label class="qo"><input type="radio" name="q5" value="b"> Up to 11 refills per year</label>
+            <label class="qo"><input type="radio" name="q5" value="c"> Zero refills — a new prescription is required each time</label>
+            <label class="qo"><input type="radio" name="q5" value="d"> Up to 3 refills with provider authorization</label>
+          </div>
+          <div class="qfb" id="fb5"></div>
+        </div>
+
+        <div class="qq">
+          <div class="qt"><span class="qn">6.</span> What is medication reconciliation, and when must it be performed in Ochin Epic?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q6" value="a"> Reviewing the medication list on the screen without asking the patient — done monthly</label>
+            <label class="qo"><input type="radio" name="q6" value="b"> Verbally confirming each medication with the patient and updating the list for accuracy — performed at every visit</label>
+            <label class="qo"><input type="radio" name="q6" value="c"> Checking drug interactions before ordering — done only for new prescriptions</label>
+            <label class="qo"><input type="radio" name="q6" value="d"> Documenting all medications in the billing section — done at checkout</label>
+          </div>
+          <div class="qfb" id="fb6"></div>
+        </div>
+
+        <div class="qq">
+          <div class="qt"><span class="qn">7.</span> Which of the following BEST describes the 340B Drug Pricing Program's primary benefit for an FQHC?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q7" value="a"> It allows clinics to give free samples to all patients</label>
+            <label class="qo"><input type="radio" name="q7" value="b"> It allows eligible clinics to purchase drugs at significantly reduced prices, generating revenue that supports clinic operations</label>
+            <label class="qo"><input type="radio" name="q7" value="c"> It exempts FQHCs from state pharmacy licensing requirements</label>
+            <label class="qo"><input type="radio" name="q7" value="d"> It allows providers to prescribe unlimited controlled substances</label>
+          </div>
+          <div class="qfb" id="fb7"></div>
+        </div>
+
+        <div class="qq">
+          <div class="qt"><span class="qn">8.</span> A drug-drug interaction alert appears when you order a new medication. It is flagged as "Moderate" severity. What is the correct approach?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q8" value="a"> Click through immediately — moderate alerts are never clinically relevant</label>
+            <label class="qo"><input type="radio" name="q8" value="b"> Read the alert, consider if an alternative is appropriate, and if proceeding, document a valid clinical justification for the override</label>
+            <label class="qo"><input type="radio" name="q8" value="c"> Cancel the order entirely — moderate interactions should never be prescribed together</label>
+            <label class="qo"><input type="radio" name="q8" value="d"> Ask the MA to override the alert on your behalf</label>
+          </div>
+          <div class="qfb" id="fb8"></div>
+        </div>
+
+        <div class="qrow">
+          <button class="btn bp" onclick="grade()">Submit Answers</button>
+          <span class="qsc" id="qsc"></span>
+        </div>
+      </div>
+
+      <div id="qresult" style="display:none">
+        <div class="card" id="qpass" style="display:none;border-left:5px solid var(--green)">
+          <h2><span>🎉</span> Module 4 Complete!</h2>
+          <p>Outstanding work. You've mastered Medications &amp; Prescriptions in Ochin Epic — medication reconciliation, ordering workflows, e-prescribing via Surescripts, drug safety alerts, controlled substance rules with PDMP, refill management, and the 340B program.</p>
+          <div class="ib green"><strong>✓ Next:</strong> Load <strong>ochin-epic-part5.html</strong> to continue with <strong>Module 5: Orders, Lab Results &amp; Referrals</strong> — placing lab and imaging orders, reviewing results, managing In Basket result messages, and coordinating referrals.</div>
+          <div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap">
+            <span class="chip">✓ Med List &amp; Reconciliation</span>
+            <span class="chip">✓ Ordering Medications</span>
+            <span class="chip">✓ e-Prescribing</span>
+            <span class="chip">✓ Drug Alerts &amp; Safety</span>
+            <span class="chip">✓ Controlled Substances</span>
+            <span class="chip">✓ Refills &amp; Renewals</span>
+            <span class="chip">✓ 340B Program</span>
+          </div>
+        </div>
+        <div class="card" id="qfail" style="display:none;border-left:5px solid var(--red)">
+          <h2><span>📖</span> Review and Try Again</h2>
+          <p>A few questions need review. Go back through the relevant sections and retake — no penalty.</p>
+          <button class="btn bo" onclick="reset()" style="margin-top:10px">↺ Retake Quiz</button>
+        </div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s7',null)">← Back to Section 4.7</button>
+        <button class="btn bg" id="btnp5" style="opacity:.5;pointer-events:none">Part 5: Orders &amp; Results → <span style="font-size:11px">(unlock by passing quiz)</span></button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const sids=['s1','s2','s3','s4','s5','s6','s7','quiz'];
+function show(id,nav){
+  sids.forEach(s=>{const e=document.getElementById('sec-'+s);if(e)e.classList.remove('active');});
+  const t=document.getElementById('sec-'+id);if(t)t.classList.add('active');
+  document.querySelectorAll('#sidebar .ni').forEach(n=>n.classList.remove('active'));
+  if(nav)nav.classList.add('active');
+  document.querySelectorAll('.stab').forEach((t,i)=>t.classList.toggle('active',sids[i]===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function mark(id){
+  const c=document.getElementById('c'+id.replace('s',''));if(c)c.style.display='inline';
+  const done=document.querySelectorAll('.chk[style*="inline"]').length;
+  const p=Math.round((done/7)*100);
+  document.getElementById('pbf').style.width=p+'%';
+  document.getElementById('ppct').textContent=p+'%';
+}
+const ans={q1:'b',q2:'b',q3:'b',q4:'b',q5:'c',q6:'b',q7:'b',q8:'b'};
+const ex={
+  q1:{ok:"Correct! Amoxicillin is a penicillin-class antibiotic. Epic fires a hard stop allergy alert when a drug class matches a documented allergy — you cannot proceed without removing or clinically justifying the order.",bad:"Incorrect. Amoxicillin is a penicillin. Epic recognizes drug class relationships and fires a HARD STOP allergy alert — not a soft stop — for documented class allergies."},
+  q2:{ok:"Correct! Schedule II controlled substances require a new Rx each time (no refills), and a 4-month gap since last visit warrants a clinical evaluation and PDMP check before any further prescribing.",bad:"Incorrect. Oxycodone is Schedule II — no refills are ever allowed. A 4-month gap requires the patient to be seen and a PDMP check before any further controlled substance prescribing."},
+  q3:{ok:"Correct! EPCS = Electronic Prescribing for Controlled Substances. It requires two-factor authentication at signing time: your Epic password PLUS a one-time Duo/token code, satisfying DEA security requirements.",bad:"Incorrect. EPCS stands for Electronic Prescribing for Controlled Substances. It requires two-factor authentication — your Epic password plus a Duo push or one-time code — every time you sign a controlled substance prescription electronically."},
+  q4:{ok:"Correct! A formulary alert means the patient's insurance does not cover the prescribed drug at the standard tier. The pharmacy is requesting you consider a covered alternative or obtain a prior authorization.",bad:"Incorrect. 'Not on formulary' means the patient's insurance plan does not cover that specific drug. The pharmacy will suggest a covered alternative or request a prior authorization."},
+  q5:{ok:"Correct! Schedule II controlled substances have ZERO refills allowed by federal law. A new, separate prescription is required each time the patient needs more.",bad:"Incorrect. Schedule II drugs (oxycodone, Adderall, etc.) have zero refills by federal DEA law. A brand new prescription must be written every time."},
+  q6:{ok:"Correct! Medication reconciliation means verbally confirming each medication with the patient at every visit and updating the list for accuracy — not just reviewing the screen.",bad:"Incorrect. Medication reconciliation requires verbal confirmation of each medication with the patient at every visit and updating any changes. Screen review without patient verification does not count."},
+  q7:{ok:"Correct! 340B allows FQHCs to purchase drugs at sharply reduced prices. The difference between acquisition cost and billing rate generates revenue that directly funds clinic services and missions.",bad:"Incorrect. The 340B program allows eligible FQHCs to buy drugs at dramatically reduced prices, creating a financial margin ('340B spread') that funds clinic operations and services for low-income patients."},
+  q8:{ok:"Correct! Moderate alerts require you to read and consider them seriously. If you proceed, document a valid clinical justification in the override reason — never click through blindly.",bad:"Incorrect. Moderate drug-drug interaction alerts require clinical judgment. Read them, consider alternatives, and if you proceed, document a valid clinical reason. Never click through without reading."}
+};
+let done=false;
+function grade(){
+  if(done)return;
+  let score=0,all=true;
+  Object.keys(ans).forEach((q,i)=>{
+    const s=document.querySelector(`input[name="${q}"]:checked`);
+    const fb=document.getElementById(`fb${i+1}`);
+    if(!s){all=false;return;}
+    document.querySelectorAll(`input[name="${q}"]`).forEach(l=>l.closest('.qo').classList.remove('sel','correct','wrong'));
+    const ch=s.closest('.qo');
+    if(s.value===ans[q]){ch.classList.add('correct');fb.className='qfb ok show';fb.textContent='✓ '+ex[q].ok;score++;}
+    else{ch.classList.add('wrong');fb.className='qfb bad show';fb.textContent='✗ '+ex[q].bad;
+      document.querySelectorAll(`input[name="${q}"]`).forEach(l=>{if(l.value===ans[q])l.closest('.qo').classList.add('correct');});}
+  });
+  if(!all){alert('Please answer all 8 questions.');return;}
+  done=true;
+  const sc=document.getElementById('qsc');
+  sc.textContent=`Score: ${score}/8`;
+  sc.style.color=score>=7?'var(--green)':'var(--red)';
+  document.getElementById('qresult').style.display='block';
+  if(score>=7){
+    document.getElementById('qpass').style.display='block';
+    document.getElementById('qfail').style.display='none';
+    document.getElementById('pbf').style.width='100%';
+    document.getElementById('ppct').textContent='100%';
+    const b=document.getElementById('btnp5');b.style.opacity='1';b.style.pointerEvents='auto';
+  } else {
+    document.getElementById('qfail').style.display='block';
+    document.getElementById('qpass').style.display='none';
+  }
+}
+function reset(){
+  done=false;
+  document.querySelectorAll('#sec-quiz input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('#sec-quiz .qo').forEach(o=>o.className='qo');
+  document.querySelectorAll('#sec-quiz .qfb').forEach(f=>f.className='qfb');
+  document.getElementById('qsc').textContent='';
+  document.getElementById('qresult').style.display='none';
+}
+document.addEventListener('change',e=>{
+  if(e.target.type==='radio'){
+    const n=e.target.name;
+    document.querySelectorAll(`input[name="${n}"]`).forEach(r=>r.closest('.qo').classList.remove('sel'));
+    e.target.closest('.qo').classList.add('sel');
+  }
+});
+window.addEventListener('scroll',()=>{
+  const p=window.scrollY/(document.body.scrollHeight-window.innerHeight);
+  document.getElementById('si').style.transform=`scaleX(${Math.min(p,1)})`;
+},{passive:true});
+</script>
+</body>
+</html>

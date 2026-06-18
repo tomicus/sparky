@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 8: Final Assessment &amp; Certificate</title>
+<style>
+  :root {
+    --navy:#0D2B4E; --teal:#006D75; --teal-lt:#00A3AD;
+    --gold:#E8A020; --gold-lt:#F5C842;
+    --cream:#F4F8FA;
+    --gray1:#1A2B3C; --gray2:#3D5166; --gray3:#7A93A8;
+    --gray4:#C5D5E0; --gray5:#EDF2F5;
+    --red:#C0392B; --green:#1E7E4C; --purple:#6B3FA0;
+    --shadow:0 2px 12px rgba(13,43,78,.13);
+    --radius:10px;
+    --font:'Segoe UI','Arial',sans-serif;
+    --mono:'Consolas','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--cream);color:var(--gray1);min-height:100vh;}
+
+  /* TOP BAR */
+  #tb{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo{background:var(--teal-lt);color:#fff;font-weight:800;font-size:15px;padding:5px 10px;border-radius:6px;}
+  .bt{font-size:17px;font-weight:600;}
+  .bs{font-size:11px;color:var(--gray4);margin-top:1px;}
+  .pw{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gray4);}
+  .pt{width:160px;height:7px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;}
+  .pf{height:100%;background:var(--gold);border-radius:4px;transition:width .5s;}
+
+  /* SIDEBAR */
+  #lay{display:flex;min-height:calc(100vh - 60px);}
+  #sb{width:260px;flex-shrink:0;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding-bottom:20px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;border-right:1px solid rgba(255,255,255,.07);}
+  #sb::-webkit-scrollbar{width:4px;}
+  #sb::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+  .ss{padding:18px 20px 6px;}
+  .sl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal-lt);text-transform:uppercase;margin-bottom:8px;}
+  .ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.78);transition:background .15s;margin-bottom:2px;}
+  .ni:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .ni.active{background:var(--teal);color:#fff;}
+  .ni .ic{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+  .ni .lb{flex:1;}
+  .ni .ck{font-size:13px;color:#4cd964;}
+  .nd{height:1px;background:rgba(255,255,255,.08);margin:10px 20px;}
+
+  /* MAIN */
+  #mn{flex:1;padding:36px 44px;max-width:940px;}
+
+  /* SECTIONS */
+  .sec{display:none;}
+  .sec.active{display:block;}
+
+  /* PAGE HEADER */
+  .ph{background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 100%);color:#fff;border-radius:var(--radius);padding:28px 32px 24px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .ph::after{content:'';position:absolute;right:-30px;top:-30px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .ph .mt{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px;}
+  .ph h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+  .ph p{font-size:14px;color:rgba(255,255,255,.8);max-width:580px;line-height:1.6;}
+  .ph .meta{display:flex;gap:20px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.65);}
+
+  /* CARDS */
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card h3{font-size:14px;font-weight:700;color:var(--teal);margin:16px 0 8px;}
+  .card p{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:10px;}
+  .card ul{padding-left:20px;}
+  .card li{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:5px;}
+
+  /* INFO BOXES */
+  .ib{border-left:4px solid var(--teal);background:var(--gray5);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.6;color:var(--gray2);}
+  .ib.tip{border-color:var(--gold);background:#FFFBF0;}
+  .ib.warn{border-color:var(--red);background:#FFF5F5;}
+  .ib.green{border-color:var(--green);background:#EEF9F3;}
+  .ib strong{color:var(--gray1);}
+
+  /* MODULE SUMMARY GRID */
+  .mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+  .mod-tile{background:var(--gray5);border-radius:8px;padding:14px 16px;border-left:4px solid var(--teal);}
+  .mod-tile .mt-icon{font-size:20px;margin-bottom:6px;}
+  .mod-tile .mt-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .mod-tile .mt-topics{font-size:12px;color:var(--gray2);line-height:1.6;}
+
+  /* EXAM PROGRESS */
+  .exam-progress{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 28px;margin-bottom:22px;display:flex;align-items:center;gap:24px;}
+  .ep-label{font-size:13px;color:var(--gray2);white-space:nowrap;}
+  .ep-track{flex:1;height:12px;background:var(--gray5);border-radius:6px;overflow:hidden;}
+  .ep-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-lt));border-radius:6px;transition:width .4s;}
+  .ep-count{font-size:14px;font-weight:700;color:var(--navy);white-space:nowrap;}
+
+  /* QUESTION CARD */
+  .qcard{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 26px;margin-bottom:18px;border-left:4px solid var(--gray4);transition:border-color .2s;}
+  .qcard.answered{border-color:var(--teal);}
+  .qcard.correct{border-color:var(--green);}
+  .qcard.wrong{border-color:var(--red);}
+  .qcard .qtop{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+  .qcard .qnum{background:var(--navy);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+  .qcard .qnum.ans{background:var(--teal);}
+  .qcard .qnum.ok{background:var(--green);}
+  .qcard .qnum.bad{background:var(--red);}
+  .qcard .qtag{font-size:10px;font-weight:700;background:var(--gray5);color:var(--gray3);padding:2px 8px;border-radius:10px;margin-left:auto;white-space:nowrap;}
+  .qcard .qtext{font-size:13.5px;font-weight:600;color:var(--gray1);line-height:1.6;flex:1;}
+  .qopts{display:flex;flex-direction:column;gap:7px;}
+  .qo{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--gray4);border-radius:8px;cursor:pointer;font-size:13px;line-height:1.5;transition:border-color .15s,background .15s;}
+  .qo:hover{border-color:var(--teal);background:var(--gray5);}
+  .qo.sel{border-color:var(--teal);background:#E8F6F8;}
+  .qo.correct{border-color:var(--green);background:#E8F5EE;color:var(--green);font-weight:600;}
+  .qo.wrong{border-color:var(--red);background:#FFF0EF;color:var(--red);}
+  .qo input{accent-color:var(--teal);margin-top:2px;flex-shrink:0;}
+  .qfb{font-size:12.5px;margin-top:10px;padding:10px 14px;border-radius:6px;display:none;line-height:1.6;}
+  .qfb.show{display:block;}
+  .qfb.ok{background:#E8F5EE;color:var(--green);}
+  .qfb.bad{background:#FFF0EF;color:var(--red);}
+
+  /* SECTION DIVIDER */
+  .qdiv{background:linear-gradient(90deg,var(--navy),var(--teal));color:#fff;border-radius:8px;padding:10px 18px;margin:24px 0 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;}
+
+  /* SUBMIT BAR */
+  .submit-bar{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 28px;display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+  .submit-bar .sb-info{flex:1;font-size:13px;color:var(--gray2);}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .bp{background:var(--teal);color:#fff;}
+  .bg{background:var(--gold);color:var(--navy);}
+  .bo{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+  .bred{background:var(--red);color:#fff;}
+
+  /* RESULTS SCREEN */
+  .results-header{text-align:center;padding:40px 20px 28px;}
+  .results-header .score-ring{width:140px;height:140px;border-radius:50%;margin:0 auto 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:36px;font-weight:800;border:8px solid var(--teal);}
+  .results-header .score-ring.pass{border-color:var(--green);color:var(--green);}
+  .results-header .score-ring.fail{border-color:var(--red);color:var(--red);}
+  .results-header h2{font-size:24px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+  .results-header p{font-size:14px;color:var(--gray2);max-width:500px;margin:0 auto;}
+
+  .category-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:20px 0;}
+  .cat-tile{background:#fff;border-radius:8px;box-shadow:var(--shadow);padding:16px 18px;text-align:center;}
+  .cat-tile .cat-icon{font-size:22px;margin-bottom:6px;}
+  .cat-tile .cat-name{font-size:12px;font-weight:700;color:var(--gray2);margin-bottom:8px;}
+  .cat-tile .cat-score{font-size:20px;font-weight:800;color:var(--navy);}
+  .cat-tile .cat-bar{height:6px;background:var(--gray4);border-radius:3px;overflow:hidden;margin-top:8px;}
+  .cat-tile .cat-fill{height:100%;border-radius:3px;background:var(--teal);transition:width .8s;}
+  .cat-tile .cat-fill.good{background:var(--green);}
+  .cat-tile .cat-fill.warn{background:var(--gold);}
+  .cat-tile .cat-fill.bad{background:var(--red);}
+
+  /* CERTIFICATE */
+  .cert-wrap{display:flex;justify-content:center;margin:20px 0;}
+  .cert{background:#fff;border:3px solid var(--navy);border-radius:12px;padding:0;max-width:680px;width:100%;overflow:hidden;box-shadow:0 8px 40px rgba(13,43,78,.18);}
+  .cert-top{background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);padding:28px 40px 22px;text-align:center;color:#fff;position:relative;}
+  .cert-top::after{content:'';position:absolute;right:-20px;top:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .cert-logo{font-size:13px;font-weight:800;background:rgba(255,255,255,.15);padding:5px 14px;border-radius:20px;display:inline-block;margin-bottom:10px;letter-spacing:2px;}
+  .cert-title{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px;}
+  .cert-main{font-size:22px;font-weight:800;margin-bottom:4px;}
+  .cert-body{padding:28px 40px 32px;text-align:center;}
+  .cert-presented{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gray3);margin-bottom:10px;}
+  .cert-name{font-size:28px;font-weight:800;color:var(--navy);border-bottom:2px solid var(--gold);padding-bottom:6px;margin-bottom:16px;min-height:44px;}
+  .cert-desc{font-size:13px;color:var(--gray2);line-height:1.7;max-width:440px;margin:0 auto 20px;}
+  .cert-modules{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:20px;}
+  .cert-chip{background:var(--gray5);color:var(--gray2);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+  .cert-footer{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--gray4);padding-top:16px;margin-top:4px;}
+  .cert-sig{text-align:center;}
+  .cert-sig .sig-line{width:120px;height:1px;background:var(--gray3);margin:0 auto 4px;}
+  .cert-sig .sig-name{font-size:11px;color:var(--gray2);}
+  .cert-seal{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-lt));display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .cert-date{font-size:11px;color:var(--gray3);margin-top:4px;}
+
+  /* NAME INPUT */
+  .name-input{width:100%;max-width:400px;padding:12px 16px;border:2px solid var(--gray4);border-radius:8px;font-size:16px;font-family:var(--font);color:var(--gray1);margin:10px 0;transition:border-color .15s;}
+  .name-input:focus{outline:none;border-color:var(--teal);}
+
+  /* CHIPS */
+  .chip{display:inline-block;background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;margin:2px;}
+  .chip.gold{background:var(--gold);color:var(--navy);}
+
+  /* SCROLL */
+  #si{position:fixed;top:60px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal-lt),var(--gold));transform-origin:left;transform:scaleX(0);z-index:200;}
+
+  @media print{
+    #tb,#sb,#si,.btn,.no-print{display:none!important;}
+    #lay{display:block;}
+    #mn{padding:0;max-width:100%;}
+    .cert{box-shadow:none;border:2px solid var(--navy);}
+    .sec{display:block!important;}
+    .sec:not(#sec-cert){display:none!important;}
+  }
+  @media(max-width:780px){#sb{display:none;}#mn{padding:20px 16px;}.mod-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="si"></div>
+
+<div id="tb">
+  <div class="brand">
+    <div class="logo">OCHIN</div>
+    <div><div class="bt">Epic Training Portal</div><div class="bs">Part 8 of 8 · Final Assessment &amp; Certificate</div></div>
+  </div>
+  <div class="pw">
+    <span>Exam Progress</span>
+    <div class="pt"><div class="pf" id="pf" style="width:0%"></div></div>
+    <span id="pct">0 / 40</span>
+  </div>
+  <div style="font-size:12px;color:var(--gray4)" id="timer-display">⏱ 45:00</div>
+</div>
+
+<div id="lay">
+  <nav id="sb">
+    <div class="ss">
+      <div class="sl">Final Exam Sections</div>
+      <div class="ni active" onclick="showSec('intro')"><span class="ic">📋</span><span class="lb">Introduction</span></div>
+      <div class="ni" id="nav-exam" onclick="showSec('exam')"><span class="ic">📝</span><span class="lb">40-Question Final Exam</span></div>
+      <div class="ni" id="nav-results" style="opacity:.4;pointer-events:none"><span class="ic">📊</span><span class="lb">Results &amp; Review</span></div>
+      <div class="ni" id="nav-cert" style="opacity:.4;pointer-events:none"><span class="ic">🎓</span><span class="lb">Certificate</span></div>
+    </div>
+    <div class="nd"></div>
+    <div class="ss">
+      <div class="sl">All Parts</div>
+      <div class="ni" onclick="alert('Load ochin-epic-part1.html')"><span class="ic">🏥</span><span class="lb">Part 1 · Overview &amp; Login</span><span class="ck">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part2.html')"><span class="ic">🪪</span><span class="lb">Part 2 · Check-In</span><span class="ck">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part3.html')"><span class="ic">📝</span><span class="lb">Part 3 · Documentation</span><span class="ck">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part4.html')"><span class="ic">💊</span><span class="lb">Part 4 · Medications</span><span class="ck">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part5.html')"><span class="ic">🔬</span><span class="lb">Part 5 · Orders &amp; Results</span><span class="ck">✓</span></div>
+      <div class="ni"><span class="ic">📅</span><span class="lb">Part 6 · Scheduling &amp; Billing</span><span class="ck">✓</span></div>
+      <div class="ni"><span class="ic">📖</span><span class="lb">Part 7 · Top 100 Q&amp;A</span><span class="ck">✓</span></div>
+      <div class="ni active"><span class="ic">🎓</span><span class="lb">Part 8 · Final (HERE)</span></div>
+    </div>
+  </nav>
+
+  <main id="mn">
+
+    <!-- ═══ INTRO ═══ -->
+    <div class="sec active" id="sec-intro">
+      <div class="ph">
+        <div class="mt">Part 8 of 8 · Capstone</div>
+        <h1>Final Assessment</h1>
+        <p>This 40-question comprehensive exam covers all six training modules. Pass with 80% or higher (32/40) to earn your Ochin Epic Training Certificate of Completion.</p>
+        <div class="meta">
+          <span>⏱ 45 minutes</span>
+          <span>📋 40 questions</span>
+          <span>🎯 Pass: 80% (32/40)</span>
+          <span>↺ Unlimited retakes</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📚 What This Exam Covers</h2>
+        <div class="mod-grid">
+          <div class="mod-tile"><div class="mt-icon">🏥</div><div class="mt-title">Module 1 — Ochin Overview &amp; Login</div><div class="mt-topics">Ochin vs. standard Epic, environments, login &amp; 2FA, Hyperspace navigation, In Basket basics</div></div>
+          <div class="mod-tile"><div class="mt-icon">🪪</div><div class="mt-title">Module 2 — Patient Check-In</div><div class="mt-topics">Patient search, new registration, insurance verification, sliding fee scale, check-in workflow, consent, walk-ins/no-shows</div></div>
+          <div class="mod-tile"><div class="mt-icon">📝</div><div class="mt-title">Module 3 — Clinical Documentation</div><div class="mt-topics">Chart navigation, SOAP notes, SmartPhrases, flowsheets &amp; vitals, problem list, signing &amp; cosigning, AVS</div></div>
+          <div class="mod-tile"><div class="mt-icon">💊</div><div class="mt-title">Module 4 — Medications &amp; Rx</div><div class="mt-topics">Medication reconciliation, ordering, e-prescribing, drug alerts, controlled substances &amp; PDMP, refills, 340B</div></div>
+          <div class="mod-tile"><div class="mt-icon">🔬</div><div class="mt-title">Module 5 — Orders &amp; Results</div><div class="mt-topics">Lab &amp; imaging orders, result review, critical values, In Basket management, referrals, prior auth, care gaps</div></div>
+          <div class="mod-tile"><div class="mt-icon">📅</div><div class="mt-title">Modules 6 &amp; 7 — Scheduling, Billing &amp; Go-Live</div><div class="mt-topics">Scheduling, FQHC billing, UDS, telehealth, Ochin-specific workflows, go-live day scenarios</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📋 Exam Rules</h2>
+        <ul>
+          <li>You have <strong>45 minutes</strong> to complete all 40 questions — a countdown timer will run at the top of the screen</li>
+          <li>All questions are single-answer multiple choice</li>
+          <li>You can review and change answers before submitting</li>
+          <li>After submission, all answers are revealed with explanations</li>
+          <li>You must score <strong>32 out of 40 (80%)</strong> to pass and earn your certificate</li>
+          <li>If you do not pass, review the feedback and retake — there is no limit on attempts</li>
+          <li>After passing, enter your name to generate a printable Certificate of Completion</li>
+        </ul>
+        <div class="ib tip" style="margin-top:16px">
+          <strong>💡 Before You Begin:</strong> Make sure you have completed all training modules (Parts 1–7). The exam covers material from every section. If you feel unsure about a topic, go back to that part and review before starting the exam.
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button class="btn bp" style="font-size:15px;padding:14px 32px" onclick="startExam()">🚀 Begin Final Assessment</button>
+      </div>
+    </div>
+
+    <!-- ═══ EXAM ═══ -->
+    <div class="sec" id="sec-exam">
+      <div class="exam-progress no-print">
+        <div class="ep-label">Questions answered:</div>
+        <div class="ep-track"><div class="ep-fill" id="ep-fill" style="width:0%"></div></div>
+        <div class="ep-count"><span id="ep-count">0</span> / 40</div>
+      </div>
+
+      <div id="questions-container"></div>
+
+      <div class="submit-bar no-print">
+        <div class="sb-info">Answer all 40 questions before submitting. Unanswered questions will be highlighted.</div>
+        <button class="btn bg" style="font-size:14px;padding:12px 28px" onclick="submitExam()">Submit Final Exam →</button>
+      </div>
+    </div>
+
+    <!-- ═══ RESULTS ═══ -->
+    <div class="sec" id="sec-results">
+      <div class="card" id="results-card">
+        <div class="results-header">
+          <div class="score-ring" id="score-ring">--</div>
+          <h2 id="results-title">--</h2>
+          <p id="results-desc">--</p>
+        </div>
+        <div class="category-breakdown" id="cat-breakdown"></div>
+        <div style="text-align:center;margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button class="btn bp" onclick="showSec('exam');scrollTo(0,0)">📋 Review All Answers</button>
+          <button class="btn bg" id="btn-cert" onclick="showSec('cert')" style="display:none">🎓 Get My Certificate →</button>
+          <button class="btn bo" id="btn-retake" onclick="retakeExam()" style="display:none">↺ Retake Exam</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CERTIFICATE ═══ -->
+    <div class="sec" id="sec-cert">
+      <div class="card no-print">
+        <h2>🎓 Your Certificate of Completion</h2>
+        <p>Enter your full name as you'd like it to appear on your certificate, then click Generate.</p>
+        <input type="text" class="name-input" id="cert-name" placeholder="Your Full Name" maxlength="60" oninput="updateCertName()"/>
+        <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn bp" onclick="updateCertName()">Generate Certificate</button>
+          <button class="btn bg" onclick="window.print()">🖨️ Print Certificate</button>
+          <button class="btn bo" onclick="showSec('results')">← Back to Results</button>
+        </div>
+      </div>
+
+      <div class="cert-wrap">
+        <div class="cert" id="certificate">
+          <div class="cert-top">
+            <div class="cert-logo">OCHIN</div>
+            <div class="cert-title">Certificate of Completion</div>
+            <div class="cert-main">Ochin Epic Training Program</div>
+          </div>
+          <div class="cert-body">
+            <div class="cert-presented">This certifies that</div>
+            <div class="cert-name" id="cert-name-display">Your Name Here</div>
+            <div class="cert-desc">
+              has successfully completed the <strong>Ochin Epic Comprehensive Training Program</strong>,
+              demonstrating proficiency in all aspects of the Ochin shared Epic EHR platform
+              including patient registration, clinical documentation, medication management,
+              order entry, results review, referrals, and FQHC-specific workflows.
+            </div>
+            <div class="cert-modules">
+              <span class="cert-chip">✓ Ochin Overview &amp; Login</span>
+              <span class="cert-chip">✓ Patient Check-In &amp; Registration</span>
+              <span class="cert-chip">✓ Clinical Documentation</span>
+              <span class="cert-chip">✓ Medications &amp; Prescriptions</span>
+              <span class="cert-chip">✓ Orders, Results &amp; Referrals</span>
+              <span class="cert-chip">✓ Scheduling &amp; Billing</span>
+              <span class="cert-chip">✓ Go-Live Readiness</span>
+            </div>
+            <div class="cert-footer">
+              <div class="cert-sig">
+                <div class="cert-sig .sig-line" style="width:120px;height:1px;background:var(--gray3);margin:0 auto 4px;"></div>
+                <div class="cert-sig-name" style="font-size:11px;color:var(--gray2)">Ochin Training Team</div>
+              </div>
+              <div class="cert-seal">🏅</div>
+              <div>
+                <div class="cert-date" id="cert-date-display" style="font-size:11px;color:var(--gray3);text-align:right"></div>
+                <div style="font-size:11px;color:var(--gray3);text-align:right;margin-top:4px">Score: <span id="cert-score-display">--</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// QUESTION BANK — 40 Questions across 6 modules
+// ═══════════════════════════════════════════
+const QUESTIONS = [
+  // MODULE 1 — OCHIN OVERVIEW (Q1–7)
+  {id:1, module:'Module 1 · Overview & Login', q:'Which of the following BEST describes how Ochin Epic differs from a standard self-hosted hospital Epic system?',
+   opts:['Each Ochin clinic owns and maintains its own separate Epic database',
+         'Ochin manages a centralized shared Epic instance used by hundreds of community health organizations',
+         'Ochin Epic is a simplified version of Epic with fewer features than hospital Epic',
+         'Ochin Epic is only available on mobile devices, not desktop computers'],
+   ans:1, exp:'Ochin operates a shared Epic instance — hundreds of member FQHCs and community health organizations share one centrally managed environment, which is fundamentally different from a hospital that self-hosts its own Epic instance.'},
+
+  {id:2, module:'Module 1 · Overview & Login', q:'What is the Training (TRN) environment used for in Ochin Epic?',
+   opts:['Documenting on real patients during slow clinic days',
+         'Testing new software builds before they go live',
+         'Safe practice and onboarding with fictional patient data — never for real patient care',
+         'Billing and claims submission for uninsured patients'],
+   ans:2, exp:'The Training environment contains fictional patients and is specifically designed for safe practice, onboarding, and education. It must never be used for real patient care or documentation.'},
+
+  {id:3, module:'Module 1 · Overview & Login', q:'Ochin Epic login requires two-factor authentication (2FA). Which tool does Ochin primarily use for 2FA?',
+   opts:['A fingerprint scanner on your workstation',
+         'A text message code to your personal cell phone',
+         'Duo Security — a push notification or one-time code',
+         'An email verification link sent to your work email'],
+   ans:2, exp:'Ochin uses Duo Security for two-factor authentication. Providers approve a push notification on the Duo app or enter a one-time code within 60 seconds of logging in.'},
+
+  {id:4, module:'Module 1 · Overview & Login', q:'What keyboard shortcut opens the Patient Search in Epic Hyperspace from anywhere in the system?',
+   opts:['Ctrl + F','Ctrl + E','Ctrl + P','Alt + S'],
+   ans:1, exp:'Ctrl + E opens the Patient Search dialog from anywhere in Epic Hyperspace — one of the most essential shortcuts to memorize.'},
+
+  {id:5, module:'Module 1 · Overview & Login', q:"A new colleague asks to borrow your Epic login because they forgot their password and have a patient waiting. What should you do?",
+   opts:['Share your login just this once since it\'s an emergency',
+         'Log in for them and let them use your active session',
+         'Refuse and direct them to the Security Coordinator or Ochin Help Desk immediately',
+         'Email them your password with a request to change it later'],
+   ans:2, exp:'Sharing Epic credentials is an HIPAA violation regardless of the circumstances. Every action in Epic is permanently logged under your EMP ID. Direct your colleague to the Security Coordinator or Help Desk for an emergency password reset.'},
+
+  {id:6, module:'Module 1 · Overview & Login', q:'Which of the following is a feature built specifically into Ochin Epic for FQHCs that is NOT typically found in standard hospital Epic?',
+   opts:['Electronic prescribing (eRx)','In Basket messaging','Sliding Fee Scale for uninsured/underinsured patients','Lab order entry'],
+   ans:2, exp:'The Sliding Fee Scale is a federally required FQHC feature built into Ochin Epic. It calculates income-based discounts for uninsured or underinsured patients. Standard hospital Epic does not include this module.'},
+
+  {id:7, module:'Module 1 · Overview & Login', q:"What does Epic's In Basket serve as in Ochin's clinical workflow?",
+   opts:['A scheduling tool for booking appointments','The primary clinical communication hub — messages, results, refill requests, cosign tasks, and patient MyChart messages all route here',
+         'A billing system for submitting insurance claims','A document scanner for uploading patient records'],
+   ans:1, exp:"In Basket is Epic's central clinical inbox — the equivalent of email, task manager, and alert system combined. Results, refills, cosign requests, staff messages, pharmacy messages, and MyChart messages all arrive here."},
+
+  // MODULE 2 — CHECK-IN (Q8–14)
+  {id:8, module:'Module 2 · Patient Check-In', q:'Before registering a new patient, what is the most important first step?',
+   opts:['Collect the patient\'s copay payment',
+         'Scan the patient\'s insurance card',
+         'Perform a thorough search for an existing patient record using name and date of birth',
+         'Ask the patient to complete a paper registration form'],
+   ans:2, exp:'Always search for an existing record before creating a new patient — duplicate medical records are a patient safety risk and require a formal merge process to correct. A thorough search using name and DOB prevents duplicates.'},
+
+  {id:9, module:'Module 2 · Patient Check-In', q:'An electronic eligibility check returns "Unable to Verify" for a patient claiming Medicaid coverage. What does this mean?',
+   opts:['The patient definitely has no insurance coverage',
+         'The electronic eligibility system failed to connect — call the payor directly to verify coverage manually',
+         'The patient\'s Medicaid has been terminated',
+         'The payor requires a prior authorization before verifying'],
+   ans:1, exp:'"Unable to Verify" indicates an electronic communication failure, not that the patient lacks coverage. Always call the payor\'s eligibility line to manually verify before concluding a patient has no coverage.'},
+
+  {id:10, module:'Module 2 · Patient Check-In', q:'A family of 3 reports a gross annual income of $28,500. Based on Ochin\'s sliding fee scale structure, what discount level are they MOST likely assigned?',
+   opts:['Level A — 100% discount','Level B — High discount (~75%)','Level C — Moderate discount (~50%)','Level D — Full rate, no discount'],
+   ans:1, exp:'$28,500 for a family of 3 falls between 101–150% of the Federal Poverty Level — which corresponds to Level B, a high discount of approximately 75%.'},
+
+  {id:11, module:'Module 2 · Patient Check-In', q:'Which demographic fields are required in Ochin Epic specifically because they support FQHC UDS federal reporting?',
+   opts:['Patient\'s employer name and job title',
+         'Race, Ethnicity, Preferred Language, and Veteran Status',
+         'Patient\'s social media username and date of last vacation',
+         'High school education level and number of children'],
+   ans:1, exp:'Race, Ethnicity, Preferred Language, and Veteran Status are federally required UDS data elements. FQHCs must report these to HRSA annually — accurate documentation directly affects compliance and funding.'},
+
+  {id:12, module:'Module 2 · Patient Check-In', q:'A patient does not show up for their 2:00 PM appointment. It is now 2:35 PM and there has been no call. What is the correct action in Epic?',
+   opts:['Cancel the appointment so the slot can be reused',
+         'Delete the appointment from the schedule',
+         'Mark the appointment as No Show with a documented reason',
+         'Leave it as Scheduled and wait until end of day'],
+   ans:2, exp:'No Show is the correct status — not Cancel. Cancellations and no-shows are tracked separately in quality and reporting metrics. Always document the reason when marking a no-show.'},
+
+  {id:13, module:'Module 2 · Patient Check-In', q:'During check-in, Epic alerts you that a patient\'s Consent for Treatment expired 2 months ago. What should you do?',
+   opts:['Click through the alert — the old consent still covers future visits',
+         'Have the patient sign a new Consent for Treatment before they are roomed',
+         'Ask the provider to obtain consent during the clinical visit',
+         'Delete the expired consent entry and leave it blank'],
+   ans:1, exp:'Expired consent must be renewed before the visit proceeds. Have the patient sign a new Consent for Treatment at check-in — this is a clinical and regulatory requirement.'},
+
+  {id:14, module:'Module 2 · Patient Check-In', q:'When does the Sliding Fee Scale apply to a patient who has insurance?',
+   opts:['It never applies to insured patients',
+         'It applies to the full visit charge before insurance pays',
+         'It applies to the patient\'s out-of-pocket portion — copays, coinsurance, and deductibles — after insurance pays',
+         'It only applies to pharmacy costs, not office visits'],
+   ans:2, exp:'For insured patients, the SFS applies to their out-of-pocket costs after insurance pays — reducing or eliminating copays, coinsurance, and deductibles based on income. It does not replace insurance billing.'},
+
+  // MODULE 3 — DOCUMENTATION (Q15–21)
+  {id:15, module:'Module 3 · Clinical Documentation', q:'A provider signs a note and immediately realizes they documented the wrong medication dose. What is the correct action?',
+   opts:['Delete the note and create a new one with the correct information',
+         'Ask another provider to edit the signed note on their behalf',
+         'Add an Addendum to the signed note correcting the error',
+         'Unsign the note, edit it, and re-sign it'],
+   ans:2, exp:'Signed notes become part of the permanent medical record and cannot be deleted or edited. The correct approach is to add an Addendum clearly stating the correction. Both the original note and addendum remain permanently in the chart.'},
+
+  {id:16, module:'Module 3 · Clinical Documentation', q:'What does typing ".normalpe" in the Epic note editor and pressing F2 do?',
+   opts:['Searches for patients with documented normal physical exams',
+         'Opens the physical exam scheduling tool',
+         'Expands a SmartPhrase template pre-populated with normal physical exam findings',
+         'Prints the physical exam section of the current note'],
+   ans:2, exp:'Dot phrases (SmartPhrases) expand into full text templates when typed and triggered with F2. ".normalpe" inserts a pre-filled normal physical exam template that the provider can then edit for any abnormal findings.'},
+
+  {id:17, module:'Module 3 · Clinical Documentation', q:'Which of the following BEST describes the difference between the Problem List and Visit Diagnoses in Epic?',
+   opts:['They are identical — both drive billing and persist across all encounters',
+         'The Problem List is a longitudinal record of all conditions; Visit Diagnoses are encounter-specific and drive billing for that visit',
+         'Visit Diagnoses persist across all encounters; the Problem List resets at each visit',
+         'Only physicians can add to the Problem List; MAs manage Visit Diagnoses'],
+   ans:1, exp:'The Problem List persists across all encounters and is a longitudinal record. Visit Diagnoses are specific to one encounter and directly drive the billing claim for that visit. They serve different clinical and billing functions.'},
+
+  {id:18, module:'Module 3 · Clinical Documentation', q:'When an MA enters vitals in Epic\'s flowsheet, what must they do to make the vitals available for the provider\'s note SmartLinks?',
+   opts:['Email the vitals to the provider directly',
+         'Click Accept/Sign the flowsheet to save and commit the entries',
+         'Print the vitals and place them in the paper chart',
+         'Ask the provider to re-enter the vitals in the note manually'],
+   ans:1, exp:'Flowsheet data must be accepted/signed by the MA to be committed and available in the system. Unsigned flowsheet entries do not appear in SmartLink data pulls in the provider\'s note.'},
+
+  {id:19, module:'Module 3 · Clinical Documentation', q:'The After Visit Summary (AVS) is tied to which regulatory requirement?',
+   opts:['The DEA controlled substance prescribing mandate',
+         'The 340B Drug Pricing Program compliance rules',
+         'The Promoting Interoperability (PI) program — failure to provide the AVS affects Medicaid/Medicare incentive payments',
+         'The FQHC sliding fee scale federal mandate'],
+   ans:2, exp:'The AVS is a Promoting Interoperability (formerly Meaningful Use) requirement. Clinics that fail to meet the AVS provision threshold risk losing Medicaid and Medicare EHR incentive payments.'},
+
+  {id:20, module:'Module 3 · Clinical Documentation', q:'A PA signs a visit note at Ochin FQHC. What happens next in Epic?',
+   opts:['The note is immediately finalized with no further steps required',
+         'The note routes automatically to the supervising physician\'s In Basket for cosignature',
+         'The note is sent directly to the billing department for coding',
+         'The note goes to the patient\'s MyChart account automatically'],
+   ans:1, exp:'FQHC supervision requirements mandate that PA notes are cosigned by a supervising physician. Epic automatically routes the PA\'s signed note to the supervisor\'s In Basket for cosignature, which is required to finalize the note.'},
+
+  {id:21, module:'Module 3 · Clinical Documentation', q:'A patient calls to ask about a medication side effect. The MA speaks with the patient and provides instructions per protocol. Where in Epic should this interaction be documented?',
+   opts:['In a sticky note on the patient\'s chart header',
+         'In the next scheduled appointment\'s note as a history item',
+         'As a Telephone Encounter note in the patient\'s chart',
+         'In the provider\'s personal In Basket as a reminder'],
+   ans:2, exp:'Every patient phone call must be documented as a Telephone Encounter note in the patient\'s chart. This creates a medico-legal record, is potentially billable, and ensures all providers can see the communication history.'},
+
+  // MODULE 4 — MEDICATIONS (Q22–28)
+  {id:22, module:'Module 4 · Medications & Rx', q:'What is medication reconciliation, and when must it be performed in Ochin Epic?',
+   opts:['Checking drug interactions before ordering — done only for new prescriptions',
+         'Reviewing the medication list on the screen without patient involvement — done monthly',
+         'Verbally confirming each medication with the patient and updating the list for accuracy — performed at every visit',
+         'Documenting all medications in the billing section at checkout'],
+   ans:2, exp:'Medication reconciliation requires verbal confirmation of each medication with the patient at every visit. Merely reviewing the screen without patient verification does not constitute reconciliation — it must be an active patient-engaged process.'},
+
+  {id:23, module:'Module 4 · Medications & Rx', q:"A provider orders Amoxicillin for a patient with a documented Penicillin allergy in Epic. What type of alert fires?",
+   opts:['A soft stop that can be overridden with a reason',
+         'A Best Practice Advisory that can be acknowledged and dismissed',
+         'A hard stop allergy alert — you cannot proceed without removing the order or providing override justification',
+         'No alert — Epic only checks for exact drug name matches, not drug class'],
+   ans:2, exp:'Amoxicillin is a penicillin-class antibiotic. Epic recognizes drug class relationships and fires a HARD STOP when ordering a drug that belongs to a patient\'s documented allergy class. Hard stops block proceeding without clinical justification.'},
+
+  {id:24, module:'Module 4 · Medications & Rx', q:'How many refills are permitted for a Schedule II controlled substance in Ochin Epic?',
+   opts:['Up to 5 refills within 6 months',
+         'Up to 11 refills per calendar year',
+         'Zero — a new prescription is legally required each time',
+         'Up to 3 refills with written supervisor approval'],
+   ans:2, exp:'Schedule II controlled substances (oxycodone, Adderall, fentanyl, etc.) have ZERO refills by federal DEA law. A brand new, separately signed prescription is required every single time the patient needs more.'},
+
+  {id:25, module:'Module 4 · Medications & Rx', q:'What does EPCS stand for, and what additional security step is required in Epic when using it?',
+   opts:['Extended Prescription Compliance System — requires a printed backup copy',
+         'Electronic Prescribing for Controlled Substances — requires two-factor authentication at each signing',
+         'Electronic Patient Care System — requires supervisor cosignature for all controlled substances',
+         'Emergency Prescription Confirmation System — requires fax confirmation to the DEA'],
+   ans:1, exp:'EPCS = Electronic Prescribing for Controlled Substances. The DEA requires two-factor authentication at each signing: your Epic password PLUS approval via Duo Security or a one-time hard token code.'},
+
+  {id:26, module:'Module 4 · Medications & Rx', q:'The 340B Drug Pricing Program primarily benefits Ochin FQHCs by:',
+   opts:['Exempting clinics from state pharmacy licensing requirements',
+         'Allowing unlimited controlled substance prescribing for eligible patients',
+         'Enabling eligible clinics to purchase drugs at significantly reduced prices, generating revenue that supports the clinic\'s mission',
+         'Providing free medications directly to all uninsured patients without documentation'],
+   ans:2, exp:'340B allows FQHCs to buy drugs at sharply reduced prices. The difference between the 340B acquisition cost and the amount billed to insurance (the "340B spread") generates revenue that funds clinic operations, sliding fee discounts, and community health programs.'},
+
+  {id:27, module:'Module 4 · Medications & Rx', q:'A drug-drug interaction alert appears labeled "Contraindicated" in Epic. What is the correct response?',
+   opts:['Acknowledge the alert and proceed — contraindicated alerts fire too frequently to take seriously',
+         'Do not prescribe the combination; select a clinically appropriate alternative medication',
+         'Override the alert with "clinically appropriate" and proceed without further review',
+         'Ask the pharmacist to override it from their system'],
+   ans:1, exp:'"Contraindicated" is the highest severity alert — the drug combination should never be used due to risk of serious harm. The correct response is to choose a safe alternative, not to override.'},
+
+  {id:28, module:'Module 4 · Medications & Rx', q:'A pharmacy sends a message to the provider\'s In Basket requesting a formulary alternative for a prescribed medication. What does this mean?',
+   opts:['The pharmacy cannot obtain the drug due to a supply shortage',
+         'The patient\'s insurance does not cover the prescribed drug and a covered alternative is being suggested',
+         'The prescription was not transmitted electronically and requires a fax',
+         'The DEA number on the prescription is invalid'],
+   ans:1, exp:'A formulary alternative request means the patient\'s insurance plan does not cover the prescribed drug. The pharmacy is suggesting a therapeutically equivalent drug that IS on the patient\'s formulary — the provider can approve the switch or submit a prior authorization for the original drug.'},
+
+  // MODULE 5 — ORDERS & RESULTS (Q29–35)
+  {id:29, module:'Module 5 · Orders, Results & Referrals', q:'A lab calls your clinic with a critical Potassium result of 6.3 mEq/L. What is the CORRECT sequence of required actions?',
+   opts:['File the result and send the patient a MyChart message at end of day',
+         'Perform read-back verification with the lab, immediately notify the provider, provider contacts patient with a clinical plan, document the full communication chain in Epic',
+         'Acknowledge the result in In Basket and escalate only if the patient calls',
+         'Transfer the patient to the ER without speaking to the ordering provider first'],
+   ans:1, exp:'Critical value protocol is: (1) read-back verification with the lab caller, (2) immediate provider notification, (3) provider contacts patient with clinical instructions, (4) document all steps in Epic. This is a regulatory and liability requirement.'},
+
+  {id:30, module:'Module 5 · Orders, Results & Referrals', q:'Which lab tests require a fasting patient for accurate results?',
+   opts:['HbA1c and CBC with differential',
+         'Lipid Panel and fasting glucose',
+         'TSH and HIV antibody',
+         'Urine pregnancy test and GC/Chlamydia NAAT'],
+   ans:1, exp:'The Lipid Panel and fasting glucose require 9–12 hours of fasting for clinical accuracy. HbA1c, TSH, CBC, HIV, and most urine tests do NOT require fasting.'},
+
+  {id:31, module:'Module 5 · Orders, Results & Referrals', q:'A patient\'s Health Maintenance shows "Mammogram — OVERDUE." The patient reports she had one at an outside hospital 6 months ago. What is the correct action in Epic?',
+   opts:['Order a new mammogram — the outside result is not valid in Epic',
+         'Leave it overdue — it cannot be updated without the actual result in Epic',
+         'Click "Document Historical" on the Health Maintenance item and enter the date and outside facility',
+         'Delete the mammogram item from the Health Maintenance record'],
+   ans:2, exp:'When a patient reports completing a screening outside your clinic, use "Document Historical" on the Health Maintenance item. This closes the care gap in Epic without ordering a redundant study and properly records the preventive care.'},
+
+  {id:32, module:'Module 5 · Orders, Results & Referrals', q:'Before going on a two-week conference trip, what must a provider do in Epic to ensure patient safety?',
+   opts:['Nothing — messages will queue and wait until return',
+         'Ask their MA to log in as them and handle the In Basket',
+         'Set up In Basket coverage in Epic so a covering provider receives and manages their messages during the absence',
+         'Print all pending results and lock them in a desk drawer'],
+   ans:2, exp:'Unmonitored In Baskets are a patient safety crisis. Critical results, urgent messages, and refill requests pile up without review. Setting up In Basket coverage ensures a covering provider handles all incoming messages during the absence.'},
+
+  {id:33, module:'Module 5 · Orders, Results & Referrals', q:'You place a referral to Cardiology and the status shows "Pending Auth." What does this indicate?',
+   opts:['The cardiologist has declined to accept the patient',
+         'The patient\'s insurance requires prior authorization before the cardiology visit can proceed',
+         'The referral fax failed and needs to be resent',
+         'The patient cancelled their cardiology appointment'],
+   ans:1, exp:'"Pending Auth" means the patient\'s insurance plan requires pre-approval (prior authorization) before they will cover the cardiology visit. The referral cannot be scheduled until the PA is obtained.'},
+
+  {id:34, module:'Module 5 · Orders, Results & Referrals', q:'When ordering a CT scan with IV contrast, which patient-specific data must Epic prompt you to confirm?',
+   opts:['The patient\'s sliding fee level and insurance copay',
+         'Recent renal function (eGFR/creatinine) and contrast allergy history',
+         'The patient\'s last blood pressure reading and current BMI',
+         'The patient\'s primary care provider and emergency contact'],
+   ans:1, exp:'Contrast agents are nephrotoxic — contraindicated in severe CKD (eGFR <30). Contrast dye can also cause allergic reactions. Epic prompts for both eGFR/creatinine and allergy history before allowing contrast orders.'},
+
+  {id:35, module:'Module 5 · Orders, Results & Referrals', q:'What is the PRIMARY purpose of Ochin Epic\'s Diabetic Registry / population health reporting tools?',
+   opts:['To automatically submit billing claims for diabetic patients',
+         'To identify patients with diabetes who have care gaps or uncontrolled disease so the care team can do proactive outreach',
+         'To count how many providers in the clinic specialize in diabetes management',
+         'To generate prior authorization requests for insulin and diabetes medications'],
+   ans:1, exp:'Population health registries enable proactive care — identifying patients with uncontrolled A1c, missed labs, or overdue screenings BEFORE they present to the clinic. This is the foundation of community health improvement and quality measure performance.'},
+
+  // MODULES 6 & 7 — SCHEDULING/BILLING/GO-LIVE (Q36–40)
+  {id:36, module:'Module 6 · Scheduling & Billing', q:'FQHCs bill Medicare and Medicaid using a special all-inclusive payment model. What is this called?',
+   opts:['Fee-for-service billing at standard CPT rates',
+         'The FQHC Prospective Payment System (PPS) — an all-inclusive per-visit rate that covers all services in one encounter',
+         'Capitation payments based on number of patients enrolled',
+         'Bundled episode payments for chronic disease management'],
+   ans:1, exp:'FQHCs bill Medicare and Medicaid under the FQHC Prospective Payment System (PPS) — a single all-inclusive encounter rate that covers the provider visit, nurse services, lab collection, and care coordination regardless of individual CPT codes. This is unique to FQHCs and requires specific billing setup in Epic.'},
+
+  {id:37, module:'Module 6 · Scheduling & Billing', q:'The UDS (Uniform Data System) is reported by FQHCs to which federal agency?',
+   opts:['The DEA (Drug Enforcement Administration)',
+         'The FDA (Food and Drug Administration)',
+         'HRSA (Health Resources & Services Administration)',
+         'CMS (Centers for Medicare & Medicaid Services)'],
+   ans:2, exp:'FQHCs report UDS data annually to HRSA (Health Resources & Services Administration) — the federal agency that administers Section 330 FQHC grants. UDS data directly affects grant funding, compliance status, and clinic designation.'},
+
+  {id:38, module:'Module 7 · Telehealth & Go-Live', q:'For a patient\'s first telehealth visit in Ochin Epic, what consent must be obtained before the video session begins?',
+   opts:['A signed Release of Information for the insurance company',
+         'A Telehealth Consent specifically authorizing video-based care',
+         'A new general Consent for Treatment (same as in-person)',
+         'A 340B drug program participation agreement'],
+   ans:1, exp:'A specific Telehealth Consent is required before a patient\'s first telehealth visit. It covers the nature of video-based care, technology risks, privacy considerations, and patient rights specific to telemedicine. Document it in Epic\'s eConsent module.'},
+
+  {id:39, module:'Module 7 · Telehealth & Go-Live', q:'On Go-Live Day at an Ochin clinic, a front desk staff member cannot find a patient who was registered yesterday in the old system. What is the FIRST action to take?',
+   opts:['Create a new patient record immediately so the patient can be checked in',
+         'Send the patient home and reschedule for next week',
+         'Contact your designated Go-Live super-user or the Ochin Help Desk for data migration support before creating a duplicate record',
+         'Check the paper chart from the old system and manually re-enter all demographics'],
+   ans:2, exp:'On Go-Live Day, data migration issues are common. NEVER create a new duplicate record without first consulting your super-user or the Ochin Help Desk. Duplicate records created during go-live cause significant downstream problems in billing, care coordination, and patient safety.'},
+
+  {id:40, module:'Module 7 · Go-Live & Ochin Workflows', q:'Which of the following BEST summarizes the relationship between Ochin Epic documentation accuracy and your clinic\'s financial health?',
+   opts:['Documentation accuracy only affects the quality of patient care, not finances',
+         'Only billing staff documentation affects clinic finances — clinical documentation has no financial impact',
+         'Accurate documentation of diagnoses, visit types, demographics (UDS), sliding fee, 340B encounters, and preventive care directly drives FQHC billing, grant funding, quality bonuses, and 340B program compliance',
+         'Financial performance is entirely determined by the number of patients seen, not how visits are documented'],
+   ans:2, exp:'At an FQHC, documentation IS the revenue cycle. Correct ICD-10 codes drive claims, accurate UDS demographics affect HRSA grants, properly documented 340B encounters generate drug program revenue, and closed care gaps affect quality bonuses worth hundreds of thousands of dollars. Every staff member\'s documentation accuracy matters financially.'}
+];
+
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let examStarted = false;
+let submitted = false;
+let timerInterval = null;
+let timeLeft = 45 * 60;
+let userAnswers = {};
+
+// ══════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════
+function showSec(id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('#sb .ni').forEach(n => n.classList.remove('active'));
+  const map = {intro:'nav-intro', exam:'nav-exam', results:'nav-results', cert:'nav-cert'};
+  const el = document.getElementById(map[id]);
+  if (el) el.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ══════════════════════════════════
+// BUILD EXAM
+// ══════════════════════════════════
+function buildExam() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+
+  let currentModule = '';
+  QUESTIONS.forEach((q, idx) => {
+    if (q.module !== currentModule) {
+      currentModule = q.module;
+      const div = document.createElement('div');
+      div.className = 'qdiv';
+      div.innerHTML = `<span style="font-size:18px">${getModuleIcon(q.module)}</span> ${q.module}`;
+      container.appendChild(div);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'qcard';
+    card.id = 'qcard-' + q.id;
+
+    const optsHtml = q.opts.map((o, i) => `
+      <label class="qo" id="qo-${q.id}-${i}">
+        <input type="radio" name="q${q.id}" value="${i}" onchange="selectAnswer(${q.id}, ${i})">
+        <span>${o}</span>
+      </label>`).join('');
+
+    card.innerHTML = `
+      <div class="qtop">
+        <div class="qnum" id="qnum-${q.id}">${idx+1}</div>
+        <div class="qtext">${q.q}</div>
+        <div class="qtag">${q.module.split('·')[0].trim()}</div>
+      </div>
+      <div class="qopts">${optsHtml}</div>
+      <div class="qfb" id="qfb-${q.id}"></div>`;
+
+    container.appendChild(card);
+  });
+}
+
+function getModuleIcon(mod) {
+  if (mod.includes('1')) return '🏥';
+  if (mod.includes('2')) return '🪪';
+  if (mod.includes('3')) return '📝';
+  if (mod.includes('4')) return '💊';
+  if (mod.includes('5')) return '🔬';
+  return '📅';
+}
+
+// ══════════════════════════════════
+// ANSWER SELECTION
+// ══════════════════════════════════
+function selectAnswer(qid, optIdx) {
+  if (submitted) return;
+  userAnswers[qid] = optIdx;
+
+  // Style the card
+  const card = document.getElementById('qcard-' + qid);
+  card.classList.add('answered');
+
+  // Style options
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById(`qo-${qid}-${i}`);
+    if (el) el.classList.toggle('sel', i === optIdx);
+  }
+
+  // Update qnum indicator
+  const qnum = document.getElementById('qnum-' + qid);
+  if (qnum) qnum.classList.add('ans');
+
+  // Update progress
+  const count = Object.keys(userAnswers).length;
+  document.getElementById('ep-fill').style.width = (count/40*100) + '%';
+  document.getElementById('ep-count').textContent = count;
+  document.getElementById('pf').style.width = (count/40*100) + '%';
+  document.getElementById('pct').textContent = count + ' / 40';
+}
+
+// ══════════════════════════════════
+// TIMER
+// ══════════════════════════════════
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    document.getElementById('timer-display').textContent =
+      `⏱ ${m}:${s.toString().padStart(2,'0')}`;
+
+    if (timeLeft <= 300) {
+      document.getElementById('timer-display').style.color = '#F5C842';
+    }
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      submitExam(true);
+    }
+  }, 1000);
+}
+
+// ══════════════════════════════════
+// START
+// ══════════════════════════════════
+function startExam() {
+  if (!examStarted) {
+    examStarted = true;
+    buildExam();
+    startTimer();
+    document.getElementById('nav-exam').style.opacity = '1';
+    document.getElementById('nav-exam').style.pointerEvents = 'auto';
+  }
+  showSec('exam');
+}
+
+// ══════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════
+function submitExam(timedOut = false) {
+  if (submitted) { showSec('results'); return; }
+
+  if (!timedOut) {
+    const missing = QUESTIONS.length - Object.keys(userAnswers).length;
+    if (missing > 0) {
+      if (!confirm(`You have ${missing} unanswered question(s). Submit anyway? Unanswered questions will be marked wrong.`)) return;
+    }
+  }
+
+  clearInterval(timerInterval);
+  submitted = true;
+
+  // Grade
+  let total = 0;
+  const catScores = {};
+
+  QUESTIONS.forEach(q => {
+    const cat = q.module;
+    if (!catScores[cat]) catScores[cat] = {right:0, total:0};
+    catScores[cat].total++;
+
+    const chosen = userAnswers[q.id] ?? -1;
+    const correct = chosen === q.ans;
+    if (correct) { total++; catScores[cat].right++; }
+
+    // Reveal answers in exam view
+    const card = document.getElementById('qcard-' + q.id);
+    card.classList.remove('answered');
+    card.classList.add(correct ? 'correct' : 'wrong');
+
+    const qnum = document.getElementById('qnum-' + q.id);
+    qnum.className = 'qnum ' + (correct ? 'ok' : 'bad');
+    qnum.textContent = correct ? '✓' : '✗';
+
+    for (let i = 0; i < q.opts.length; i++) {
+      const el = document.getElementById(`qo-${q.id}-${i}`);
+      if (!el) continue;
+      el.classList.remove('sel');
+      if (i === q.ans) el.classList.add('correct');
+      else if (i === chosen && chosen !== q.ans) el.classList.add('wrong');
+      const input = el.querySelector('input');
+      if (input) input.disabled = true;
+    }
+
+    const fb = document.getElementById('qfb-' + q.id);
+    if (fb) {
+      fb.className = 'qfb ' + (correct ? 'ok' : 'bad') + ' show';
+      fb.textContent = (correct ? '✓ ' : '✗ ') + q.exp;
+    }
+  });
+
+  buildResults(total, catScores);
+  showSec('results');
+
+  // Unlock sidebar
+  document.getElementById('nav-results').style.opacity = '1';
+  document.getElementById('nav-results').style.pointerEvents = 'auto';
+}
+
+// ══════════════════════════════════
+// BUILD RESULTS
+// ══════════════════════════════════
+function buildResults(total, catScores) {
+  const pct = Math.round(total / 40 * 100);
+  const passed = total >= 32;
+
+  // Score ring
+  const ring = document.getElementById('score-ring');
+  ring.className = 'score-ring ' + (passed ? 'pass' : 'fail');
+  ring.innerHTML = `<div>${total}/40</div><div style="font-size:14px">${pct}%</div>`;
+
+  document.getElementById('results-title').textContent = passed
+    ? '🎉 Congratulations — You Passed!'
+    : '📖 Keep Studying — You\'re Almost There';
+
+  document.getElementById('results-desc').textContent = passed
+    ? `Outstanding! You scored ${total} out of 40 (${pct}%) and have demonstrated comprehensive proficiency in Ochin Epic. Click below to generate your Certificate of Completion.`
+    : `You scored ${total} out of 40 (${pct}%). You need 32/40 (80%) to pass. Review the module sections where you missed questions, then retake the exam. You\'ve got this!`;
+
+  // Category breakdown
+  const catEl = document.getElementById('cat-breakdown');
+  catEl.innerHTML = '';
+  const icons = {'Module 1':'🏥','Module 2':'🪪','Module 3':'📝','Module 4':'💊','Module 5':'🔬','Module 6':'📅','Module 7':'🌐'};
+  Object.entries(catScores).forEach(([cat, sc]) => {
+    const cpct = Math.round(sc.right / sc.total * 100);
+    const fillClass = cpct >= 80 ? 'good' : cpct >= 60 ? 'warn' : 'bad';
+    const icon = Object.entries(icons).find(([k]) => cat.includes(k))?.[1] || '📋';
+    const tile = document.createElement('div');
+    tile.className = 'cat-tile';
+    tile.innerHTML = `
+      <div class="cat-icon">${icon}</div>
+      <div class="cat-name">${cat.split('·')[1]?.trim() || cat}</div>
+      <div class="cat-score">${sc.right}/${sc.total} <span style="font-size:13px;color:var(--gray3)">(${cpct}%)</span></div>
+      <div class="cat-bar"><div class="cat-fill ${fillClass}" style="width:${cpct}%"></div></div>`;
+    catEl.appendChild(tile);
+  });
+
+  // Buttons
+  if (passed) {
+    document.getElementById('btn-cert').style.display = 'inline-flex';
+    document.getElementById('btn-retake').style.display = 'none';
+    document.getElementById('nav-cert').style.opacity = '1';
+    document.getElementById('nav-cert').style.pointerEvents = 'auto';
+    // Save score for certificate
+    window._examScore = `${total}/40 (${pct}%)`;
+    window._examPassed = true;
+  } else {
+    document.getElementById('btn-retake').style.display = 'inline-flex';
+    document.getElementById('btn-cert').style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════
+// RETAKE
+// ══════════════════════════════════
+function retakeExam() {
+  submitted = false;
+  examStarted = false;
+  userAnswers = {};
+  timeLeft = 45 * 60;
+  clearInterval(timerInterval);
+  document.getElementById('timer-display').textContent = '⏱ 45:00';
+  document.getElementById('timer-display').style.color = '';
+  document.getElementById('ep-fill').style.width = '0%';
+  document.getElementById('ep-count').textContent = '0';
+  document.getElementById('pf').style.width = '0%';
+  document.getElementById('pct').textContent = '0 / 40';
+  document.getElementById('nav-results').style.opacity = '0.4';
+  document.getElementById('nav-results').style.pointerEvents = 'none';
+  document.getElementById('nav-cert').style.opacity = '0.4';
+  document.getElementById('nav-cert').style.pointerEvents = 'none';
+  showSec('intro');
+}
+
+// ══════════════════════════════════
+// CERTIFICATE
+// ══════════════════════════════════
+function updateCertName() {
+  const name = document.getElementById('cert-name').value.trim() || 'Your Name Here';
+  document.getElementById('cert-name-display').textContent = name;
+  const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('cert-date-display').textContent = 'Issued: ' + today;
+  document.getElementById('cert-score-display').textContent = window._examScore || '--';
+}
+
+// Init cert date on load
+window.addEventListener('load', () => {
+  const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('cert-date-display').textContent = 'Issued: ' + today;
+});
+
+// ══════════════════════════════════
+// SCROLL INDICATOR
+// ══════════════════════════════════
+window.addEventListener('scroll', () => {
+  const p = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('si').style.transform = `scaleX(${Math.min(p,1)})`;
+}, {passive:true});
+</script>
+</body>
+</html>

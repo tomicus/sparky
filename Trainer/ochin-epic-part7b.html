@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 7B: Top 100 Go-Live Q&amp;A (Q51–100)</title>
+<style>
+  :root {
+    --navy:#0D2B4E; --teal:#006D75; --teal-lt:#00A3AD;
+    --gold:#E8A020; --gold-lt:#F5C842;
+    --cream:#F4F8FA; --white:#FFFFFF;
+    --gray1:#1A2B3C; --gray2:#3D5166; --gray3:#7A93A8;
+    --gray4:#C5D5E0; --gray5:#EDF2F5;
+    --red:#C0392B; --green:#1E7E4C; --purple:#6B3FA0;
+    --orange:#C05C00;
+    --shadow:0 2px 12px rgba(13,43,78,.13);
+    --radius:10px;
+    --font-body:'Segoe UI','Arial',sans-serif;
+    --font-mono:'Consolas','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);background:var(--cream);color:var(--gray1);min-height:100vh;}
+
+  #topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo-box{background:var(--teal-lt);color:#fff;font-weight:800;font-size:15px;padding:5px 10px;border-radius:6px;}
+  .bar-title{font-size:17px;font-weight:600;}
+  .bar-sub{font-size:11px;color:var(--gray4);margin-top:1px;}
+  .pbwrap{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gray4);}
+  .pbtrack{width:160px;height:7px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;}
+  .pbfill{height:100%;background:var(--gold);border-radius:4px;}
+  .ubadge{background:rgba(255,255,255,.12);border-radius:20px;padding:4px 14px;font-size:12px;}
+
+  #layout{display:flex;min-height:calc(100vh - 60px);}
+
+  #sidebar{width:260px;flex-shrink:0;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding-bottom:20px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;border-right:1px solid rgba(255,255,255,.07);}
+  #sidebar::-webkit-scrollbar{width:4px;}
+  #sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+  .sb-sec{padding:18px 20px 6px;}
+  .sb-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal-lt);text-transform:uppercase;margin-bottom:8px;}
+  .ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.78);transition:background .15s;margin-bottom:2px;}
+  .ni:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .ni.active{background:var(--teal);color:#fff;}
+  .ni.locked{opacity:.4;cursor:not-allowed;}
+  .ni .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+  .ni .lbl{flex:1;}
+  .ni .badge{font-size:10px;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 7px;font-weight:700;}
+  .ni .chk{font-size:13px;color:#4cd964;}
+  .ndiv{height:1px;background:rgba(255,255,255,.08);margin:10px 20px;}
+
+  #main{flex:1;padding:36px 44px;max-width:960px;}
+
+  .ph{background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 100%);color:#fff;border-radius:var(--radius);padding:28px 32px 24px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .ph::after{content:'';position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .ph .mt{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px;}
+  .ph h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+  .ph p{font-size:14px;color:rgba(255,255,255,.8);max-width:600px;line-height:1.6;}
+  .ph .meta{display:flex;gap:20px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.65);flex-wrap:wrap;}
+
+  .search-bar{display:flex;gap:10px;margin-bottom:14px;align-items:center;}
+  .search-bar input{flex:1;padding:10px 16px;border:1.5px solid var(--gray4);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--gray1);background:#fff;outline:none;transition:border-color .15s;}
+  .search-bar input:focus{border-color:var(--teal);}
+  .filter-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+  .fbtn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--gray4);font-size:12px;font-weight:600;cursor:pointer;color:var(--gray2);background:#fff;transition:all .15s;white-space:nowrap;}
+  .fbtn:hover{border-color:var(--teal);color:var(--teal);}
+  .fbtn.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+  .qa-item{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;transition:box-shadow .15s;}
+  .qa-item:hover{box-shadow:0 4px 20px rgba(13,43,78,.18);}
+  .qa-header{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;cursor:pointer;user-select:none;}
+  .qa-num{background:var(--teal);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .qa-q{flex:1;}
+  .qa-q .q-text{font-size:14px;font-weight:600;color:var(--navy);line-height:1.5;}
+  .qa-q .q-meta{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+  .qa-toggle{font-size:18px;color:var(--gray3);flex-shrink:0;transition:transform .2s;margin-top:2px;}
+  .qa-item.open .qa-toggle{transform:rotate(180deg);}
+  .qa-body{display:none;padding:0 22px 20px 68px;border-top:1px solid var(--gray5);}
+  .qa-item.open .qa-body{display:block;}
+
+  .ans-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal);margin:14px 0 6px;}
+  .ans-text{font-size:13.5px;line-height:1.75;color:var(--gray2);}
+  .ans-text strong{color:var(--gray1);}
+  .ans-text code{background:var(--gray5);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12px;color:var(--navy);}
+
+  .example-box{background:var(--gray5);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--gray2);line-height:1.65;}
+  .example-box .ex-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:5px;}
+
+  .ochin-note{border-left:4px solid var(--teal-lt);background:#EBF8FA;border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--gray2);line-height:1.6;}
+  .ochin-note strong{color:var(--navy);}
+  .warn-note{border-left:4px solid var(--red);background:#FFF0EF;border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--gray2);line-height:1.6;}
+  .warn-note strong{color:var(--red);}
+  .tip-note{border-left:4px solid var(--gold);background:#FFFBF0;border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--gray2);line-height:1.6;}
+  .tip-note strong{color:#9a6c00;}
+
+  .cat-chip{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px;}
+  .cat-schedule{background:#FFF8E1;color:#F57F17;}
+  .cat-billing{background:#FCE4EC;color:#880E4F;}
+  .cat-telehealth{background:#E8EAF6;color:#1A237E;}
+  .cat-ochin{background:#F1F8E9;color:#33691E;}
+  .cat-golive{background:#FBE9E7;color:#BF360C;}
+
+  .cat-header{display:flex;align-items:center;gap:12px;margin:30px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--gray4);}
+  .cat-header .cat-icon{font-size:22px;}
+  .cat-header h2{font-size:18px;font-weight:700;color:var(--navy);}
+  .cat-header .cat-count{font-size:12px;color:var(--gray3);margin-left:auto;}
+
+  #results-count{font-size:13px;color:var(--gray3);margin-bottom:10px;}
+
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .card p{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:8px;}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .bp{background:var(--teal);color:#fff;}
+  .bg{background:var(--gold);color:var(--navy);}
+  .bo{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+  .mnav{display:flex;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid var(--gray4);flex-wrap:wrap;}
+
+  #si{position:fixed;top:60px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal-lt),var(--gold));transform-origin:left;transform:scaleX(0);z-index:200;}
+
+  @media(max-width:780px){#sidebar{display:none;}#main{padding:20px 16px;}}
+</style>
+</head>
+<body>
+<div id="si"></div>
+
+<div id="topbar">
+  <div class="brand">
+    <div class="logo-box">OCHIN</div>
+    <div>
+      <div class="bar-title">Epic Training Portal</div>
+      <div class="bar-sub">Part 7B of 8 · Top 100 Go-Live Q&amp;A (Questions 51–100)</div>
+    </div>
+  </div>
+  <div class="pbwrap">
+    <span>Series Progress</span>
+    <div class="pbtrack"><div class="pbfill" style="width:87%"></div></div>
+    <span>87%</span>
+  </div>
+  <div class="ubadge">👤 Learner</div>
+</div>
+
+<div id="layout">
+  <nav id="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Part 7B Categories</div>
+      <div class="ni active" onclick="filterCat('all',this)"><span class="ico">📖</span><span class="lbl">All Questions (51–100)</span></div>
+      <div class="ni" onclick="filterCat('schedule',this)"><span class="ico">📅</span><span class="lbl">Scheduling (51–60)</span></div>
+      <div class="ni" onclick="filterCat('billing',this)"><span class="ico">🧾</span><span class="lbl">Billing &amp; Coding (61–70)</span></div>
+      <div class="ni" onclick="filterCat('telehealth',this)"><span class="ico">💻</span><span class="lbl">Telehealth (71–80)</span></div>
+      <div class="ni" onclick="filterCat('ochin',this)"><span class="ico">🌐</span><span class="lbl">Ochin-Specific (81–90)</span></div>
+      <div class="ni" onclick="filterCat('golive',this)"><span class="ico">🚀</span><span class="lbl">Go-Live Day (91–100)</span></div>
+    </div>
+    <div class="ndiv"></div>
+    <div class="sb-sec">
+      <div class="sb-lbl">All Parts</div>
+      <div class="ni" onclick="alert('Load ochin-epic-part1.html')"><span class="ico">🏥</span><span class="lbl">Part 1 · Overview &amp; Login</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part2.html')"><span class="ico">🪪</span><span class="lbl">Part 2 · Check-In</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part3.html')"><span class="ico">📝</span><span class="lbl">Part 3 · Documentation</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part4.html')"><span class="ico">💊</span><span class="lbl">Part 4 · Medications &amp; Rx</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part5.html')"><span class="ico">🔬</span><span class="lbl">Part 5 · Orders &amp; Results</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part6.html')"><span class="ico">📅</span><span class="lbl">Part 6 · Scheduling &amp; Billing</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part7a.html')"><span class="ico">📖</span><span class="lbl">Part 7A · Q&amp;A 1–50</span><span class="chk">✓</span></div>
+      <div class="ni active"><span class="ico">📖</span><span class="lbl">Part 7B · Q&amp;A 51–100 (HERE)</span></div>
+      <div class="ni locked"><span class="ico">🎓</span><span class="lbl">Part 8 · Final Assessment</span><span class="badge">Next</span></div>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <div class="ph">
+      <div class="mt">Part 7B of 8 · Reference Guide</div>
+      <h1>Top 100 Go-Live Q&amp;A</h1>
+      <p>Questions 51–100 — covering Scheduling, Billing &amp; Coding, Telehealth, Ochin-Specific workflows, and Go-Live Day scenarios. Use the search bar or category filters to find answers fast.</p>
+      <div class="meta">
+        <span>📖 Reference — no quiz</span>
+        <span>🔍 Search and filter below</span>
+        <span>⬅️ Questions 1–50 → Part 7A</span>
+        <span>➡️ Final Assessment → Part 8</span>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="qa-search" placeholder="🔍  Search questions and answers..." oninput="filterSearch()" />
+    </div>
+    <div class="filter-btns">
+      <button class="fbtn active" onclick="filterCat('all',this)">All (50)</button>
+      <button class="fbtn" onclick="filterCat('schedule',this)">📅 Scheduling</button>
+      <button class="fbtn" onclick="filterCat('billing',this)">🧾 Billing</button>
+      <button class="fbtn" onclick="filterCat('telehealth',this)">💻 Telehealth</button>
+      <button class="fbtn" onclick="filterCat('ochin',this)">🌐 Ochin-Specific</button>
+      <button class="fbtn" onclick="filterCat('golive',this)">🚀 Go-Live Day</button>
+    </div>
+    <div id="results-count"></div>
+
+    <!-- ═══════════════════════════════
+         SCHEDULING (51–60)
+    ═══════════════════════════════ -->
+    <div class="cat-header" data-cat="schedule">
+      <span class="cat-icon">📅</span>
+      <h2>Scheduling</h2>
+      <span class="cat-count">Questions 51–60</span>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">51</div>
+        <div class="qa-q">
+          <div class="q-text">A provider is out sick today. How do I block their schedule and handle existing appointments?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Navigate to the provider's schedule → click on the time blocks you want to close → select <strong>Add Block</strong> and choose "Provider Out" or equivalent reason → this prevents new same-day scheduling. Then review all existing appointments for that day: contact patients to reschedule or offer care with an available provider. Epic's appointment desk lets you view all today's appointments for a provider in a list. For urgent patients who can't wait, check whether another provider has capacity or refer to urgent care appropriately.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> For mass rescheduling of many patients at once (e.g., provider out for a week), contact the Ochin Help Desk — they have tools to perform bulk appointment actions that individual clinic staff cannot do. Don't manually cancel 40 appointments one by one if a bulk tool is available.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">52</div>
+        <div class="qa-q">
+          <div class="q-text">How do I add a patient to the waitlist when no appointments are available?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">From the scheduling dialog, when no slots are available, click <strong>Add to Waitlist</strong>. Document: preferred provider, appointment type needed, urgency level, the patient's available date range, and best contact number. When a slot opens due to a cancellation, schedulers review the waitlist by urgency and date preference and contact patients in order. Use <strong>Schedule from Waitlist</strong> to book the patient directly without re-entering information. Review and clean the waitlist daily — remove patients who have been scheduled or who found care elsewhere.</div>
+        <div class="tip-note"><strong>💡 Tip:</strong> Set a calendar reminder to review the waitlist every morning. Yesterday's cancellations are today's open slots — a proactive scheduler fills gaps before they become no-shows.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">53</div>
+        <div class="qa-q">
+          <div class="q-text">What is the correct disposition when a patient cancels with less than 24 hours' notice vs. a true no-show?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Both are still <strong>Cancelled — Patient</strong> in Epic, regardless of how close to the appointment they called. A cancellation means the patient called at all — even one hour before. A <strong>No-Show</strong> is reserved only for patients who gave no notice whatsoever and simply didn't appear. Your clinic may track late cancellations separately in appointment notes for internal policy purposes (e.g., "Cancelled same-day — called 30 min before"), but the Epic disposition remains Cancelled, not No-Show. This distinction matters for UDS access metrics.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">54</div>
+        <div class="qa-q">
+          <div class="q-text">A patient needs a recurring appointment every 4 weeks. Do I have to schedule each one individually?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">No — use Epic's <strong>Recurring/Series scheduling</strong> feature. When scheduling, look for the "Recurrence" or "Series" option in the scheduling dialog. Set the frequency (every 4 weeks), number of occurrences, and end date. Epic will create all appointments simultaneously, filling available slots that match the appointment type. Note: not all appointment types support series scheduling in Ochin's build — if the option isn't visible, check with your super user or schedule them in batches (e.g., 3 at a time).</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A patient starting suboxone needs monthly check-ins for 6 months. The scheduler uses series scheduling to create 6 appointments every 28 days, filling slots on the provider's template. All 6 appointments appear in the patient's MyChart immediately.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">55</div>
+        <div class="qa-q">
+          <div class="q-text">How do I schedule a patient to see both a primary care provider and a behavioral health clinician on the same day?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Create two separate appointments — one with the PCP and one with the BH clinician — on the same day. Each appointment uses its own appointment type (Primary Care Follow-Up and BH Follow-Up, for example). Each generates a separate encounter in Epic, with separate notes and separate billing. This is the integrated behavioral health (IBH) model at Ochin FQHCs, and Epic is designed to support it. Coordinate timing so the patient flows from one visit to the next without long waits.</div>
+        <div class="ochin-note"><strong>Ochin Billing Note:</strong> Two separate qualifying encounters on the same day (PCP + BH) can generate two PPS payments — one for each provider. Both providers must sign their own notes. This is a significant revenue opportunity for integrated clinics — don't undercount by combining into one encounter.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">56</div>
+        <div class="qa-q">
+          <div class="q-text">How do I view a provider's full schedule for the week at once?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Navigate to <strong>Scheduling → Provider Schedule</strong> → select the provider → switch the view toggle from "Day" to "Week." This shows all scheduled appointments across the full week in a grid view. You can click any appointment to see details, reschedule, or check in. For a multi-provider view, use the <strong>Department Schedule</strong> view, which shows all providers in your department side by side for the day — useful for charge nurses and scheduling coordinators during busy clinic mornings.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">57</div>
+        <div class="qa-q">
+          <div class="q-text">A patient needs an appointment urgently but the provider's schedule is full. What are my options in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Options in order of preference: (1) <strong>Check for same-day hold slots</strong> — most Ochin clinic templates have reserved same-day urgent slots; (2) <strong>Check other providers</strong> in your clinic with availability using Find Opening across all providers; (3) <strong>Add to Waitlist</strong> with "Urgent" priority for same-day; (4) <strong>Ask the provider</strong> if they can add the patient as an overbook — this requires authorization; (5) <strong>Telephone triage</strong> — have a nurse or provider do a telephone encounter to assess acuity and determine if an ED referral is more appropriate than waiting.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">58</div>
+        <div class="qa-q">
+          <div class="q-text">How do I document that a patient needs an interpreter when scheduling?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">When scheduling the appointment, look for the <strong>Interpreter Needed</strong> field or a language/accommodation field in the scheduling dialog. Select the language needed and check the interpreter checkbox. This creates a visible flag on the appointment in the schedule view so rooming staff see it before the patient arrives. Additionally, confirm the patient's preferred language is set correctly in their demographics — this drives multiple downstream functions including AVS language and MyChart communications.</div>
+        <div class="warn-note"><strong>⚠️ Don't wait until check-in</strong> to arrange an interpreter. By then it's too late for in-person interpretation services. Document at scheduling so your interpreter services coordinator can have a qualified interpreter ready.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">59</div>
+        <div class="qa-q">
+          <div class="q-text">What is the difference between "Find Opening" and "Schedule Appointment" in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>Find Opening</strong> is a search tool — it searches all available slots across a date range that match your criteria (appointment type, provider, department) and returns a list of the next available options. It's best when you need to find when the patient can come in. <strong>Schedule Appointment</strong> (without Find Opening) goes directly to the provider's schedule so you can manually choose a specific slot — best when you already know the date and time you want. For most scheduling interactions, use Find Opening first to identify availability, then confirm with the patient.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="schedule">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">60</div>
+        <div class="qa-q">
+          <div class="q-text">How do appointment reminder settings work and who controls them?</div>
+          <div class="q-meta"><span class="cat-chip cat-schedule">Scheduling</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Ochin configures automated appointment reminders at the network level — the timing, channels (call/text/MyChart), and message content are managed by Ochin in partnership with your clinic leadership. Individual staff cannot change reminder timing or content. However, you influence reminder effectiveness by: keeping patient phone numbers and preferred contact method current in demographics, capturing text consent during registration, and ensuring patients have active MyChart accounts. Patient-level communication preferences (call vs. text vs. email) are set in their demographics and drive which channel is used.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> If your clinic wants to change reminder timing or add a new channel (e.g., add SMS reminders), submit a request through my.ochin.org. These are network-level configuration changes that Ochin manages — not something clinic staff can change in Epic directly.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         BILLING & CODING (61–70)
+    ═══════════════════════════════ -->
+    <div class="cat-header" data-cat="billing">
+      <span class="cat-icon">🧾</span>
+      <h2>Billing &amp; Coding</h2>
+      <span class="cat-count">Questions 61–70</span>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">61</div>
+        <div class="qa-q">
+          <div class="q-text">Why does my note need to be signed before billing can process the claim?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">A signed note is the legal attestation that you — the provider — personally performed and documented the services billed. CMS and all payers require that claims be supported by a signed encounter note in the medical record. Until you sign, the encounter is in "draft" status and cannot be billed. The billing team literally cannot touch an unsigned encounter. Every day a note sits unsigned is a day closer to missing the payer's timely filing deadline — potentially losing that revenue permanently.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A provider sees 18 patients on Monday but signs notes for only 14 before leaving. The billing team can only process 14 claims. The 4 unsigned notes sit in limbo. If the provider doesn't sign them until Thursday, and one patient had a 3-day timely filing window with their insurer (rare but possible), that claim may be denied. Sign your notes the same day.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">62</div>
+        <div class="qa-q">
+          <div class="q-text">What is the difference between a 99213 and a 99214 visit, and how does my documentation determine which one applies?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Both are established patient E&amp;M codes. <strong>99213</strong> = Low complexity (1–2 stable chronic conditions or minor acute problem; limited data review; low-risk management like OTC medications). <strong>99214</strong> = Moderate complexity (chronic condition with exacerbation, new problem with uncertain prognosis, or 2+ chronic conditions requiring prescription management; moderate data review; prescription drug management). The key driver since 2021 is <strong>Medical Decision Making (MDM)</strong> complexity or total time. If you managed a patient's uncontrolled diabetes AND their new knee pain AND reviewed external cardiology records in one visit — that's 99214 or higher. Document what you actually did.</div>
+        <div class="tip-note"><strong>💡 Time-Based Alternative:</strong> If your total time spent on the encounter (including documentation) on the date of service was 30–39 minutes, that supports 99214 regardless of MDM. Document: "Total time including documentation: 35 minutes." Epic has a time entry field in the encounter — use it.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">63</div>
+        <div class="qa-q">
+          <div class="q-text">What is a "qualifying FQHC visit" and what makes a visit NOT qualify?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">A qualifying visit requires: (1) face-to-face contact (or qualifying telehealth) with a billable FQHC provider (MD, DO, NP, PA, CNM, or licensed BH clinician); (2) at the HRSA-designated FQHC service site; (3) a signed encounter note; (4) at least one ICD-10 diagnosis. Visits that do NOT qualify: care provided by non-billable staff only (MA visit without provider contact), phone calls that don't meet qualifying telehealth criteria, administrative-only encounters, or services at a non-designated site. Understanding this matters because each qualifying visit generates one PPS payment.</div>
+        <div class="warn-note"><strong>⚠️ Common Mistake:</strong> An MA taking vitals and updating the medication list, with the provider never entering the room or signing a note, is NOT a qualifying FQHC visit. A provider must have direct patient contact and sign a note documenting their assessment and plan.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">64</div>
+        <div class="qa-q">
+          <div class="q-text">A claim was denied for "not medically necessary." How does documentation prevent this?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Medical necessity denials happen when the diagnosis code(s) on the claim don't logically justify the service billed. Prevention: (1) <strong>Every lab order needs an ICD-10</strong> that explains why the test is needed — "HbA1c" ordered with E11.9 (Type 2 DM) makes clinical sense; the same test ordered with Z00.00 (routine exam) may be denied; (2) <strong>E&amp;M level must match documentation</strong> — a 99215 requires documented high-complexity MDM; (3) <strong>Imaging needs a clinical indication</strong> — "MRI Knee" needs a diagnosis that justifies MRI (not just "knee pain" — be specific about findings, duration, and what conservative treatment has failed).</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A provider orders a lipid panel. The ICD-10 on the order is Z00.00 (routine exam). The lab bills the insurer with Z00.00. Insurer denies: "lipid panel not covered under routine exam." If the provider had used E78.5 (hyperlipidemia) or I10 (HTN — risk factor screening), the claim would have been paid. The diagnosis code is the clinical justification for the test.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">65</div>
+        <div class="qa-q">
+          <div class="q-text">Can we bill for a wellness visit AND a problem-focused visit on the same day?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Yes — with conditions. If a patient comes for an Annual Wellness Visit (AWV) or Annual Physical AND you address a separate, significant acute or chronic problem during the same visit, you can bill both the preventive code AND an E&amp;M code, using <strong>Modifier 25</strong> on the E&amp;M to indicate it was a significant, separately identifiable service. The key: the problem-focused service must be documented separately from the preventive exam content, and it must be a genuinely separate clinical problem — not just a mention of a chronic condition being managed.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Medicare AWV (G0438/G0439) is frequently combined with an E&amp;M at FQHCs. Your billing team applies Modifier 25 during charge review. The provider's job is clear documentation: "Today's visit included an Annual Wellness Visit AND a separate evaluation of the patient's uncontrolled hypertension requiring medication adjustment."</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">66</div>
+        <div class="qa-q">
+          <div class="q-text">What is the Sliding Fee Scale and who qualifies for it?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The Sliding Fee Scale (SFS) is an HRSA-required income-based discount program. Any patient — regardless of insurance status — who has income at or below 200% of the Federal Poverty Level (FPL) may qualify for reduced fees. Uninsured patients at or below 100% FPL must be offered services at a nominal fee or no charge. The SFS applies to the patient's out-of-pocket costs — copays, deductibles, self-pay balances. It does NOT affect what the clinic bills to insurance. Eligibility is determined at registration using income and household size documentation (pay stubs, tax returns, or self-attestation per your clinic's policy).</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">67</div>
+        <div class="qa-q">
+          <div class="q-text">What are G-codes and when are they used at FQHCs?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">G-codes are HCPCS Level II codes used primarily for Medicare billing. At FQHCs specifically: <strong>G0466–G0470</strong> are the FQHC visit type codes for Medicare (new patient, established, initial preventive, AWV, mental health). These are used instead of standard CPT codes when billing Medicare for FQHC encounters. <strong>G0071</strong> is the Medicare FQHC telehealth encounter code. Ochin's Epic is configured to automatically apply the correct G-codes for Medicare FQHC encounters during charge review — you don't select them manually, but understanding what they are helps you recognize when billing is working correctly.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">68</div>
+        <div class="qa-q">
+          <div class="q-text">A patient has both Medicare and Medicaid (dual eligible). How does billing work?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">For dual-eligible patients, Medicare is always billed first (primary payer) and Medicaid is billed second (secondary payer). In Epic, both coverages should be active in the patient's account with Medicare listed as primary. Epic's billing engine handles the crossover claim automatically — Medicare pays its portion and Medicaid typically covers the remaining patient responsibility (copay, deductible). Dual-eligible patients generally owe little to nothing out of pocket. Verify both coverages during check-in and confirm primary/secondary ordering is correct.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Dual-eligible patients are common at FQHCs due to the population served. Make sure both plans are entered in Epic with correct priority (Medicare primary, Medicaid secondary). An incorrectly ordered coverage causes billing errors that take weeks to resolve.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">69</div>
+        <div class="qa-q">
+          <div class="q-text">How do I know if a claim was paid, denied, or is still pending?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Clinical staff generally don't need to track individual claim status — that's the billing team's role. However, if you need to check: in the patient's account → navigate to <strong>Account/Billing</strong> → <strong>Transactions</strong> or <strong>Claims</strong> tab → you can see charges, payments, and any denial codes posted. The billing team monitors claim status in Epic's billing module and will reach out to providers when documentation clarification is needed to resolve a denial. If a patient asks about a bill or a denial, refer them to your billing department — don't interpret EOBs without billing team context.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="billing">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">70</div>
+        <div class="qa-q">
+          <div class="q-text">What documentation is required to support a 99215 (highest-level established patient visit)?</div>
+          <div class="q-meta"><span class="cat-chip cat-billing">Billing</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">A 99215 requires <strong>High complexity MDM</strong> OR <strong>60+ minutes total time</strong>. High complexity MDM requires at least two of three: (1) <strong>Problems:</strong> one or more chronic illnesses with severe exacerbation, or a new problem posing a threat to life/bodily function; (2) <strong>Data:</strong> extensive data review including independent interpretation of a test, discussion of management with external provider, or independent review of external records; (3) <strong>Risk:</strong> drug therapy requiring intensive monitoring, or decision regarding hospitalization. If using time: "Total time including documentation on date of service: 65 minutes." Document specifically — vague notes don't support high-level billing even if the encounter was clinically complex.</div>
+        <div class="example-box"><div class="ex-label">Documentation That Supports 99215</div>"Patient with ESRD, uncontrolled T2DM (HbA1c 11.2%), and newly identified cardiac arrhythmia on EKG today. Independently reviewed today's EKG (new A-fib with RVR — initiating anticoagulation). Reviewed external cardiology records from OHSU (pulled via Care Everywhere). Discussed management plan with on-call cardiologist. Initiating apixaban with close monitoring given renal function. High complexity MDM."</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         TELEHEALTH (71–80)
+    ═══════════════════════════════ -->
+    <div class="cat-header" data-cat="telehealth">
+      <span class="cat-icon">💻</span>
+      <h2>Telehealth</h2>
+      <span class="cat-count">Questions 71–80</span>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">71</div>
+        <div class="qa-q">
+          <div class="q-text">A patient doesn't have a smartphone or computer. Can they still have a telehealth visit?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Yes — through an <strong>audio-only (telephone) visit</strong>, if permitted for the visit type by the patient's insurance. Audio-only visits are scheduled using a telephone visit appointment type and billed with CPT codes 99441–99443 (by time) rather than standard E&amp;M codes. Coverage and reimbursement rates for audio-only are lower than video visits and vary significantly by payer. Document clearly that the visit was audio-only and why video wasn't possible ("Patient does not have access to video-capable device"). For patients who want video but lack technology, some clinics offer a tablet lending program or in-clinic video visit option.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Audio-only telehealth coverage has changed significantly since COVID-era waivers ended. Always verify with your billing team whether audio-only is covered for a specific patient's plan before conducting the visit. Don't assume coverage based on what was permitted during the public health emergency.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">72</div>
+        <div class="qa-q">
+          <div class="q-text">Why do I have to ask where the patient is located during a telehealth visit?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">This is a <strong>state medical licensing requirement</strong> — not optional documentation. Providers must be licensed in the state where the patient is physically located at the time of the telehealth visit. If your patient is visiting family in California and you are only licensed in Oregon, you cannot legally conduct that telehealth visit in California. Document the patient's city and state at the start of every telehealth visit: "Patient located in Portland, OR at time of visit." This is your licensure compliance documentation.</div>
+        <div class="warn-note"><strong>⚠️ Real Risk:</strong> Providers have faced state medical board investigations for conducting telehealth visits with patients who were out of state at the time — even if the patient didn't mention it. Ask every time. Document every time. "Same state as always" is not documentation.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">73</div>
+        <div class="qa-q">
+          <div class="q-text">How do I start a MyChart video visit with a patient in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">At the time of the scheduled video visit: open the patient's encounter in Epic → look for the <strong>Video Visit</strong> button or banner (usually in the top of the encounter or the visit toolbar) → click <strong>Begin Video Visit</strong>. This opens the video connection through the browser or Epic's integrated video module. The patient must have joined from their MyChart app first — confirm they're in the virtual waiting room before you begin. If using a third-party platform (Doximity, Zoom for Healthcare), the launch button connects to that platform's interface instead.</div>
+        <div class="tip-note"><strong>💡 Test Your Setup:</strong> Before your first telehealth visit, test your camera and microphone in the video platform. Nothing derails a telehealth visit faster than a provider who can't get their audio working. Ochin support can help you test the setup before go-live.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">74</div>
+        <div class="qa-q">
+          <div class="q-text">What is the telehealth consent requirement and when does it need to be collected?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Telehealth consent must be obtained before or at the time of the first telehealth visit — and many states require it to be re-obtained if there is a material change in services. Ochin's Epic can send the telehealth consent via MyChart for the patient to sign digitally before the visit. Alternatively, it can be obtained verbally at the start of the visit and documented: "Verbal consent for telehealth services obtained — patient verbalized understanding of the limitations and agreed to proceed." The consent form covers: nature of telehealth, limitations vs. in-person care, privacy protections, and right to discontinue.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">75</div>
+        <div class="qa-q">
+          <div class="q-text">Can I prescribe controlled substances via telehealth?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">This depends on the substance and current DEA rules. During and after the COVID public health emergency, the DEA temporarily allowed prescribing controlled substances via telehealth without an in-person evaluation. These rules have been changing — as of the current regulatory environment, <strong>Schedule III–V substances</strong> (including buprenorphine for OUD) can typically be initiated via telehealth under the Ryan Haight Act telemedicine exceptions. <strong>Schedule II substances</strong> generally still require an in-person evaluation before initial prescribing. Check current DEA guidance and your state's rules — this is an area where regulations have changed multiple times. When in doubt, consult your medical director.</div>
+        <div class="warn-note"><strong>⚠️ Do not rely on this training for current controlled substance telehealth rules</strong> — they change frequently. Always confirm with your medical director or compliance officer before prescribing Schedule II substances via telehealth.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">76</div>
+        <div class="qa-q">
+          <div class="q-text">The video connection keeps dropping during a patient visit. What do I do?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Immediate steps: (1) Ask the patient to switch from WiFi to cellular data or vice versa; (2) Both parties try closing and reopening the video link; (3) If video continues to fail, convert to audio-only — call the patient directly and continue the visit by phone; (4) Document in the note: "Video visit initiated; connection unstable. Converted to telephone visit per patient request — audio-only completed." Then determine if the visit qualifies as an audio-only telehealth visit for billing or if it needs to be rescheduled. Don't abandon the patient — complete what care you can.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Always have the patient's phone number visible before starting a video visit so you can call immediately if the connection fails. Looking up the phone number mid-failure costs precious visit time and frustrates patients.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">77</div>
+        <div class="qa-q">
+          <div class="q-text">How is a telehealth visit documented differently from an in-person visit in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The core SOAP note structure is identical. Additional required elements for telehealth documentation: (1) <strong>Visit modality</strong> — "This visit was conducted via synchronous audio-video telehealth (MyChart Video Visit)"; (2) <strong>Patient location</strong> — "Patient located in [city, state] at time of visit"; (3) <strong>Consent</strong> — "Telehealth consent obtained via MyChart prior to visit" or "Verbal telehealth consent obtained at start of visit"; (4) <strong>Physical exam limitations</strong> — acknowledge what couldn't be assessed remotely: "Physical exam limited to visual inspection — auscultation and palpation deferred; patient advised to present in person if symptoms worsen." Document what you could assess — general appearance, skin, face, upper extremities visible on camera.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">78</div>
+        <div class="qa-q">
+          <div class="q-text">Can I see a new patient for the first time via telehealth?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Generally yes for primary care, with some caveats. CMS and most state Medicaid programs permit new patient evaluations via telehealth (video). However: (1) Your clinic's policy may require an in-person visit first for new patients; (2) Certain visit types (new OB patients, new controlled substance patients) typically require in-person for the initial evaluation; (3) A new patient telehealth visit should include a thorough history, review of any available records via Care Everywhere, and a clear plan for when in-person evaluation is needed. Document that this was a new patient visit and what workup is deferred for in-person follow-up.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">79</div>
+        <div class="qa-q">
+          <div class="q-text">How is a telehealth no-show handled differently from an in-person no-show?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Handle it the same way — mark as <strong>No-Show</strong> in the scheduling disposition. Before marking no-show, make a reasonable effort to reach the patient: call them directly (they may have forgotten or had a technical issue), send a MyChart message, and wait an appropriate grace period (typically 10–15 minutes past the appointment time). Document your contact attempts: "Attempted to call patient at [number] at [time] — no answer. Sent MyChart message. Appointment marked as No-Show after 15-minute wait." This documents due diligence and protects against complaints.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="telehealth">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">80</div>
+        <div class="qa-q">
+          <div class="q-text">What visit types are NOT appropriate for telehealth and should remain in-person?</div>
+          <div class="q-meta"><span class="cat-chip cat-telehealth">Telehealth</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Generally NOT appropriate for telehealth: (1) Visits requiring physical examination findings for diagnosis (acute abdominal pain, musculoskeletal injury requiring palpation); (2) Procedures (joint injections, IUD placement, wound care, Pap smears, biopsies); (3) Initial OB visits requiring physical exam and dating ultrasound; (4) New controlled substance evaluations (typically require in-person per policy); (5) Patients in acute distress who need hands-on assessment; (6) Pediatric well visits requiring height/weight measurements and physical development assessment. When in doubt, err toward in-person — telehealth is a supplement to, not a replacement for, in-person care.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         OCHIN-SPECIFIC (81–90)
+    ═══════════════════════════════ -->
+    <div class="cat-header" data-cat="ochin">
+      <span class="cat-icon">🌐</span>
+      <h2>Ochin-Specific Workflows</h2>
+      <span class="cat-count">Questions 81–90</span>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">81</div>
+        <div class="qa-q">
+          <div class="q-text">What makes Ochin's Epic different from a hospital or private practice Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Ochin runs a <strong>shared multi-tenant instance</strong> — 700+ FQHC and safety-net clinics across the country share one Epic database. Key differences: (1) <strong>Shared patient database</strong> — a patient who visits any Ochin clinic has one chart visible everywhere; (2) <strong>Ochin manages all upgrades and builds</strong> — your clinic doesn't have its own IT Epic team; (3) <strong>FQHC-optimized configuration</strong> — Sliding Fee Scale, UDS reporting dashboards, 340B routing, and HRSA quality measures are pre-built; (4) <strong>Network benchmarking</strong> — your quality metrics can be compared to similar Ochin-network peers; (5) <strong>Ochin Support, not Epic directly</strong> — for help, you call Ochin, not Epic's 1-800 number.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">82</div>
+        <div class="qa-q">
+          <div class="q-text">How do I request a change to how Epic is configured at my clinic?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Submit a request through <strong>my.ochin.org</strong> — Ochin's member portal and ticketing system. Configuration changes (new appointment types, modified templates, new SmartSets, workflow changes, report requests) are reviewed by your assigned Ochin Analyst. Simple requests may be completed in days; complex builds take weeks and may require your medical director's approval. You cannot make configuration changes yourself in the shared instance — this protects all 700+ clinics from unintended network-wide impacts.</div>
+        <div class="tip-note"><strong>💡 Planning Tip:</strong> Submit configuration requests well in advance of when you need them. Go-live week is not the time to discover that an appointment type you need doesn't exist. During your pre-go-live period, work with your Ochin Analyst to review your template and workflow needs.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">83</div>
+        <div class="qa-q">
+          <div class="q-text">What is my.ochin.org and when should I use it?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>my.ochin.org</strong> is the Ochin member portal — your gateway to all Ochin support and services. Use it for: submitting Help Desk tickets, tracking your ticket status, accessing training resources and tip sheets, submitting configuration change requests, accessing Ochin's knowledge base, and connecting with your assigned Ochin Analyst. It is also where Ochin publishes Epic upgrade release notes, downtime notifications, and policy updates. Bookmark it and check it regularly — especially in the weeks around go-live and after major Epic upgrades.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">84</div>
+        <div class="qa-q">
+          <div class="q-text">How does Epic downtime affect my clinic and what should I do?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Epic has two types of downtime: <strong>Planned</strong> (scheduled maintenance, usually nights/weekends — announced in advance via my.ochin.org) and <strong>Unplanned</strong> (system outage). For planned downtime, Ochin provides advance notice and your clinic activates its <strong>downtime procedures</strong> — paper-based workflows for registration, medication administration, and documentation. For unplanned downtime, Epic's <strong>Downtime Viewer</strong> (a local cached read-only view of patient records) may be available. Every clinic must have a downtime procedure binder — know where yours is before go-live.</div>
+        <div class="warn-note"><strong>⚠️ Know Your Downtime Procedure Before Day One:</strong> "Where is the downtime binder?" is the wrong question to be asking during an active system outage. Your super user and clinic manager will review downtime procedures during go-live training — pay close attention to this session.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">85</div>
+        <div class="qa-q">
+          <div class="q-text">A patient from another Ochin clinic has information in their chart that looks wrong. Can I correct it?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">It depends on what's wrong. <strong>Demographics</strong> (address, phone, name spelling): you can update these — they are shared across the network, so your correction benefits all clinics. <strong>Clinical information</strong> (problem list entry, allergy, medication from another provider): be very cautious. Do not remove or change another provider's clinical entries without their involvement — contact the originating clinic if you believe there is an error. You can always add information (a new allergy, a corrected diagnosis) without removing what another provider documented. Documenting a note of disagreement or clarification via an addendum is also appropriate.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">86</div>
+        <div class="qa-q">
+          <div class="q-text">What is the Ochin Help Desk and when should I call vs. ask my super user?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>Ask your Super User first</strong> for: workflow questions, "how do I do X in Epic," training clarification, best practice guidance, and issues your super user can resolve locally. <strong>Call Ochin Help Desk</strong> for: account lockouts and password resets, system errors or Epic crashes, suspected bugs or unexpected behavior, configuration issues, report requests, and anything that requires Ochin to take an action in the system. Help Desk number: <strong>1-866-OCHIN-SD (1-866-624-4673)</strong>. Submit tickets at my.ochin.org for non-urgent requests. Response time depends on priority level.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">87</div>
+        <div class="qa-q">
+          <div class="q-text">How does Ochin's shared instance affect patient privacy — can staff at other Ochin clinics see my patients' charts?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Technically, staff at other Ochin clinics have access to the same shared Epic system. However, all access is logged in an <strong>audit trail</strong> — every chart view, every update, every click is recorded with the user's name, time, and reason. Staff at another clinic should only access a patient's chart if they have a treatment relationship with that patient. Accessing records without a legitimate reason — even within the Ochin network — is a HIPAA violation and is tracked by Ochin's privacy team. Your patients' records are protected by policy, training, and active monitoring — not by technical walls within the shared instance.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">88</div>
+        <div class="qa-q">
+          <div class="q-text">What is Population Health in Ochin Epic and how do I use it?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Population Health tools in Ochin Epic allow care teams to manage panels of patients proactively — not just reactively during visits. Key tools: <strong>Reporting Workbench</strong> (run lists of patients with overdue preventive care, uncontrolled chronic disease, or care gaps); <strong>Care Gap reports</strong> (patients due for HbA1c, mammogram, colorectal cancer screening, etc.); <strong>Outreach tools</strong> (send MyChart messages to a list of patients); and <strong>Ochin Analytics dashboards</strong> (benchmark your clinic's quality against similar Ochin network sites). Use these to identify and proactively reach out to patients before they become high-acuity — especially before UDS data lock on December 31.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">89</div>
+        <div class="qa-q">
+          <div class="q-text">How do Epic upgrades work at Ochin and will my workflows change?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Epic releases major upgrades annually (typically in the fall). Ochin manages the upgrade for all 700+ member clinics simultaneously — you don't have to do anything. Before each upgrade, Ochin publishes release notes on my.ochin.org describing what is changing. Significant workflow changes come with training tip sheets and sometimes brief update trainings. Minor upgrades (patches) happen more frequently and may not require any action. After an upgrade, some screen layouts, button locations, or workflow steps may look slightly different — don't panic. Check Ochin's release notes or ask your super user if something looks unfamiliar.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="ochin">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">90</div>
+        <div class="qa-q">
+          <div class="q-text">What is a Super User and what role do they play at my clinic?</div>
+          <div class="q-meta"><span class="cat-chip cat-ochin">Ochin-Specific</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">A <strong>Super User</strong> is a staff member at your clinic who received advanced Epic training before go-live and serves as the first point of contact for workflow questions and real-time support. Super Users: know Epic workflows more deeply than most staff, can troubleshoot common issues, provide elbow-to-elbow support during go-live week, escalate to Ochin Help Desk when needed, and help train new staff after go-live. They are NOT IT staff and cannot change Epic's configuration — but they know how to use the system exceptionally well. Identify your clinic's super users before go-live and don't hesitate to ask them for help.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         GO-LIVE DAY (91–100)
+    ═══════════════════════════════ -->
+    <div class="cat-header" data-cat="golive">
+      <span class="cat-icon">🚀</span>
+      <h2>Go-Live Day Scenarios</h2>
+      <span class="cat-count">Questions 91–100</span>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">91</div>
+        <div class="qa-q">
+          <div class="q-text">It's go-live morning and I'm completely overwhelmed. What should I focus on first?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Focus on the three fundamentals: <strong>(1) Search before you create anything.</strong> Every patient who walks in — search for them in Epic first. Never create a new record without searching the Ochin network thoroughly. <strong>(2) Sign every note before you leave the building.</strong> Unsigned notes on day one create a billing backlog that follows you all week. <strong>(3) Ask for help immediately.</strong> Super users and Ochin go-live support staff are present specifically for this day. There is no such thing as a "dumb question" on go-live day — the dumb thing is struggling silently for 20 minutes when a super user could resolve it in 90 seconds.</div>
+        <div class="tip-note"><strong>💡 Go-Live Week Reality:</strong> You will be slower than normal. This is expected and normal. Most Ochin clinics schedule lighter patient loads for the first 1–2 weeks of go-live. Slow down, do it right, and speed will come with practice.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">92</div>
+        <div class="qa-q">
+          <div class="q-text">I accidentally created a duplicate patient record on go-live day. What do I do?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>Stop using the duplicate record immediately.</strong> Do not enter any clinical information into it. Contact your super user right away, who will escalate to the Ochin Help Desk. Ochin's HIM team will review both records and determine the correct merge approach. The merge must be done by Ochin — it is a network-level action that affects all clinics. The sooner you report it, the easier the fix. If a prescription or order was already placed under the duplicate, document this clearly so the HIM team knows what to reconcile.</div>
+        <div class="warn-note"><strong>⚠️ Most Common Go-Live Error:</strong> Duplicate patient creation is the #1 go-live mistake at Ochin implementations. It happens when staff don't search thoroughly before clicking "New Patient." The fix is always: search first using name + DOB, then MRN, then phone number. If you find even a partial match, verify it before creating anything new.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">93</div>
+        <div class="qa-q">
+          <div class="q-text">Epic is running very slowly today. Is something wrong?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Some slowness on go-live day is normal — hundreds of users at your clinic are simultaneously logging in for the first time, querying the network, and performing intensive searches. This typically resolves within the first hour as the system cache warms up. However, if Epic is unusable or significantly slower than expected for an extended period, report it to your super user immediately — they will contact the Ochin Help Desk to investigate whether there is a network or system issue affecting your site. Don't wait 2 hours assuming it will fix itself.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">94</div>
+        <div class="qa-q">
+          <div class="q-text">A patient's historical medication list didn't migrate correctly from our old system. How do I fix it?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Data migration is never 100% perfect. For medication list errors: (1) <strong>Perform medication reconciliation</strong> with the patient verbally — this is the definitive source of truth; (2) Add medications that are missing directly in Epic; (3) Discontinue medications that the patient is no longer taking; (4) For systematic migration errors affecting many patients, report the pattern to your super user and Ochin Help Desk — they can investigate whether the migration mapping needs correction. Never assume Epic's medication list is accurate immediately after migration — always reconcile with the patient at the first post-go-live visit.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Medication reconciliation at the first post-go-live visit for each patient is not optional — it's a quality and safety priority. Build it into your rooming workflow for the first 60–90 days after go-live.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">95</div>
+        <div class="qa-q">
+          <div class="q-text">I can't find an appointment type I need. What do I do?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">First, ask your super user — the appointment type may exist under a slightly different name than expected. Try searching with different keywords. If the appointment type genuinely doesn't exist, do NOT use a different type as a substitute without understanding the billing implications — using the wrong appointment type can cause billing errors. Use the closest clinically appropriate alternative for today, and immediately submit a request through my.ochin.org to have the needed appointment type created. Document any workarounds used so the billing team is aware.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">96</div>
+        <div class="qa-q">
+          <div class="q-text">My In Basket already has 47 items on go-live morning and I haven't seen a patient yet. Is this normal?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Yes — this is very common during go-live. The In Basket populates from data migration (historical lab results, open orders, pending tasks) and from the pre-go-live period when your account was active in the system. Work through the In Basket systematically: start with anything marked urgent or critical, then work through results and messages in priority order. Don't let the volume paralyze you — each item takes seconds to review and acknowledge once you're comfortable with the workflow. Block time specifically for In Basket clearance during the first week.</div>
+        <div class="tip-note"><strong>💡 In Basket Strategy:</strong> On go-live day, triage your In Basket like an ER triage nurse — critical and urgent first, routine second. Acknowledge non-urgent historical items quickly. Ask your super user to sit with you for the first 30 minutes of In Basket review if the volume is overwhelming.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">97</div>
+        <div class="qa-q">
+          <div class="q-text">A patient is upset that the visit is taking longer than usual because of the new system. How do I handle this?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Be honest and brief: <strong>"We just launched a new electronic health record system today — I appreciate your patience as our team gets familiar with it. Everything I'm doing is to make sure your care is accurate and complete."</strong> Most patients respond well to a brief, genuine explanation. What frustrates patients is being ignored or given no explanation. Don't overly apologize or dwell on it — acknowledge, explain simply, and move on. The slowdown is temporary. If wait times are significantly impacting the clinic, alert your clinic manager so they can communicate proactively to the waiting room.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">98</div>
+        <div class="qa-q">
+          <div class="q-text">I made an error in a patient's chart that could affect their care. Who do I notify?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-tooltip">▼</div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Act immediately: (1) <strong>Correct what you can</strong> — if you entered wrong information you can still edit (note is pended, not signed), fix it now; (2) <strong>If the note is signed</strong> — add an addendum immediately documenting the error and the correct information; (3) <strong>Notify your supervisor or medical director</strong> if the error could affect patient safety; (4) <strong>Document what happened</strong> clearly in the chart so all care team members are aware; (5) <strong>Contact Ochin Help Desk</strong> if you need technical assistance to correct a record issue you can't fix yourself; (6) Follow your clinic's <strong>incident reporting process</strong> — errors that affect patient care should be documented in your quality improvement system.</div>
+        <div class="warn-note"><strong>⚠️ Don't Cover It Up:</strong> The natural instinct is to minimize or hide errors. The correct professional response is to correct, document, and disclose. Early transparency protects the patient, your team, and ultimately yourself.</div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">99</div>
+        <div class="qa-q">
+          <div class="q-text">What are the top 5 things I should do at the END of every go-live week day?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Before you leave each day during go-live week:</div>
+        <div class="example-box">
+          <div class="ex-label">Daily Go-Live Checklist</div>
+          <strong>1. Sign all notes</strong> — do not leave unsigned encounters. Check your visit list for the day and confirm every encounter has a signed note.<br><br>
+          <strong>2. Clear your In Basket</strong> — review and acknowledge all Results and Messages. Critical items must be addressed before you leave.<br><br>
+          <strong>3. Check pending orders</strong> — verify no lab or imaging orders are sitting unsigned. Unsigned orders don't route anywhere.<br><br>
+          <strong>4. Log out properly</strong> — use the Epic logout button, not just closing the window. This protects patient data on shared workstations.<br><br>
+          <strong>5. Document any issues</strong> — if you encountered a workflow problem, a screen that didn't work, or a step that was confusing, write it down and report it to your super user. Your feedback during go-live week improves the system for everyone.
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-item" data-cat="golive">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">100</div>
+        <div class="qa-q">
+          <div class="q-text">After go-live, how long until Epic feels normal and I'm back to my pre-go-live efficiency?</div>
+          <div class="q-meta"><span class="cat-chip cat-golive">Go-Live Day</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Most providers and staff reach baseline efficiency within <strong>4–8 weeks</strong> for core workflows. Complex workflows (billing, advanced reporting, population health) take 3–6 months to become fluent. The learning curve is steepest in week one and improves rapidly. Keys to faster recovery: (1) Use your super user proactively — ask questions as soon as you're unsure; (2) Build and use SmartPhrases to speed documentation; (3) Attend any post-go-live tip sessions Ochin offers; (4) Review one new Epic feature per week — steady learning builds proficiency faster than cramming; (5) Be patient with yourself and your team — EHR transitions are hard, even for experienced clinicians. You will get there.</div>
+        <div class="ochin-note"><strong>Final Ochin Note:</strong> You are not alone in this process. Ochin's go-live support team, your super users, and the my.ochin.org community of 700+ member clinics are all resources available to you. The Ochin network is one of the most experienced FQHC Epic implementations in the country — the collective knowledge of that community is yours to draw on.</div>
+      </div>
+    </div>
+
+    <!-- COMPLETION CARD -->
+    <div class="card" style="background:linear-gradient(120deg,var(--navy),var(--teal));color:#fff;margin-top:30px;">
+      <h2 style="color:#fff;font-size:22px;">🎉 All 100 Go-Live Questions Complete!</h2>
+      <p style="color:rgba(255,255,255,.85);margin-top:10px;">You have now reviewed all 100 of the most common go-live questions across every workflow area — from login and check-in through clinical documentation, medications, orders, scheduling, billing, telehealth, and Ochin-specific guidance.</p>
+      <p style="color:rgba(255,255,255,.85);margin-top:10px;"><strong>Part 8: Final Assessment</strong> is the capstone of this training series — a comprehensive 25-question exam covering all modules. Passing the Final Assessment certifies you as Ochin Epic go-live ready.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
+        <button class="btn" style="background:var(--gold);color:var(--navy);" onclick="alert('Load ochin-epic-part8.html to take the Final Assessment.')">Part 8: Final Assessment 🎓</button>
+        <button class="btn" style="background:transparent;border:1.5px solid rgba(255,255,255,.4);color:#fff;" onclick="alert('Load ochin-epic-part7a.html to review Questions 1–50.')">← Review Part 7A (Q1–50)</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function toggle(header) {
+  const item = header.closest('.qa-item');
+  item.classList.toggle('open');
+}
+
+function filterCat(cat, btn) {
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('#sidebar .ni').forEach(n => n.classList.remove('active'));
+  if (btn && btn.classList.contains('fbtn')) {
+    // find matching sidebar item
+    document.querySelectorAll('#sidebar .ni').forEach(n => {
+      if (cat === 'all' && n.querySelector('.lbl') && n.querySelector('.lbl').textContent.includes('All')) n.classList.add('active');
+    });
+  }
+
+  const items = document.querySelectorAll('.qa-item');
+  const headers = document.querySelectorAll('.cat-header');
+  let visible = 0;
+
+  items.forEach(item => {
+    const show = cat === 'all' || item.dataset.cat === cat;
+    item.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  headers.forEach(h => {
+    h.style.display = (cat === 'all' || h.dataset.cat === cat) ? '' : 'none';
+  });
+
+  document.getElementById('results-count').textContent = cat === 'all'
+    ? 'Showing all 50 questions'
+    : `Showing ${visible} questions`;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function filterSearch() {
+  const term = document.getElementById('qa-search').value.toLowerCase().trim();
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.fbtn').classList.add('active');
+
+  const items = document.querySelectorAll('.qa-item');
+  const headers = document.querySelectorAll('.cat-header');
+  let visible = 0;
+
+  if (!term) {
+    items.forEach(i => i.style.display = '');
+    headers.forEach(h => h.style.display = '');
+    document.getElementById('results-count').textContent = '';
+    return;
+  }
+
+  const cats = new Set();
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    const show = text.includes(term);
+    item.style.display = show ? '' : 'none';
+    if (show) { visible++; cats.add(item.dataset.cat); }
+  });
+
+  headers.forEach(h => {
+    h.style.display = cats.has(h.dataset.cat) ? '' : 'none';
+  });
+
+  const val = document.getElementById('qa-search').value;
+  document.getElementById('results-count').textContent = `${visible} result${visible !== 1 ? 's' : ''} for "${val}"`;
+}
+
+window.addEventListener('scroll', () => {
+  const p = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('si').style.transform = `scaleX(${Math.min(p, 1)})`;
+}, { passive: true });
+</script>
+</body>
+</html>

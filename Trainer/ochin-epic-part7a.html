@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 7A: Top 100 Go-Live Q&amp;A (Q1–50)</title>
+<style>
+  :root {
+    --navy:#0D2B4E; --teal:#006D75; --teal-lt:#00A3AD;
+    --gold:#E8A020; --gold-lt:#F5C842;
+    --cream:#F4F8FA; --white:#FFFFFF;
+    --gray1:#1A2B3C; --gray2:#3D5166; --gray3:#7A93A8;
+    --gray4:#C5D5E0; --gray5:#EDF2F5;
+    --red:#C0392B; --green:#1E7E4C; --purple:#6B3FA0;
+    --orange:#C05C00;
+    --shadow:0 2px 12px rgba(13,43,78,.13);
+    --radius:10px;
+    --font-body:'Segoe UI','Arial',sans-serif;
+    --font-mono:'Consolas','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);background:var(--cream);color:var(--gray1);min-height:100vh;}
+
+  #topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo-box{background:var(--teal-lt);color:#fff;font-weight:800;font-size:15px;padding:5px 10px;border-radius:6px;}
+  .bar-title{font-size:17px;font-weight:600;}
+  .bar-sub{font-size:11px;color:var(--gray4);margin-top:1px;}
+  .pbwrap{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gray4);}
+  .pbtrack{width:160px;height:7px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;}
+  .pbfill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s;}
+  .ubadge{background:rgba(255,255,255,.12);border-radius:20px;padding:4px 14px;font-size:12px;}
+
+  #layout{display:flex;min-height:calc(100vh - 60px);}
+
+  #sidebar{width:260px;flex-shrink:0;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding-bottom:20px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;border-right:1px solid rgba(255,255,255,.07);}
+  #sidebar::-webkit-scrollbar{width:4px;}
+  #sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+  .sb-sec{padding:18px 20px 6px;}
+  .sb-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal-lt);text-transform:uppercase;margin-bottom:8px;}
+  .ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.78);transition:background .15s;margin-bottom:2px;}
+  .ni:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .ni.active{background:var(--teal);color:#fff;}
+  .ni.locked{opacity:.4;cursor:not-allowed;}
+  .ni .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+  .ni .lbl{flex:1;}
+  .ni .badge{font-size:10px;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 7px;font-weight:700;}
+  .ni .chk{font-size:13px;color:#4cd964;}
+  .ndiv{height:1px;background:rgba(255,255,255,.08);margin:10px 20px;}
+
+  #main{flex:1;padding:36px 44px;max-width:960px;}
+
+  /* PAGE HEADER */
+  .ph{background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 100%);color:#fff;border-radius:var(--radius);padding:28px 32px 24px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .ph::after{content:'';position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .ph .mt{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px;}
+  .ph h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+  .ph p{font-size:14px;color:rgba(255,255,255,.8);max-width:600px;line-height:1.6;}
+  .ph .meta{display:flex;gap:20px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.65);flex-wrap:wrap;}
+
+  /* SEARCH BAR */
+  .search-bar{display:flex;gap:10px;margin-bottom:22px;align-items:center;flex-wrap:wrap;}
+  .search-bar input{flex:1;min-width:200px;padding:10px 16px;border:1.5px solid var(--gray4);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--gray1);background:#fff;outline:none;transition:border-color .15s;}
+  .search-bar input:focus{border-color:var(--teal);}
+  .filter-btns{display:flex;gap:6px;flex-wrap:wrap;}
+  .fbtn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--gray4);font-size:12px;font-weight:600;cursor:pointer;color:var(--gray2);background:#fff;transition:all .15s;white-space:nowrap;}
+  .fbtn:hover{border-color:var(--teal);color:var(--teal);}
+  .fbtn.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+  /* Q&A ITEM */
+  .qa-item{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;transition:box-shadow .15s;}
+  .qa-item:hover{box-shadow:0 4px 20px rgba(13,43,78,.18);}
+  .qa-header{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;cursor:pointer;user-select:none;}
+  .qa-num{background:var(--teal);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .qa-q{flex:1;}
+  .qa-q .q-text{font-size:14px;font-weight:600;color:var(--navy);line-height:1.5;}
+  .qa-q .q-meta{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center;}
+  .qa-toggle{font-size:18px;color:var(--gray3);flex-shrink:0;transition:transform .2s;margin-top:2px;}
+  .qa-item.open .qa-toggle{transform:rotate(180deg);}
+  .qa-body{display:none;padding:0 22px 20px 68px;border-top:1px solid var(--gray5);}
+  .qa-item.open .qa-body{display:block;}
+
+  /* ANSWER PARTS */
+  .ans-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal);margin:14px 0 6px;}
+  .ans-text{font-size:13.5px;line-height:1.75;color:var(--gray2);}
+  .ans-text strong{color:var(--gray1);}
+  .ans-text code{background:var(--gray5);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12px;color:var(--navy);}
+
+  /* EXAMPLE BOX */
+  .example-box{background:var(--gray5);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--gray2);line-height:1.65;}
+  .example-box .ex-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:5px;}
+
+  /* OCHIN NOTE */
+  .ochin-note{border-left:4px solid var(--teal-lt);background:#EBF8FA;border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--gray2);line-height:1.6;}
+  .ochin-note strong{color:var(--navy);}
+
+  /* WARN NOTE */
+  .warn-note{border-left:4px solid var(--red);background:#FFF0EF;border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:12.5px;color:var(--gray2);line-height:1.6;}
+  .warn-note strong{color:var(--red);}
+
+  /* CATEGORY CHIPS */
+  .cat-chip{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px;}
+  .cat-login{background:#E8F4FF;color:#1565C0;}
+  .cat-checkin{background:#E8F5E9;color:#1B5E20;}
+  .cat-docs{background:#F3E5F5;color:#4A148C;}
+  .cat-meds{background:#FFF3E0;color:#E65100;}
+  .cat-orders{background:#E0F2F1;color:#004D40;}
+  .cat-schedule{background:#FFF8E1;color:#F57F17;}
+  .cat-billing{background:#FCE4EC;color:#880E4F;}
+  .cat-telehealth{background:#E8EAF6;color:#1A237E;}
+  .cat-ochin{background:#F1F8E9;color:#33691E;}
+
+  /* CATEGORY SECTION HEADERS */
+  .cat-header{display:flex;align-items:center;gap:12px;margin:30px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--gray4);}
+  .cat-header .cat-icon{font-size:22px;}
+  .cat-header h2{font-size:18px;font-weight:700;color:var(--navy);}
+  .cat-header .cat-count{font-size:12px;color:var(--gray3);margin-left:auto;}
+
+  /* RESULTS COUNT */
+  #results-count{font-size:13px;color:var(--gray3);margin-bottom:16px;}
+
+  /* CARD */
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .card p{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:10px;}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .bp{background:var(--teal);color:#fff;}
+  .bg{background:var(--gold);color:var(--navy);}
+  .bo{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+  .mnav{display:flex;gap:12px;margin-top:30px;padding-top:20px;border-top:1px solid var(--gray4);flex-wrap:wrap;}
+
+  #si{position:fixed;top:60px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal-lt),var(--gold));transform-origin:left;transform:scaleX(0);z-index:200;}
+
+  @media(max-width:780px){#sidebar{display:none;}#main{padding:20px 16px;}}
+</style>
+</head>
+<body>
+<div id="si"></div>
+
+<div id="topbar">
+  <div class="brand">
+    <div class="logo-box">OCHIN</div>
+    <div>
+      <div class="bar-title">Epic Training Portal</div>
+      <div class="bar-sub">Part 7A of 8 · Top 100 Go-Live Q&amp;A (Questions 1–50)</div>
+    </div>
+  </div>
+  <div class="pbwrap">
+    <span>Series Progress</span>
+    <div class="pbtrack"><div class="pbfill" style="width:75%"></div></div>
+    <span>75%</span>
+  </div>
+  <div class="ubadge">👤 Learner</div>
+</div>
+
+<div id="layout">
+  <nav id="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Part 7A Categories</div>
+      <div class="ni active" onclick="filterCat('all')"><span class="ico">📖</span><span class="lbl">All Questions (1–50)</span></div>
+      <div class="ni" onclick="filterCat('login')"><span class="ico">🔐</span><span class="lbl">Login &amp; Navigation (1–10)</span></div>
+      <div class="ni" onclick="filterCat('checkin')"><span class="ico">🪪</span><span class="lbl">Check-In &amp; Registration (11–20)</span></div>
+      <div class="ni" onclick="filterCat('docs')"><span class="ico">📝</span><span class="lbl">Clinical Documentation (21–30)</span></div>
+      <div class="ni" onclick="filterCat('meds')"><span class="ico">💊</span><span class="lbl">Medications &amp; Rx (31–40)</span></div>
+      <div class="ni" onclick="filterCat('orders')"><span class="ico">🔬</span><span class="lbl">Orders &amp; Results (41–50)</span></div>
+    </div>
+    <div class="ndiv"></div>
+    <div class="sb-sec">
+      <div class="sb-lbl">All Parts</div>
+      <div class="ni" onclick="alert('Load ochin-epic-part1.html')"><span class="ico">🏥</span><span class="lbl">Part 1 · Overview &amp; Login</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part2.html')"><span class="ico">🪪</span><span class="lbl">Part 2 · Check-In</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part3.html')"><span class="ico">📝</span><span class="lbl">Part 3 · Documentation</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part4.html')"><span class="ico">💊</span><span class="lbl">Part 4 · Medications &amp; Rx</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part5.html')"><span class="ico">🔬</span><span class="lbl">Part 5 · Orders &amp; Results</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part6.html')"><span class="ico">📅</span><span class="lbl">Part 6 · Scheduling &amp; Billing</span><span class="chk">✓</span></div>
+      <div class="ni active"><span class="ico">📖</span><span class="lbl">Part 7A · Q&amp;A 1–50 (HERE)</span></div>
+      <div class="ni locked"><span class="ico">📖</span><span class="lbl">Part 7B · Q&amp;A 51–100</span><span class="badge">Next</span></div>
+      <div class="ni locked"><span class="ico">🎓</span><span class="lbl">Part 8 · Final Assessment</span><span class="badge">Coming</span></div>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <div class="ph">
+      <div class="mt">Part 7A of 8 · Reference Guide</div>
+      <h1>Top 100 Go-Live Q&amp;A</h1>
+      <p>The most common questions asked by clinicians, front desk staff, MAs, and new Ochin personnel on and around go-live day. Each entry includes a direct answer, detailed explanation, real-world example, and Ochin-specific context. Questions 1–50 of 100.</p>
+      <div class="meta">
+        <span>📖 Reference — no quiz</span>
+        <span>🔍 Search and filter below</span>
+        <span>📄 Questions 51–100 → Part 7B</span>
+      </div>
+    </div>
+
+    <!-- SEARCH & FILTER -->
+    <div class="search-bar">
+      <input type="text" id="qa-search" placeholder="🔍  Search questions and answers..." oninput="filterSearch()" />
+    </div>
+    <div class="filter-btns">
+      <button class="fbtn active" onclick="filterCat('all',this)">All (50)</button>
+      <button class="fbtn" onclick="filterCat('login',this)">🔐 Login &amp; Nav</button>
+      <button class="fbtn" onclick="filterCat('checkin',this)">🪪 Check-In</button>
+      <button class="fbtn" onclick="filterCat('docs',this)">📝 Documentation</button>
+      <button class="fbtn" onclick="filterCat('meds',this)">💊 Medications</button>
+      <button class="fbtn" onclick="filterCat('orders',this)">🔬 Orders &amp; Results</button>
+    </div>
+    <div id="results-count"></div>
+
+    <!-- ═══════════════════════════════════════
+         CATEGORY 1: LOGIN & NAVIGATION (1–10)
+    ═══════════════════════════════════════ -->
+    <div class="cat-header" data-cat="login">
+      <span class="cat-icon">🔐</span>
+      <h2>Login &amp; Navigation</h2>
+      <span class="cat-count">Questions 1–10</span>
+    </div>
+
+    <!-- Q1 -->
+    <div class="qa-item" data-cat="login" data-q="1">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">1</div>
+        <div class="qa-q">
+          <div class="q-text">I can't log in to Epic. What should I do first?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">First, confirm you are on the correct environment — <strong>Production (PRD)</strong> for real patient care. Try resetting your password using the "Forgot Password" link on the Epic login screen. If that fails, contact the <strong>Ochin Help Desk</strong> at 1-866-OCHIN-SD or submit a ticket at my.ochin.org — they manage all Epic account issues for Ochin member sites. Do NOT ask a colleague to let you use their login.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>Nurse Maria arrives at 7:55 AM and can't log in. She tries her password twice, then immediately calls the Ochin Help Desk. They reset her password in under 5 minutes. She is logged in before her first patient arrives at 8:10 AM.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Account lockouts typically occur after 5 failed login attempts. Only the Ochin Help Desk can unlock accounts — your local IT staff cannot. Save the Ochin Help Desk number in your phone before go-live: <strong>1-866-624-4673</strong>.</div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qa-item" data-cat="login" data-q="2">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">2</div>
+        <div class="qa-q">
+          <div class="q-text">How do I know if I'm in the training environment vs. the live production environment?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The <strong>Training environment (TRN)</strong> has a distinctly different visual indicator — typically a different color toolbar (often yellow or orange instead of the standard blue/teal) and a clear "TRAINING" label in the top bar or login screen. Your Ochin go-live team will show you exactly what to look for at your site. <strong>Never practice on the Production environment</strong> — it contains real patient data.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A new MA wants to practice scheduling before go-live. She opens the TRN environment (yellow toolbar) and schedules test patients freely. The PRD environment (standard teal toolbar) is reserved for real patient care only.</div>
+        <div class="warn-note"><strong>⚠️ Warning:</strong> If you are ever unsure which environment you are in — STOP. Ask your super user or check the toolbar color before entering any patient data. Entering real patient data in TRN or practicing in PRD are both serious errors.</div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qa-item" data-cat="login" data-q="3">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">3</div>
+        <div class="qa-q">
+          <div class="q-text">What is the fastest way to find a patient in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Press <code>Ctrl + E</code> from anywhere in Epic to open the Patient Search. You can search by: <strong>last name, first name</strong> (most common); <strong>MRN</strong> (most precise); <strong>date of birth</strong>; or <strong>phone number</strong>. Always use at least two identifiers to confirm you have the right patient before opening their chart.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>Dr. Chen is in the middle of reviewing a lab result and needs to pull up another patient quickly. She presses Ctrl+E, types "Johnson, Robert" + DOB, and is in the correct chart within 5 seconds — without leaving her current workflow.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> In Ochin's shared instance, searching by name alone may return patients from other Ochin clinics. Always confirm the correct patient by verifying at least two identifiers (name + DOB, or MRN). The MRN is unique across the entire Ochin network.</div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qa-item" data-cat="login" data-q="4">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">4</div>
+        <div class="qa-q">
+          <div class="q-text">My colleague forgot their password. Can I let them use my login temporarily?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>No. Never share your Epic login credentials — ever.</strong> Every action taken in Epic is logged under the user ID that is logged in. If your colleague uses your login and makes an error, documents something incorrectly, or accesses information they shouldn't, <em>you</em> are legally and professionally responsible. Direct them to the Ochin Help Desk immediately for a password reset.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>An MA can't log in 10 minutes before clinic starts. A colleague offers their login "just this once." This is an HIPAA violation and grounds for termination at most organizations. The right answer: call the Ochin Help Desk — they can reset access in minutes.</div>
+        <div class="warn-note"><strong>⚠️ HIPAA Violation:</strong> Sharing login credentials violates HIPAA, your organization's workforce policies, and your personal professional obligations. There is no emergency exception. The Ochin Help Desk is always available to restore access quickly.</div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qa-item" data-cat="login" data-q="5">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">5</div>
+        <div class="qa-q">
+          <div class="q-text">How do I get back to the Epic home screen quickly?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Click the <strong>Epic button</strong> (the colorful orb/logo in the top-left corner) to return to the Epic home screen at any time. Alternatively, press <code>Ctrl + Home</code>. Your home screen is configured based on your role — front desk staff see a scheduling home, providers see an In Basket home, MAs see a rooming workflow home.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A provider finishes reviewing a patient chart and needs to return to their In Basket. One click on the Epic orb returns them to their home In Basket view instantly, without navigating back through multiple screens.</div>
+        <div class="ochin-note"><strong>Ochin Tip:</strong> The Epic "Recent" tab (next to the home button) shows your recently accessed patients and activities. This is a fast way to return to a chart you were just in without re-searching.</div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="qa-item" data-cat="login" data-q="6">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">6</div>
+        <div class="qa-q">
+          <div class="q-text">What is the difference between the Epic toolbar and the left navigator?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The <strong>Toolbar</strong> runs across the top of Epic and contains global actions — navigating between major areas (In Basket, Scheduling, Patient Search), accessing system-wide functions, and the Epic orb/home button. The <strong>Left Navigator</strong> appears within a patient chart and contains all chart-specific sections: Orders, Results, Notes, Medications, Problem List, Flowsheets, etc. Think of the toolbar as the "building" navigation and the left navigator as the "room" navigation inside the building (the patient chart).</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>An MA uses the toolbar to get to the Scheduling module to look up a patient's next appointment. Once in the patient's chart, she uses the left navigator to click to "Vitals/Flowsheets" to document today's blood pressure.</div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="qa-item" data-cat="login" data-q="7">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">7</div>
+        <div class="qa-q">
+          <div class="q-text">Epic keeps timing me out while I'm with a patient. How do I prevent this?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Epic's session timeout is a <strong>security requirement</strong> — it protects patient data on unattended workstations. The timeout period is set by Ochin (typically 10–15 minutes of inactivity). You cannot disable it. To minimize disruption: use <strong>single sign-on (SSO) with your badge</strong> if your clinic uses Imprivata — tap your badge to instantly log back in. If not using SSO, your Epic password is all that's needed to resume your session.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A provider steps out to the hallway for a 15-minute consult. Epic times out. When she returns, she taps her Imprivata badge and is back in the exact patient chart she was in — no re-navigation needed.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> If your clinic uses Imprivata for single sign-on, use your badge or fingerprint for fast re-authentication. This eliminates most timeout frustration. Ask your go-live team if Imprivata is deployed at your site.</div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="qa-item" data-cat="login" data-q="8">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">8</div>
+        <div class="qa-q">
+          <div class="q-text">How do I customize my Epic home screen and In Basket view?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">In Epic, go to <strong>Epic button → Preferences</strong> to customize your home screen layout, default department, and In Basket settings. You can also right-click on most toolbar items to pin or remove them. The In Basket can be configured to show/hide specific message types and sorted by priority. Some customizations may be restricted by Ochin's network configuration — your super user can tell you what's adjustable at your site.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Ochin configures role-based home screens as defaults. These defaults are set up to match your workflow. Before customizing significantly, spend a week with the default layout — it may be more efficient than it first appears.</div>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="qa-item" data-cat="login" data-q="9">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">9</div>
+        <div class="qa-q">
+          <div class="q-text">What is the Epic Activity menu and when do I use it?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The <strong>Activity Menu</strong> (accessible from within a patient chart) shows all available activities and workflows for that patient — scheduling a follow-up, printing an AVS, sending a MyChart message, creating a referral, etc. It's essentially a context-sensitive menu of everything you can do from within the chart. Access it via the <strong>Chart menu</strong> in the top toolbar while in a patient chart, or look for the grid/waffle icon.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A provider finishes a visit and wants to send the patient a MyChart message about their lab results. Rather than navigating away and re-finding the patient, she clicks the Activity menu and selects "Send MyChart Message" — all from within the existing chart context.</div>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="qa-item" data-cat="login" data-q="10">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">10</div>
+        <div class="qa-q">
+          <div class="q-text">What are the most important keyboard shortcuts I should memorize for go-live?</div>
+          <div class="q-meta"><span class="cat-chip cat-login">Login &amp; Nav</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Focus on these 8 for go-live week:</div>
+        <div class="example-box">
+          <div class="ex-label">Essential Shortcuts</div>
+          <strong>Ctrl + E</strong> — Patient Search (use constantly)<br>
+          <strong>Ctrl + G</strong> — Open In Basket<br>
+          <strong>Ctrl + Shift + O</strong> — Open Order Entry<br>
+          <strong>Ctrl + Shift + N</strong> — New Note<br>
+          <strong>Ctrl + Shift + S</strong> — Schedule Appointment<br>
+          <strong>F2</strong> — Accept / move to next field<br>
+          <strong>Ctrl + Z</strong> — Undo (in text fields)<br>
+          <strong>Alt + F4</strong> — Close current window (Epic-standard)
+        </div>
+        <div class="ochin-note"><strong>Ochin Tip:</strong> Don't try to memorize all shortcuts at once. Master Ctrl+E and F2 in the first week — they alone will save you significant time. Add others as you encounter them.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         CATEGORY 2: CHECK-IN & REGISTRATION (11–20)
+    ═══════════════════════════════════════ -->
+    <div class="cat-header" data-cat="checkin">
+      <span class="cat-icon">🪪</span>
+      <h2>Check-In &amp; Registration</h2>
+      <span class="cat-count">Questions 11–20</span>
+    </div>
+
+    <!-- Q11 -->
+    <div class="qa-item" data-cat="checkin" data-q="11">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">11</div>
+        <div class="qa-q">
+          <div class="q-text">I found two patient records with the same name and DOB. What do I do?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>Do not guess and do not use either record until you resolve the duplicate.</strong> Check both records carefully — compare MRN, address, phone number, and visit history. Then <strong>contact the Ochin Help Desk</strong> to report the potential duplicate MRN. Ochin's HIM (Health Information Management) team handles MRN merges. Using the wrong record exposes the wrong patient's information and creates a billing nightmare.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>Front desk finds "Garcia, Maria, DOB 3/14/1978" twice. One MRN has visits from a Portland Ochin clinic, the other has visits from your clinic only. This could be a true duplicate from a prior data migration. Report it — do not merge manually, do not delete either record. Ochin HIM will investigate and merge correctly.</div>
+        <div class="warn-note"><strong>⚠️ Never merge records yourself.</strong> Incorrect merges in a shared instance affect patients across the entire Ochin network and cannot be easily undone. This is a specialized HIM function.</div>
+      </div>
+    </div>
+
+    <!-- Q12 -->
+    <div class="qa-item" data-cat="checkin" data-q="12">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">12</div>
+        <div class="qa-q">
+          <div class="q-text">A patient says their insurance changed since their last visit. How do I update it?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">From the patient's chart or the check-in screen: navigate to <strong>Coverage → Edit</strong> (or the insurance section in the check-in workflow). End-date the old insurance and add the new plan. Enter the new member ID, group number, and insurance name. Run <strong>real-time eligibility verification</strong> (the lightning bolt icon) to confirm the new coverage is active before the visit. If eligibility comes back inactive, the patient is self-pay for today's visit until the issue is resolved.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>Patient Rodriguez switched from Medicaid to their employer's BCBS plan last month. The front desk ends the Medicaid coverage (end date: last month) and enters the new BCBS plan with the card the patient provides. Real-time eligibility confirms active coverage and $30 copay. The billing team now has the correct insurance for today's claim.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Always run real-time eligibility after updating insurance — don't assume the card the patient hands you reflects their active coverage. Eligibility confirmation takes 10–15 seconds and prevents billing denials.</div>
+      </div>
+    </div>
+
+    <!-- Q13 -->
+    <div class="qa-item" data-cat="checkin" data-q="13">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">13</div>
+        <div class="qa-q">
+          <div class="q-text">What is the Sliding Fee Scale and how do I apply it in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The <strong>Sliding Fee Scale (SFS)</strong> is an HRSA-mandated discount program for uninsured and underinsured patients. It adjusts the patient's cost based on their household income as a percentage of the Federal Poverty Level (FPL). In Epic, apply it by going to the patient's account → <strong>Sliding Fee</strong> section → enter household size and annual income → Epic calculates the tier automatically and adjusts the patient's balance. SFS must be reviewed and updated annually (or when the patient's income changes).</div>
+        <div class="example-box">
+          <div class="ex-label">SFS Tier Example (typical FQHC scale)</div>
+          0–100% FPL → Tier A: Minimal or $0 fee<br>
+          101–150% FPL → Tier B: Small fixed copay (e.g., $15–$20)<br>
+          151–200% FPL → Tier C: Moderate reduced fee<br>
+          201–250% FPL → Tier D: Partial discount<br>
+          &gt;250% FPL → Full fee (no discount)
+        </div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Your clinic's SFS scale may differ slightly — Ochin configures it per site based on your HRSA-approved sliding fee schedule. The tiers and amounts in Epic are set by your medical director and billing team, not by Ochin.</div>
+      </div>
+    </div>
+
+    <!-- Q14 -->
+    <div class="qa-item" data-cat="checkin" data-q="14">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">14</div>
+        <div class="qa-q">
+          <div class="q-text">A patient arrives without an appointment (walk-in). How do I handle this?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Search for the patient first. Then check today's schedule for available same-day slots. If a slot exists, schedule the patient using the same-day/walk-in appointment type and proceed to check-in. If no slots are available, check with the provider or charge nurse about capacity. Some clinics have a formal walk-in or urgent care protocol with reserved same-day slots. If the patient cannot be seen today, assist them in scheduling a future appointment and assess whether their need is urgent enough for an ED referral.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A patient walks in with a sore throat. The front desk searches, finds the patient's existing record, checks the schedule, and slots them into the 10:30 AM "Same-Day Sick" hold slot. Check-in proceeds normally. If no slot existed, they'd offer the next available appointment or direct to urgent care if the patient appears acutely ill.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Never create a new patient record for a walk-in patient without thoroughly searching the Ochin shared database first. Walk-in patients who have visited any Ochin clinic will already have a record.</div>
+      </div>
+    </div>
+
+    <!-- Q15 -->
+    <div class="qa-item" data-cat="checkin" data-q="15">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">15</div>
+        <div class="qa-q">
+          <div class="q-text">How do I collect and post a copay payment in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">During check-in, you will see the patient's expected copay (from eligibility data). Click <strong>Pay</strong> in the check-in screen → select the payment type (Cash, Check, Credit Card) → enter the amount → Save. This posts the payment to the patient's account immediately. Always offer a receipt. For patients on the Sliding Fee Scale, collect the SFS-adjusted copay — not the standard insurance copay.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>Patient Kim has a $25 copay per her Blue Cross plan. During check-in, the front desk clicks Pay, selects Credit Card, enters $25.00, and saves. Epic prints a receipt. The payment is posted to the patient account and reconciled by billing at end of day.</div>
+        <div class="warn-note"><strong>⚠️ Never accept cash without immediately posting it in Epic and providing a receipt.</strong> Unposted cash collections create reconciliation problems and audit risk.</div>
+      </div>
+    </div>
+
+    <!-- Q16 -->
+    <div class="qa-item" data-cat="checkin" data-q="16">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">16</div>
+        <div class="qa-q">
+          <div class="q-text">A patient's preferred language is Spanish. How does Epic support this?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Epic stores the patient's <strong>preferred language</strong> in the demographics section. This flag: alerts the care team that an interpreter may be needed, drives the language in which MyChart communications are sent (if Spanish MyChart is configured), and populates the After Visit Summary in the patient's preferred language (if your Ochin site has multilingual AVS enabled). Always verify and update the preferred language field during registration — it directly impacts care quality.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> When scheduling a patient who needs an interpreter, document this in the appointment notes at the time of scheduling — not just in demographics. This alerts rooming staff and providers before the visit, not just at arrival.</div>
+      </div>
+    </div>
+
+    <!-- Q17 -->
+    <div class="qa-item" data-cat="checkin" data-q="17">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">17</div>
+        <div class="qa-q">
+          <div class="q-text">How do I check if a patient's Medicaid is still active?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Use Epic's <strong>real-time eligibility verification</strong> — the lightning bolt (⚡) icon in the coverage section or at check-in. This queries the payer's system in real time and returns a response within 15–30 seconds showing whether coverage is active, the copay, and any restrictions. If eligibility is inactive, the patient is self-pay for today until the coverage issue is resolved. Do not assume coverage based on a card they carry — cards don't expire automatically when coverage does.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A patient presents with an Oregon Health Plan card. The front desk runs eligibility — it returns "inactive." The patient's Medicaid lapsed last month due to a renewal failure. The front desk informs the patient and applies the Sliding Fee Scale for today's visit. They also provide the patient with the Medicaid renewal number to call.</div>
+      </div>
+    </div>
+
+    <!-- Q18 -->
+    <div class="qa-item" data-cat="checkin" data-q="18">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">18</div>
+        <div class="qa-q">
+          <div class="q-text">How do I document that a patient signed their HIPAA Notice of Privacy Practices?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">In the check-in workflow, there is a <strong>Consents &amp; Documents</strong> section. Find the "HIPAA Notice of Privacy Practices" entry and mark it as "Signed" with today's date. If the patient refuses to sign, document "Patient declined to sign — verbal notice provided." You can also capture this via an electronic consent pad if your clinic has one configured. The signed consent must be updated if there has been a material change in your privacy practices.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Epic tracks consent expiration. Some consents require annual renewal (e.g., financial responsibility forms). Epic will flag overdue consents at check-in — address them before completing the check-in process.</div>
+      </div>
+    </div>
+
+    <!-- Q19 -->
+    <div class="qa-item" data-cat="checkin" data-q="19">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">19</div>
+        <div class="qa-q">
+          <div class="q-text">What is a guarantor and how is it different from the patient in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The <strong>patient</strong> is the person receiving care. The <strong>guarantor</strong> is the person financially responsible for the bill — they may be the same person, or different (e.g., a parent is the guarantor for a minor child; a spouse may be the guarantor for a dependent). Epic maintains both records separately. Statements and bills are sent to the guarantor. Always confirm and update the guarantor information at registration, especially for pediatric patients or new adults who were previously insured under a parent.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A 19-year-old patient just aged off their parent's insurance. The guarantor in Epic is still their father from when they were a minor. Update the guarantor to the patient themselves now that they are an adult managing their own care — or to whoever is now financially responsible.</div>
+      </div>
+    </div>
+
+    <!-- Q20 -->
+    <div class="qa-item" data-cat="checkin" data-q="20">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">20</div>
+        <div class="qa-q">
+          <div class="q-text">A patient is in the waiting room but their appointment is with a different provider than expected. How do I handle this?</div>
+          <div class="q-meta"><span class="cat-chip cat-checkin">Check-In</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">First, verify with the clinical team whether the appointment change is intentional (e.g., the patient's usual provider is out and they were rebooked). If it was a scheduling error, check whether the correct provider has availability today and can accommodate the patient. If the patient prefers to wait for their usual provider or return another day, assist them in rescheduling. In Epic, the appointment can be <strong>reassigned to the correct provider</strong> in the scheduling/appointment desk screen if both parties agree. Document any changes in the appointment notes.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         CATEGORY 3: CLINICAL DOCUMENTATION (21–30)
+    ═══════════════════════════════════════ -->
+    <div class="cat-header" data-cat="docs">
+      <span class="cat-icon">📝</span>
+      <h2>Clinical Documentation</h2>
+      <span class="cat-count">Questions 21–30</span>
+    </div>
+
+    <!-- Q21 -->
+    <div class="qa-item" data-cat="docs" data-q="21">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">21</div>
+        <div class="qa-q">
+          <div class="q-text">I signed a note with an error in it. How do I correct it?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">You <strong>cannot edit or delete a signed note</strong> in Epic. The medical record is permanent and legally protected. To correct an error, add an <strong>Addendum</strong> to the original note: open the signed note → click <strong>Addendum</strong> → clearly state what was incorrect and what the correct information is. Example: "Addendum: The blood pressure documented as 142/88 in the original note was in error. Correct value as measured today: 122/78." The addendum is permanently attached and visible alongside the original note.</div>
+        <div class="warn-note"><strong>⚠️ Never attempt to alter, hide, or delete a signed note</strong> — this is medical record falsification, a serious legal and professional violation. Addendums are the correct and legally appropriate mechanism for all corrections.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> In some cases, within a very short window after signing (sometimes minutes), Epic may allow minor edits depending on your organization's configuration. Ask your super user about your specific policy — but addendum is always the safe, defensible approach.</div>
+      </div>
+    </div>
+
+    <!-- Q22 -->
+    <div class="qa-item" data-cat="docs" data-q="22">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">22</div>
+        <div class="qa-q">
+          <div class="q-text">What is the difference between a Pended and a Signed note?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">A <strong>Pended note</strong> is a saved draft — it is editable and not yet part of the permanent record. A pended note does NOT release charges for billing, does NOT appear in the official chart for other providers to rely on (though it may be visible internally), and does NOT count as documentation for regulatory purposes. A <strong>Signed note</strong> is final, permanent, legally binding, and releases the encounter for billing. Always sign your notes the same day as the visit.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A provider pends a note at 4 PM to finish documenting after their last patient. They return at 5:15 PM, complete the note, and sign it. The note is now in the permanent record and the billing team can process the claim. If they had forgotten to sign it, the billing team would flag it the next morning as an unsigned encounter.</div>
+      </div>
+    </div>
+
+    <!-- Q23 -->
+    <div class="qa-item" data-cat="docs" data-q="23">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">23</div>
+        <div class="qa-q">
+          <div class="q-text">What is a SmartPhrase and how do I create one?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">A <strong>SmartPhrase</strong> is a text shortcut in Epic notes. You type a period followed by a short phrase name (e.g., <code>.hpi</code>) and Epic expands it into a full paragraph of pre-written text. To create one: In a note → type your text → highlight it → right-click → <strong>Save as SmartPhrase</strong> → name it (e.g., <code>.normalcv</code> for a normal cardiovascular exam). Alternatively go to Epic button → SmartPhrase Manager → New SmartPhrase. Your phrases are personal to you and save across all sessions.</div>
+        <div class="example-box">
+          <div class="ex-label">Example SmartPhrase</div>
+          Abbreviation: <code>.negros</code><br>
+          Expands to: "Review of systems: Patient denies fever, chills, fatigue. Denies chest pain, shortness of breath, palpitations. Denies nausea, vomiting, diarrhea. Denies dysuria, hematuria. Denies rash. No focal neurological complaints."
+        </div>
+        <div class="ochin-note"><strong>Ochin Tip:</strong> Ochin provides a library of shared SmartPhrases for common FQHC documentation (normal exams, SDOH screening, depression screening language). Ask your super user for the Ochin shared SmartPhrase list before building everything from scratch.</div>
+      </div>
+    </div>
+
+    <!-- Q24 -->
+    <div class="qa-item" data-cat="docs" data-q="24">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">24</div>
+        <div class="qa-q">
+          <div class="q-text">How do I document "No Known Drug Allergies" (NKDA) correctly?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>A blank allergy field does NOT mean NKDA in Epic.</strong> Blank means "unknown" — not "none." You must explicitly enter NKDA using the formal mechanism: in the Allergy section → click <strong>No Known Drug Allergies</strong> (or the equivalent button/entry) → save. This creates a documented, active NKDA entry that alerts prescribers and alerts the system. This is a critical patient safety distinction — a blank allergy list could cause a prescriber to assume allergy status is unknown and proceed cautiously when they could have proceeded normally.</div>
+        <div class="warn-note"><strong>⚠️ Patient Safety:</strong> Never leave the allergy section blank after speaking with a patient. If they have no known allergies, document NKDA explicitly. If the patient is unable to provide allergy history, document "Allergy history unknown — unable to obtain from patient."</div>
+      </div>
+    </div>
+
+    <!-- Q25 -->
+    <div class="qa-item" data-cat="docs" data-q="25">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">25</div>
+        <div class="qa-q">
+          <div class="q-text">What is a Best Practice Advisory (BPA) and can I ignore it?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">A <strong>Best Practice Advisory (BPA)</strong> is a real-time alert in Epic that flags a recommended action based on clinical guidelines — e.g., "Patient is due for colorectal cancer screening," "Consider flu vaccine," or "Depression screening not completed in 12 months." BPAs are <strong>soft stops</strong> — you can acknowledge and move past them without acting. However, they represent evidence-based recommendations and should be reviewed thoughtfully, not clicked through reflexively. Documenting why you declined a BPA (when prompted) is good clinical practice.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Ochin's clinical informatics team configures BPAs to align with HRSA UDS quality measures. A BPA for colorectal cancer screening is not just a clinical reminder — it's tracking a measure that affects your clinic's UDS report. Acting on BPAs improves your quality scores.</div>
+      </div>
+    </div>
+
+    <!-- Q26 -->
+    <div class="qa-item" data-cat="docs" data-q="26">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">26</div>
+        <div class="qa-q">
+          <div class="q-text">How do I add a problem to the patient's Problem List?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">In the patient chart → click <strong>Problem List</strong> in the left navigator → click <strong>Add Problem</strong> → search for the condition by name or ICD-10 code → select the specific code → set the onset date (if known) → set the status (Active, Resolved, etc.) → save. Problems added to the Problem List persist across all visits and are visible to all providers at all Ochin sites that care for this patient.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A newly diagnosed diabetic patient comes for their first follow-up after diagnosis. The provider adds "E11.9 — Type 2 Diabetes Mellitus" to the Problem List with today's date as onset. Going forward, this appears on every visit note and every provider caring for this patient can see it immediately.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> The Problem List in Ochin's shared instance is visible across all Ochin sites. If a specialist or another clinic's provider adds a problem, it appears in your view too. Review the Problem List regularly — not just your clinic's additions.</div>
+      </div>
+    </div>
+
+    <!-- Q27 -->
+    <div class="qa-item" data-cat="docs" data-q="27">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">27</div>
+        <div class="qa-q">
+          <div class="q-text">What is the After Visit Summary (AVS) and when should I give it to the patient?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The <strong>After Visit Summary (AVS)</strong> is a patient-facing document Epic generates at the end of a visit. It includes: today's diagnoses, medications, instructions, lab results (if configured), follow-up appointment information, and any educational materials linked during the visit. By law (CMS requirements and Meaningful Use/CURES Act), the AVS must be provided to the patient at the end of every visit — either printed or sent electronically via MyChart. Generate it from the Visit Wrap-Up section of the encounter.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> If your clinic has multilingual AVS configured, the AVS will auto-generate in the patient's preferred language. Always verify the language before printing — don't hand a Spanish-speaking patient an English AVS.</div>
+      </div>
+    </div>
+
+    <!-- Q28 -->
+    <div class="qa-item" data-cat="docs" data-q="28">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">28</div>
+        <div class="qa-q">
+          <div class="q-text">What are Z-codes and when should I use them?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>Z-codes</strong> are ICD-10 codes (starting with Z) that capture non-disease factors affecting health — particularly Social Determinants of Health (SDOH). They document conditions like housing instability, food insecurity, transportation barriers, domestic violence exposure, and lack of social support. These are increasingly important at FQHCs because they: (1) appear on UDS Table 3B for HRSA reporting, (2) support grant applications and funding, and (3) drive population health interventions.</div>
+        <div class="example-box">
+          <div class="ex-label">Key Z-Codes for FQHCs</div>
+          Z59.00 — Homelessness, unspecified<br>
+          Z59.4 — Lack of adequate food or safe drinking water<br>
+          Z59.8 — Other problems related to housing and economic circumstances<br>
+          Z63.0 — Problems in relationship with spouse or partner<br>
+          Z65.4 — Victim of crime and terrorism<br>
+          Z55–Z65 range — Full SDOH code set
+        </div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Ochin has SDOH screening tools built into Epic's rooming workflow. When a patient screens positive for food insecurity, the system may auto-suggest the appropriate Z-code. Link the screening result to the code in the encounter diagnoses.</div>
+      </div>
+    </div>
+
+    <!-- Q29 -->
+    <div class="qa-item" data-cat="docs" data-q="29">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">29</div>
+        <div class="qa-q">
+          <div class="q-text">How do I document a telephone call with a patient in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Use a <strong>Telephone Encounter</strong> — this is a separate encounter type specifically for phone interactions. To create one: search for the patient → click <strong>New Encounter</strong> → select <strong>Telephone</strong> as the encounter type → document the date/time, who you spoke with, what was discussed, and any clinical decisions made. This creates a permanent, searchable record of the phone interaction. Telephone encounters can also generate billing in some cases (for qualifying telephone medical consultations).</div>
+        <div class="warn-note"><strong>⚠️ Never document a clinical phone call only in a sticky note or a paper message slip.</strong> These are not part of the permanent medical record. If a clinical decision was made on the phone — a medication change, a result notification, a refill decision — it must be in Epic via a Telephone Encounter.</div>
+      </div>
+    </div>
+
+    <!-- Q30 -->
+    <div class="qa-item" data-cat="docs" data-q="30">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">30</div>
+        <div class="qa-q">
+          <div class="q-text">A patient from another Ochin clinic is visiting us today. Can I see their previous notes?</div>
+          <div class="q-meta"><span class="cat-chip cat-docs">Documentation</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>Yes</strong> — this is one of the core advantages of Ochin's shared Epic instance. The patient's chart is the same chart regardless of which Ochin clinic they visit. You can see their previous visit notes, medications, problem list, labs, and imaging from any Ochin site. Navigate to <strong>Chart Review</strong> and filter by date or department to find visits from other Ochin clinics. This is not external data — it's the same record, shared across the network.</div>
+        <div class="ochin-note"><strong>Ochin Privacy Note:</strong> While the chart is technically visible, you should only access records that are relevant to the patient's current care at your clinic. Browsing a patient's history out of curiosity — even within the Ochin network — is a privacy policy violation and is tracked in the audit log.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         CATEGORY 4: MEDICATIONS & RX (31–40)
+    ═══════════════════════════════════════ -->
+    <div class="cat-header" data-cat="meds">
+      <span class="cat-icon">💊</span>
+      <h2>Medications &amp; Prescriptions</h2>
+      <span class="cat-count">Questions 31–40</span>
+    </div>
+
+    <!-- Q31 -->
+    <div class="qa-item" data-cat="meds" data-q="31">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">31</div>
+        <div class="qa-q">
+          <div class="q-text">How do I reconcile a patient's medication list when they say it's wrong?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Go to the <strong>Medications</strong> section in the patient chart → click <strong>Reconcile</strong>. This opens the medication reconciliation workflow showing: medications in Epic, medications from Surescripts pharmacy fill history, and medications from Care Everywhere (other providers). Review each medication with the patient verbally — confirm what they are actually taking, the dose, and frequency. For each medication: mark as <strong>Taking</strong>, <strong>Not Taking</strong>, <strong>Changed</strong>, or <strong>Discontinued</strong>. Save and sign the reconciliation. This updates the active medication list.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Medication reconciliation must be completed at every visit — not just reviewed on screen. Verbal confirmation with the patient is required. Surescripts data shows what was filled at a pharmacy, not what the patient is actually taking. These can differ significantly.</div>
+      </div>
+    </div>
+
+    <!-- Q32 -->
+    <div class="qa-item" data-cat="meds" data-q="32">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">32</div>
+        <div class="qa-q">
+          <div class="q-text">The pharmacy says they never received the prescription I sent. What do I check in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">In the patient's Medications section → find the prescription → check its <strong>transmission status</strong>. It should show "Sent" with a timestamp and pharmacy name if it transmitted successfully. If it shows "Error" or "Pending," the prescription was not sent — you'll need to resend or troubleshoot the electronic routing. If it shows "Sent," contact the pharmacy with the timestamp as proof and ask them to check their queue. Do not resend without checking status first — duplicate prescriptions cause confusion and patient safety issues.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A patient calls saying their pharmacy doesn't have their amoxicillin prescription. The provider checks Epic — status shows "Sent to Walgreens #1234 at 2:47 PM." The provider calls the pharmacy with this information — they find it in their system under a slightly different patient name spelling. Resolved without resending.</div>
+      </div>
+    </div>
+
+    <!-- Q33 -->
+    <div class="qa-item" data-cat="meds" data-q="33">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">33</div>
+        <div class="qa-q">
+          <div class="q-text">What do I do when a drug-drug interaction alert fires?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>Read it before clicking anything.</strong> Epic alerts have different severity levels: <strong>Hard Stop</strong> (cannot proceed — allergy conflict or critical interaction), <strong>Moderate/Severe interaction</strong> (soft stop — can override with a reason), and <strong>Advisory</strong> (informational only). For moderate/severe alerts you are overriding: read the clinical explanation, consider whether an alternative is appropriate, and if you proceed, document a clear clinical reason in the override rationale field. Never click through alerts without reading them — alert fatigue is a leading cause of medication errors.</div>
+        <div class="warn-note"><strong>⚠️ Hard Stop Allergy Alerts:</strong> If Epic fires a hard stop for a documented allergy (e.g., prescribing penicillin to a patient with a documented penicillin allergy), you cannot proceed with that order. Either remove the order or address the allergy documentation before prescribing. Do NOT remove the allergy just to place the order unless clinically justified and thoroughly documented.</div>
+      </div>
+    </div>
+
+    <!-- Q34 -->
+    <div class="qa-item" data-cat="meds" data-q="34">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">34</div>
+        <div class="qa-q">
+          <div class="q-text">How do I process a refill request that comes through the In Basket?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Open the refill request in In Basket → review the patient's chart: last visit date, last refill date, monitoring labs (are they current?), any new medications or concerns. If appropriate: click <strong>Renew</strong> → confirm the medication, dose, quantity, and pharmacy → click <strong>Sign</strong> to electronically send the refill. If not appropriate: click <strong>Deny</strong> and document the reason (patient needs a visit, labs overdue, etc.) — a message is sent to the pharmacy and optionally to the patient via MyChart.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Refill requests from pharmacies arrive via Surescripts — the same network used to send prescriptions. A refill request is NOT automatic renewal authorization; it requires provider clinical review every time. There is no such thing as a "routine" refill that doesn't deserve review.</div>
+      </div>
+    </div>
+
+    <!-- Q35 -->
+    <div class="qa-item" data-cat="meds" data-q="35">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">35</div>
+        <div class="qa-q">
+          <div class="q-text">A patient needs a controlled substance refill. What are the special requirements?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Controlled substance prescribing in Epic requires: (1) <strong>PDMP check</strong> — log into your state's Prescription Drug Monitoring Program (integrated in Epic at many Ochin sites, or accessed separately) and document the check; (2) <strong>EPCS two-factor authentication</strong> — you'll be prompted for your Duo push or token code when signing; (3) <strong>No refills on Schedule II</strong> — each supply requires a new prescription; (4) <strong>Clinical review</strong> — confirm the patient has been seen appropriately, agreements are current, and urine drug screens are up to date per your clinic's controlled substance policy.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A patient requests a 30-day supply of oxycodone. The provider opens Epic's PDMP integration, reviews the patient's state controlled substance history (no concerning patterns), checks the pain agreement last signed 3 months ago (current), reviews the last UDS (appropriate), and then signs the new prescription via EPCS with Duo authentication. The prescription transmits electronically.</div>
+      </div>
+    </div>
+
+    <!-- Q36 -->
+    <div class="qa-item" data-cat="meds" data-q="36">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">36</div>
+        <div class="qa-q">
+          <div class="q-text">What is 340B and does it affect how I prescribe medications?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The <strong>340B Drug Pricing Program</strong> allows eligible FQHCs to purchase outpatient drugs at significantly reduced prices (40–60% below market for many drugs). Clinically, it does NOT change how you prescribe — you prescribe the same medications the same way. The 340B routing happens automatically in Ochin's Epic when the order is transmitted to a 340B-participating pharmacy or in-house dispensary. You do not need to select "340B" yourself — the system handles eligibility routing based on the service location and patient criteria.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> 340B eligibility is based on the FQHC encounter occurring at a registered site — not the patient's income. A wealthy uninsured patient seen at your FQHC clinic generates a 340B-eligible prescription just as a Medicaid patient does. Confirm with your 340B coordinator which pharmacies are in your 340B network.</div>
+      </div>
+    </div>
+
+    <!-- Q37 -->
+    <div class="qa-item" data-cat="meds" data-q="37">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">37</div>
+        <div class="qa-q">
+          <div class="q-text">How do I prescribe a medication to be picked up at a specific pharmacy?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">When ordering the medication, in the order details you'll see a <strong>Pharmacy</strong> field. Click it and search for the pharmacy by name, address, or zip code. Select the correct location from the results (be careful — chain pharmacies like Walgreens have many locations). Epic will default to the patient's preferred pharmacy if one is saved in their demographics. You can set or update a patient's preferred pharmacy in their demographics → <strong>Pharmacy</strong> section.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> If your clinic operates an in-house dispensary or a 340B contract pharmacy, it will appear in the pharmacy search. Routing to your in-house dispensary activates 340B pricing automatically for eligible patients.</div>
+      </div>
+    </div>
+
+    <!-- Q38 -->
+    <div class="qa-item" data-cat="meds" data-q="38">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">38</div>
+        <div class="qa-q">
+          <div class="q-text">The patient says they can't afford their medication. What resources can I access from Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Several options available from within or alongside Epic: (1) <strong>GoodRx integration</strong> — some Ochin sites have GoodRx pricing visible within the prescription order screen; (2) <strong>Patient Assistance Programs</strong> — document a referral to your patient assistance coordinator or social worker (via in-basket message or referral order); (3) <strong>340B dispensary</strong> — if your clinic has a 340B contract pharmacy or dispensary, route the prescription there for reduced patient cost; (4) <strong>Generic substitution</strong> — if prescribing a brand-name drug, check the formulary alternatives for a lower-cost generic.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Medication cost barriers are a top reason patients don't fill prescriptions. Document the discussion and the alternative plan in your note — this is both good care and good documentation of SDOH impact.</div>
+      </div>
+    </div>
+
+    <!-- Q39 -->
+    <div class="qa-item" data-cat="meds" data-q="39">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">39</div>
+        <div class="qa-q">
+          <div class="q-text">What does "formulary" mean and where do I see formulary status in Epic?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">A <strong>formulary</strong> is the list of medications covered by a patient's insurance plan. When ordering a medication, Epic (via Surescripts integration) can show a <strong>formulary icon</strong> next to the drug indicating whether it is: <span style="color:var(--green);">●</span> On formulary (covered), <span style="color:var(--gold);">●</span> Non-preferred (covered at higher cost), or <span style="color:var(--red);">●</span> Not on formulary (not covered). Click the formulary icon to see tier information and covered alternatives. This is only visible if the patient's pharmacy benefit is available via Surescripts — not all plans transmit this data.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A provider orders a brand-name proton pump inhibitor (PPI). Epic's formulary checker shows a red "not covered" flag for the brand name, but a green "covered" flag for omeprazole 20mg (generic). The provider selects the generic equivalent — same clinical effect, covered by insurance, no PA required.</div>
+      </div>
+    </div>
+
+    <!-- Q40 -->
+    <div class="qa-item" data-cat="meds" data-q="40">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">40</div>
+        <div class="qa-q">
+          <div class="q-text">How do I discontinue a medication a patient is no longer taking?</div>
+          <div class="q-meta"><span class="cat-chip cat-meds">Medications</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">In the Medications section → find the medication → click <strong>Discontinue</strong> (or the D/C option) → select a reason (e.g., "Patient stopped taking," "Side effects," "Replaced by new medication," "Course completed") → save. The medication moves from the Active Medications list to the Medication History list. It remains visible in the history — it is never deleted, only moved. Always choose the most accurate reason as it helps future providers understand the patient's medication history.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Medications discontinued at one Ochin clinic are visible as discontinued across all Ochin sites. This prevents another provider from inadvertently restarting a medication that was stopped for a good clinical reason — as long as you document the reason when discontinuing.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         CATEGORY 5: ORDERS & RESULTS (41–50)
+    ═══════════════════════════════════════ -->
+    <div class="cat-header" data-cat="orders">
+      <span class="cat-icon">🔬</span>
+      <h2>Orders &amp; Results</h2>
+      <span class="cat-count">Questions 41–50</span>
+    </div>
+
+    <!-- Q41 -->
+    <div class="qa-item" data-cat="orders" data-q="41">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">41</div>
+        <div class="qa-q">
+          <div class="q-text">I ordered a lab but the patient says nothing was collected. What happened?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The most common reason: <strong>the order was never signed.</strong> An unsigned order stays as a draft and never routes to the lab or nursing worklist. Check the order status in Epic — if it shows "Pending" or "Unsigned," sign it now (or place a new order if too much time has passed). Other possibilities: the order was signed but routed to an external lab and the patient didn't go; the specimen was collected but labeling or transport failed; the lab lost the specimen. Check the order status before assuming a technical failure — provider signing error is far more common.</div>
+      </div>
+    </div>
+
+    <!-- Q42 -->
+    <div class="qa-item" data-cat="orders" data-q="42">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">42</div>
+        <div class="qa-q">
+          <div class="q-text">How do I order a lab to be drawn at an external lab (LabCorp, Quest)?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Place the order normally in Epic's Order Entry → select the appropriate lab (LabCorp or Quest depending on your clinic's contract) in the Lab field → sign the order → <strong>print the requisition</strong>. The requisition is the document the patient presents at the external lab's patient service center. Give the patient the requisition, the lab's address/phone for scheduling, and any special instructions (fasting requirements, trough timing, etc.). The results return electronically to Epic when the lab completes processing.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Ochin negotiates network-wide contracts with lab partners. Your clinic's configured lab partner in Epic is your contracted vendor. Do not route orders to a non-contracted lab without authorization — it may not be reimbursed and results may not return to Epic automatically.</div>
+      </div>
+    </div>
+
+    <!-- Q43 -->
+    <div class="qa-item" data-cat="orders" data-q="43">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">43</div>
+        <div class="qa-q">
+          <div class="q-text">A lab result came back critical. What is the required response?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The required response has four steps: (1) <strong>Read-back</strong> — when the lab calls, repeat the critical value verbatim back to the lab tech and confirm the patient name; (2) <strong>Document immediately</strong> — open a Telephone Encounter or add a result comment: "Critical value call received at [time] from [lab tech name]. K+ = 2.8 mEq/L — read-back confirmed."; (3) <strong>Contact the patient</strong> — same day, immediately. Document the contact attempt and the outcome; (4) <strong>Clinical response</strong> — document your plan. Acknowledge the result in the In Basket only after completing the above steps.</div>
+        <div class="warn-note"><strong>⚠️ Regulatory Requirement:</strong> CMS, The Joint Commission, and most state health departments require documented response to critical values — including read-back, time of notification, and provider response plan. "Acknowledged" in the In Basket without documentation of the full response is insufficient.</div>
+      </div>
+    </div>
+
+    <!-- Q44 -->
+    <div class="qa-item" data-cat="orders" data-q="44">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">44</div>
+        <div class="qa-q">
+          <div class="q-text">How do I see a patient's lab trends over time, not just their most recent result?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">Navigate to <strong>Chart Review → Labs</strong> tab in the patient chart. Use the search box to find a specific test (e.g., "HbA1c"). The results appear in a table showing all historical values with dates. Click <strong>Trend</strong> or <strong>Graph</strong> to switch to a visual trend display. You can adjust the date range to see values over 1 year, 3 years, or all time. This view also shows values from other Ochin clinics and — via Care Everywhere — from external providers if they've been pulled into the chart.</div>
+        <div class="ochin-note"><strong>Ochin Tip:</strong> For chronic disease management visits (diabetes, hypertension, thyroid disease), open the trend view before the patient encounter — it takes 30 seconds and gives you the full clinical picture without hunting through individual results. Print or reference it during the patient conversation to show them their progress.</div>
+      </div>
+    </div>
+
+    <!-- Q45 -->
+    <div class="qa-item" data-cat="orders" data-q="45">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">45</div>
+        <div class="qa-q">
+          <div class="q-text">What is the In Basket Results folder and how often should I check it?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">The <strong>In Basket Results folder</strong> is where all new, unreviewed lab and imaging results for your patients are routed. Results appear as soon as the lab releases them — 24 hours a day. You should review and clear your Results In Basket <strong>at least once daily on clinic days</strong> — many providers do this at the start of the day and again before leaving. Unreviewed results accumulate into a backlog that becomes a patient safety risk. There is no auto-acknowledgment — every result requires a conscious human review action.</div>
+        <div class="warn-note"><strong>⚠️ Go-Live Warning:</strong> In the first week after go-live, the In Basket fills rapidly as backlogged orders return results and new orders are placed. Block extra time in your schedule during go-live week specifically to review In Basket results — don't let it sit unattended for multiple days.</div>
+      </div>
+    </div>
+
+    <!-- Q46 -->
+    <div class="qa-item" data-cat="orders" data-q="46">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">46</div>
+        <div class="qa-q">
+          <div class="q-text">How do I place a referral to a specialist?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">In Order Entry → search for the specialty (e.g., "Cardiology Referral") → select the appropriate referral type → enter the clinical indication (brief, specific reason: "Newly diagnosed heart failure — EF 35% on echo — refer for cardiology management") → attach relevant documents (last note, echo report, labs) → set urgency (Routine/Urgent/STAT) → note if prior authorization is needed → sign the order. The referral routes to your clinic's referral coordinator who handles scheduling and insurance authorization.</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Always attach supporting clinical documentation to referrals in Epic. Specialist offices receive hundreds of referrals — one with a detailed clinical indication and attached records gets scheduled faster than one with only "needs cardiology evaluation."</div>
+      </div>
+    </div>
+
+    <!-- Q47 -->
+    <div class="qa-item" data-cat="orders" data-q="47">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">47</div>
+        <div class="qa-q">
+          <div class="q-text">What is Care Everywhere and how is it different from regular lab results?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text"><strong>Regular lab results</strong> in Epic are from orders you placed at your Ochin clinic — they return automatically via the lab interface. <strong>Care Everywhere</strong> is different: it queries external health organizations (hospitals, other Epic systems, health exchanges) for that patient's records from outside the Ochin network. Care Everywhere results are NOT automatic — you must actively query them from the patient chart. They show data from visits at Providence, OHSU, Kaiser, or any other participating organization. You can then pull specific items (medications, diagnoses, labs) into your local chart.</div>
+      </div>
+    </div>
+
+    <!-- Q48 -->
+    <div class="qa-item" data-cat="orders" data-q="48">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">48</div>
+        <div class="qa-q">
+          <div class="q-text">Can an MA place a lab order, or does it have to be the provider?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">MAs can enter orders in Epic if permitted by your clinic's <strong>standing order protocols</strong> — but they cannot sign or release orders. An MA might enter a urine dipstick or blood glucose per standing protocol during rooming, but the provider must review and co-sign the order for it to be official. Any order entered by an MA that is outside an approved standing order protocol requires immediate provider co-signature. The roles are complementary: MA enters, provider reviews and signs.</div>
+      </div>
+    </div>
+
+    <!-- Q49 -->
+    <div class="qa-item" data-cat="orders" data-q="49">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">49</div>
+        <div class="qa-q">
+          <div class="q-text">How do I send a lab result to a patient through MyChart?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">From the In Basket Results view → open the result → click <strong>Route to Patient</strong> → select <strong>MyChart</strong> → optionally add a patient-friendly comment (recommended for any abnormal result) → click Send. The patient receives a MyChart notification that their result is available. For normal results, a brief note like "Your labs look good — no changes needed" goes a long way. For abnormal, always add context: "Your HbA1c is slightly elevated. I'd like to discuss this — please call to schedule a visit."</div>
+        <div class="ochin-note"><strong>Ochin Note:</strong> Your clinic's MyChart configuration determines auto-release rules (some normal results release automatically after a set delay). For sensitive results (HIV, cancer pathology, mental health), check your clinic's policy before releasing — some require direct patient communication first.</div>
+      </div>
+    </div>
+
+    <!-- Q50 -->
+    <div class="qa-item" data-cat="orders" data-q="50">
+      <div class="qa-header" onclick="toggle(this)">
+        <div class="qa-num">50</div>
+        <div class="qa-q">
+          <div class="q-text">What imaging orders typically require prior authorization, and how do I start that process?</div>
+          <div class="q-meta"><span class="cat-chip cat-orders">Orders</span></div>
+        </div>
+        <div class="qa-toggle">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="ans-label">Answer</div>
+        <div class="ans-text">CT scans, MRIs, PET scans, DEXA scans, and most echocardiograms require prior authorization from the patient's insurance. X-rays and most ultrasounds typically do not. When you place an imaging order in Epic, a <strong>Prior Authorization Required</strong> flag will appear if configured for that study type. This alerts your referral/authorization coordinator. Do not schedule the patient for the imaging until you receive the PA number — scheduling without PA often leads to a denied claim that the patient is billed for. Document the PA number in the order when received.</div>
+        <div class="example-box"><div class="ex-label">Real-World Example</div>A provider orders an MRI lumbar spine for a patient with persistent low back pain. Epic flags: "PA likely required — verify with patient's insurer." The referral coordinator initiates the PA request with supporting documentation. Three days later, PA is approved. The coordinator updates the order with the PA number and schedules the patient. Without this workflow, the patient could receive the MRI and face a $1,500+ bill.</div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TO PART 7B -->
+    <div class="card" style="background:linear-gradient(120deg,var(--navy),var(--teal));color:#fff;margin-top:30px;">
+      <h2 style="color:#fff;">📄 Continue to Part 7B — Questions 51–100</h2>
+      <p style="color:rgba(255,255,255,.85);margin-top:8px;">Part 7A covers Questions 1–50 across Login &amp; Navigation, Check-In &amp; Registration, Clinical Documentation, Medications &amp; Rx, and Orders &amp; Results.</p>
+      <p style="color:rgba(255,255,255,.85);margin-top:8px;"><strong>Part 7B</strong> covers Questions 51–100: Scheduling, Billing &amp; Coding, Telehealth, Ochin-Specific workflows, and Go-Live Day scenarios.</p>
+      <div class="mnav" style="border-color:rgba(255,255,255,.2);">
+        <button class="btn" style="background:var(--gold);color:var(--navy);" onclick="alert('Load ochin-epic-part7b.html to continue with Questions 51–100.')">Load Part 7B: Questions 51–100 →</button>
+        <button class="btn" style="background:transparent;border:1.5px solid rgba(255,255,255,.4);color:#fff;" onclick="alert('Load ochin-epic-part8.html for the Final Assessment.')">Skip to Part 8: Final Assessment 🎓</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function toggle(header) {
+  const item = header.closest('.qa-item');
+  item.classList.toggle('open');
+}
+
+function filterCat(cat, btn) {
+  // Update button states
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  // Update sidebar
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+
+  const items = document.querySelectorAll('.qa-item');
+  const headers = document.querySelectorAll('.cat-header');
+  let visible = 0;
+
+  items.forEach(item => {
+    const show = cat === 'all' || item.dataset.cat === cat;
+    item.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  headers.forEach(h => {
+    h.style.display = (cat === 'all' || h.dataset.cat === cat) ? '' : 'none';
+  });
+
+  document.getElementById('results-count').textContent = cat === 'all'
+    ? `Showing all 50 questions`
+    : `Showing ${visible} questions`;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function filterSearch() {
+  const term = document.getElementById('qa-search').value.toLowerCase().trim();
+
+  // Reset filter buttons
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.fbtn').classList.add('active');
+
+  const items = document.querySelectorAll('.qa-item');
+  const headers = document.querySelectorAll('.cat-header');
+  let visible = 0;
+
+  if (!term) {
+    items.forEach(i => i.style.display = '');
+    headers.forEach(h => h.style.display = '');
+    document.getElementById('results-count').textContent = '';
+    return;
+  }
+
+  const cats = new Set();
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    const show = text.includes(term);
+    item.style.display = show ? '' : 'none';
+    if (show) { visible++; cats.add(item.dataset.cat); }
+  });
+
+  headers.forEach(h => {
+    h.style.display = cats.has(h.dataset.cat) ? '' : 'none';
+  });
+
+  document.getElementById('results-count').textContent = `${visible} result${visible !== 1 ? 's' : ''} for "${document.getElementById('qa-search').value}"`;
+}
+
+window.addEventListener('scroll', () => {
+  const p = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('si').style.transform = `scaleX(${Math.min(p, 1)})`;
+}, { passive: true });
+</script>
+</body>
+</html>

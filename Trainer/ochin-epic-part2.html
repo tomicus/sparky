@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 2: Patient Check-In &amp; Registration</title>
+<style>
+  :root {
+    --navy:    #0D2B4E;
+    --teal:    #006D75;
+    --teal-lt: #00A3AD;
+    --gold:    #E8A020;
+    --gold-lt: #F5C842;
+    --cream:   #F4F8FA;
+    --white:   #FFFFFF;
+    --gray1:   #1A2B3C;
+    --gray2:   #3D5166;
+    --gray3:   #7A93A8;
+    --gray4:   #C5D5E0;
+    --gray5:   #EDF2F5;
+    --red:     #C0392B;
+    --green:   #1E7E4C;
+    --shadow:  0 2px 12px rgba(13,43,78,.13);
+    --radius:  10px;
+    --font-body: 'Segoe UI', 'Arial', sans-serif;
+    --font-mono: 'Consolas', 'Courier New', monospace;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:var(--font-body); background:var(--cream); color:var(--gray1); min-height:100vh; }
+
+  /* TOP BAR */
+  #topbar {
+    background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 28px; height:60px;
+    position:sticky; top:0; z-index:100;
+    box-shadow:0 2px 8px rgba(0,0,0,.35);
+  }
+  #topbar .brand { display:flex; align-items:center; gap:12px; }
+  #topbar .brand .logo-box { background:var(--teal-lt); color:#fff; font-weight:800; font-size:15px; padding:5px 10px; border-radius:6px; letter-spacing:.5px; }
+  #topbar .brand .title { font-size:17px; font-weight:600; }
+  #topbar .brand .subtitle { font-size:11px; color:var(--gray4); margin-top:1px; }
+  #topbar .progress-bar-wrap { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--gray4); }
+  #topbar .progress-bar-track { width:160px; height:7px; background:rgba(255,255,255,.18); border-radius:4px; overflow:hidden; }
+  #topbar .progress-bar-fill { height:100%; background:var(--gold); border-radius:4px; transition:width .4s ease; }
+  #topbar .user-badge { background:rgba(255,255,255,.12); border-radius:20px; padding:4px 14px; font-size:12px; cursor:pointer; }
+
+  /* LAYOUT */
+  #layout { display:flex; min-height:calc(100vh - 60px); }
+
+  /* SIDEBAR */
+  #sidebar {
+    width:260px; flex-shrink:0; background:var(--navy); color:#fff;
+    display:flex; flex-direction:column; padding-bottom:20px;
+    position:sticky; top:60px; height:calc(100vh - 60px);
+    overflow-y:auto; border-right:1px solid rgba(255,255,255,.07);
+  }
+  #sidebar::-webkit-scrollbar { width:4px; }
+  #sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2); border-radius:4px; }
+  .sidebar-section { padding:18px 20px 6px; }
+  .sidebar-section-label { font-size:10px; font-weight:700; letter-spacing:1.5px; color:var(--teal-lt); text-transform:uppercase; margin-bottom:8px; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:7px; cursor:pointer; font-size:13px; color:rgba(255,255,255,.78); transition:background .15s,color .15s; margin-bottom:2px; }
+  .nav-item:hover { background:rgba(255,255,255,.08); color:#fff; }
+  .nav-item.active { background:var(--teal); color:#fff; }
+  .nav-item.locked { opacity:.45; cursor:not-allowed; }
+  .nav-item .nav-icon { font-size:16px; width:22px; text-align:center; flex-shrink:0; }
+  .nav-item .nav-label { flex:1; }
+  .nav-item .nav-badge { font-size:10px; background:var(--gold); color:var(--navy); border-radius:10px; padding:1px 7px; font-weight:700; }
+  .nav-item .nav-check { font-size:13px; color:#4cd964; }
+  .nav-divider { height:1px; background:rgba(255,255,255,.08); margin:10px 20px; }
+
+  /* SECTION TABS (within module) */
+  .section-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:24px; }
+  .sec-tab {
+    padding:7px 16px; border-radius:20px; border:1.5px solid var(--gray4);
+    font-size:12px; font-weight:600; cursor:pointer; color:var(--gray2);
+    background:#fff; transition:all .15s;
+  }
+  .sec-tab:hover { border-color:var(--teal); color:var(--teal); }
+  .sec-tab.active { background:var(--teal); color:#fff; border-color:var(--teal); }
+  .section-content { display:none; }
+  .section-content.active { display:block; }
+
+  /* MAIN */
+  #main { flex:1; padding:36px 44px; max-width:900px; overflow-y:auto; }
+
+  /* PAGE HEADER */
+  .page-header { background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 100%); color:#fff; border-radius:var(--radius); padding:28px 32px 24px; margin-bottom:28px; position:relative; overflow:hidden; }
+  .page-header::after { content:''; position:absolute; right:-30px; top:-30px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,.06); }
+  .page-header .mod-tag { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gold-lt); margin-bottom:6px; }
+  .page-header h1 { font-size:26px; font-weight:700; margin-bottom:6px; }
+  .page-header p { font-size:14px; color:rgba(255,255,255,.8); max-width:560px; line-height:1.6; }
+  .page-header .meta { display:flex; gap:20px; margin-top:14px; font-size:12px; color:rgba(255,255,255,.65); }
+
+  /* CARDS */
+  .card { background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:24px 28px; margin-bottom:22px; }
+  .card h2 { font-size:17px; font-weight:700; color:var(--navy); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .card h2 .ch-icon { font-size:20px; }
+  .card h3 { font-size:14px; font-weight:700; color:var(--teal); margin:18px 0 8px; }
+  .card p { font-size:13.5px; line-height:1.7; color:var(--gray2); margin-bottom:10px; }
+  .card ul, .card ol { padding-left:20px; }
+  .card li { font-size:13.5px; line-height:1.7; color:var(--gray2); margin-bottom:5px; }
+
+  /* INFO BOXES */
+  .info-box { border-left:4px solid var(--teal); background:var(--gray5); border-radius:0 8px 8px 0; padding:14px 18px; margin:14px 0; font-size:13px; line-height:1.6; color:var(--gray2); }
+  .info-box.tip  { border-color:var(--gold); background:#FFFBF0; }
+  .info-box.warn { border-color:var(--red);  background:#FFF5F5; }
+  .info-box.key  { border-color:var(--navy); background:#F0F4FF; }
+  .info-box.green { border-color:var(--green); background:#EEF9F3; }
+  .info-box strong { color:var(--gray1); }
+
+  /* STEP LIST */
+  .step-list { counter-reset:step; list-style:none; padding:0; }
+  .step-list li { counter-increment:step; display:flex; gap:14px; align-items:flex-start; padding:12px 0; border-bottom:1px solid var(--gray5); }
+  .step-list li:last-child { border-bottom:none; }
+  .step-list li::before { content:counter(step); background:var(--teal); color:#fff; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; margin-top:1px; }
+  .step-list li .step-text { flex:1; font-size:13.5px; line-height:1.6; color:var(--gray2); }
+  .step-list li .step-text strong { color:var(--gray1); display:block; margin-bottom:3px; }
+  .step-list li .step-text code { background:var(--gray5); padding:1px 6px; border-radius:4px; font-family:var(--font-mono); font-size:12px; color:var(--navy); }
+
+  /* TABLES */
+  .compare-table { width:100%; border-collapse:collapse; font-size:13px; margin:10px 0; }
+  .compare-table th { background:var(--navy); color:#fff; padding:10px 14px; text-align:left; font-weight:600; font-size:12px; }
+  .compare-table td { padding:9px 14px; border-bottom:1px solid var(--gray4); color:var(--gray2); vertical-align:top; }
+  .compare-table tr:nth-child(even) td { background:var(--gray5); }
+  .compare-table .req { color:var(--red); font-weight:700; }
+  .compare-table .opt { color:var(--gray3); }
+  .compare-table .yes { color:var(--green); font-weight:700; }
+  .compare-table .no  { color:var(--red);   font-weight:700; }
+
+  /* SCREEN MOCK */
+  .screen-mock { background:var(--gray1); border-radius:10px; padding:0; overflow:hidden; margin:16px 0; box-shadow:0 4px 18px rgba(0,0,0,.2); font-family:var(--font-mono); }
+  .screen-mock .mock-bar { background:var(--navy); padding:8px 14px; display:flex; align-items:center; gap:8px; }
+  .screen-mock .mock-dot { width:10px; height:10px; border-radius:50%; }
+  .screen-mock .mock-body { padding:16px 20px; font-size:12px; color:#B8D4E8; line-height:1.8; white-space:pre; overflow-x:auto; }
+  .hl-gold  { color:#F5C842; font-weight:700; }
+  .hl-teal  { color:#00C9D4; }
+  .hl-white { color:#fff; font-weight:700; }
+  .hl-gray  { color:#546E7A; }
+  .hl-red   { color:#EF9A9A; }
+  .hl-green { color:#A5D6A7; }
+
+  /* WORKFLOW DIAGRAM */
+  .flow { display:flex; flex-direction:column; gap:0; margin:16px 0; }
+  .flow-step { display:flex; align-items:stretch; gap:0; }
+  .flow-step .flow-node {
+    background:var(--teal); color:#fff;
+    border-radius:8px; padding:10px 16px;
+    font-size:12.5px; font-weight:600; min-width:200px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .flow-step .flow-node.gold { background:var(--gold); color:var(--navy); }
+  .flow-step .flow-node.navy { background:var(--navy); }
+  .flow-step .flow-node.gray { background:var(--gray3); }
+  .flow-step .flow-note { padding:10px 18px; font-size:12px; color:var(--gray2); display:flex; align-items:center; line-height:1.5; }
+  .flow-connector { width:2px; background:var(--gray4); margin:0 0 0 20px; height:18px; }
+
+  /* QUIZ */
+  .quiz-card { background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:24px 28px; margin-bottom:22px; }
+  .quiz-card h2 { font-size:17px; font-weight:700; color:var(--navy); margin-bottom:4px; }
+  .quiz-subtitle { font-size:13px; color:var(--gray3); margin-bottom:18px; }
+  .quiz-q { margin-bottom:20px; }
+  .qtext { font-size:13.5px; font-weight:600; color:var(--gray1); margin-bottom:10px; }
+  .qnum { color:var(--teal); margin-right:6px; }
+  .quiz-options { display:flex; flex-direction:column; gap:7px; }
+  .quiz-option { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1.5px solid var(--gray4); border-radius:8px; cursor:pointer; font-size:13px; transition:border-color .15s,background .15s; }
+  .quiz-option:hover { border-color:var(--teal); background:var(--gray5); }
+  .quiz-option.selected { border-color:var(--teal); background:#E8F6F8; }
+  .quiz-option.correct  { border-color:var(--green); background:#E8F5EE; color:var(--green); font-weight:600; }
+  .quiz-option.wrong    { border-color:var(--red);   background:#FFF0EF; color:var(--red); }
+  .quiz-option input[type=radio] { accent-color:var(--teal); }
+  .quiz-feedback { font-size:12.5px; margin-top:8px; padding:8px 12px; border-radius:6px; display:none; }
+  .quiz-feedback.show { display:block; }
+  .quiz-feedback.ok  { background:#E8F5EE; color:var(--green); }
+  .quiz-feedback.bad { background:#FFF0EF; color:var(--red); }
+  .quiz-submit-row { display:flex; align-items:center; gap:14px; margin-top:6px; }
+  .quiz-score { font-size:14px; font-weight:700; color:var(--navy); }
+
+  /* BUTTONS */
+  .btn { display:inline-flex; align-items:center; gap:7px; padding:10px 22px; border-radius:8px; border:none; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .15s,transform .1s; }
+  .btn:hover { opacity:.88; transform:translateY(-1px); }
+  .btn-primary { background:var(--teal); color:#fff; }
+  .btn-gold    { background:var(--gold); color:var(--navy); }
+  .btn-outline { background:transparent; border:1.5px solid var(--teal); color:var(--teal); }
+
+  /* CHIPS */
+  .chip { display:inline-block; background:var(--teal); color:#fff; font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; margin:2px; }
+  .chip.gold { background:var(--gold); color:var(--navy); }
+  .chip.red  { background:var(--red);  color:#fff; }
+  .chip.gray { background:var(--gray3); color:#fff; }
+
+  /* FIELD MOCK */
+  .field-row { display:flex; gap:12px; flex-wrap:wrap; margin:10px 0; }
+  .field-mock { flex:1; min-width:140px; }
+  .field-mock label { font-size:10px; font-weight:700; color:var(--gray3); text-transform:uppercase; letter-spacing:.8px; display:block; margin-bottom:4px; }
+  .field-mock label .req-star { color:var(--red); }
+  .field-mock .field-input { background:var(--gray5); border:1.5px solid var(--gray4); border-radius:6px; padding:8px 12px; font-size:13px; color:var(--gray2); width:100%; font-family:var(--font-body); }
+  .field-mock .field-input.filled { border-color:var(--teal); color:var(--gray1); background:#fff; }
+  .field-mock .field-input.error  { border-color:var(--red);  background:#FFF5F5; }
+
+  /* SLIDING FEE TABLE */
+  .fee-table { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0; }
+  .fee-table th { background:var(--navy); color:#fff; padding:9px 14px; text-align:left; font-size:12px; }
+  .fee-table td { padding:9px 14px; border-bottom:1px solid var(--gray4); }
+  .fee-table .level-a { color:var(--red); font-weight:700; }
+  .fee-table .level-b { color:var(--gold); font-weight:700; }
+  .fee-table .level-c { color:var(--teal); font-weight:700; }
+  .fee-table .level-d { color:var(--green); font-weight:700; }
+  .fee-table tr:nth-child(even) td { background:var(--gray5); }
+
+  /* MOD NAV */
+  .mod-nav { display:flex; gap:12px; margin-top:30px; padding-top:20px; border-top:1px solid var(--gray4); }
+
+  /* SCROLL INDICATOR */
+  #scroll-indicator { position:fixed; top:60px; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--teal-lt),var(--gold)); transform-origin:left; transform:scaleX(0); z-index:200; transition:transform .1s; }
+
+  @media(max-width:780px){ #sidebar{display:none;} #main{padding:20px 16px;} }
+</style>
+</head>
+<body>
+
+<div id="scroll-indicator"></div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="brand">
+    <div class="logo-box">OCHIN</div>
+    <div>
+      <div class="title">Epic Training Portal</div>
+      <div class="subtitle">Part 2 of 8 · Patient Check-In &amp; Registration</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <span>Module Progress</span>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="overall-progress" style="width:0%"></div>
+    </div>
+    <span id="overall-pct">0%</span>
+  </div>
+  <div class="user-badge">👤 Learner</div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Part 2 Sections</div>
+      <div class="nav-item active" onclick="showSection('s1',this)">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label">2.1 · Searching for Patients</span>
+        <span class="nav-check" id="chk-s1" style="display:none">✓</span>
+      </div>
+      <div class="nav-item" onclick="showSection('s2',this)">
+        <span class="nav-icon">🪪</span>
+        <span class="nav-label">2.2 · New Patient Registration</span>
+        <span class="nav-check" id="chk-s2" style="display:none">✓</span>
+      </div>
+      <div class="nav-item" onclick="showSection('s3',this)">
+        <span class="nav-icon">💳</span>
+        <span class="nav-label">2.3 · Insurance Verification</span>
+        <span class="nav-check" id="chk-s3" style="display:none">✓</span>
+      </div>
+      <div class="nav-item" onclick="showSection('s4',this)">
+        <span class="nav-icon">💲</span>
+        <span class="nav-label">2.4 · Sliding Fee Scale</span>
+        <span class="nav-check" id="chk-s4" style="display:none">✓</span>
+      </div>
+      <div class="nav-item" onclick="showSection('s5',this)">
+        <span class="nav-icon">✅</span>
+        <span class="nav-label">2.5 · Check-In Workflow</span>
+        <span class="nav-check" id="chk-s5" style="display:none">✓</span>
+      </div>
+      <div class="nav-item" onclick="showSection('s6',this)">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">2.6 · Consent &amp; Documents</span>
+        <span class="nav-check" id="chk-s6" style="display:none">✓</span>
+      </div>
+      <div class="nav-item" onclick="showSection('s7',this)">
+        <span class="nav-icon">🚶</span>
+        <span class="nav-label">2.7 · Walk-In &amp; No-Show</span>
+        <span class="nav-check" id="chk-s7" style="display:none">✓</span>
+      </div>
+      <div class="nav-item" onclick="showSection('quiz',this)">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">Module Quiz</span>
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">All Parts</div>
+      <div class="nav-item" onclick="alert('Load ochin-epic-part1.html')">
+        <span class="nav-icon">🏥</span><span class="nav-label">Part 1 · Overview &amp; Login</span>
+        <span class="nav-check">✓</span>
+      </div>
+      <div class="nav-item active" onclick="showSection('s1',document.querySelector('.nav-item'))">
+        <span class="nav-icon">🪪</span><span class="nav-label">Part 2 · Check-In (HERE)</span>
+      </div>
+      <div class="nav-item locked"><span class="nav-icon">📝</span><span class="nav-label">Part 3 · Documentation</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">💊</span><span class="nav-label">Part 4 · Medications &amp; Rx</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">🔬</span><span class="nav-label">Part 5 · Orders &amp; Results</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">📅</span><span class="nav-label">Part 6 · Scheduling &amp; Billing</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">📖</span><span class="nav-label">Part 7 · Top 100 Q&amp;A</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">🎓</span><span class="nav-label">Part 8 · Final Assessment</span><span class="nav-badge">Coming</span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="mod-tag">Module 2 of 6 · Part 2 of 8</div>
+      <h1>Patient Check-In &amp; Registration</h1>
+      <p>Master the full front-desk workflow in Ochin Epic: searching for existing patients, registering new ones, verifying insurance, applying sliding fee scales, and completing the check-in process.</p>
+      <div class="meta">
+        <span>⏱ ~35 min</span>
+        <span>🎯 Front Desk · Medical Assistants · All Staff</span>
+        <span>📋 7 sections · Quiz at end</span>
+      </div>
+    </div>
+
+    <!-- SECTION TABS -->
+    <div class="section-tabs">
+      <div class="sec-tab active" onclick="showSection('s1',null)">2.1 Patient Search</div>
+      <div class="sec-tab" onclick="showSection('s2',null)">2.2 New Registration</div>
+      <div class="sec-tab" onclick="showSection('s3',null)">2.3 Insurance</div>
+      <div class="sec-tab" onclick="showSection('s4',null)">2.4 Sliding Fee</div>
+      <div class="sec-tab" onclick="showSection('s5',null)">2.5 Check-In</div>
+      <div class="sec-tab" onclick="showSection('s6',null)">2.6 Consent</div>
+      <div class="sec-tab" onclick="showSection('s7',null)">2.7 Walk-In/No-Show</div>
+      <div class="sec-tab" onclick="showSection('quiz',null)">📝 Quiz</div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 2.1 — SEARCHING FOR PATIENTS
+    ══════════════════════════════════════ -->
+    <div class="section-content active" id="sec-s1">
+
+      <div class="card">
+        <h2><span class="ch-icon">🔍</span> 2.1 Searching for Existing Patients</h2>
+        <p>Before registering anyone as a new patient, <strong>always search first</strong>. Duplicate medical records are a significant problem in Epic — they require formal merge requests and create patient safety risks. A thorough search prevents duplicates.</p>
+
+        <h3>How to Open Patient Search</h3>
+        <ul>
+          <li>Press <strong>Ctrl + E</strong> from anywhere in Epic, OR</li>
+          <li>Click <strong>Patient Search</strong> in the top toolbar, OR</li>
+          <li>Click the <strong>⚡ Epic Button</strong> → Patient Search</li>
+        </ul>
+
+        <h3>Search Fields Available</h3>
+        <table class="compare-table">
+          <thead><tr><th>Field</th><th>Notes</th><th>Required?</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Last Name</strong></td><td>Partial name works — type first 3+ letters</td><td class="req">Required (start here)</td></tr>
+            <tr><td><strong>First Name</strong></td><td>Optional but narrows results significantly</td><td class="opt">Optional</td></tr>
+            <tr><td><strong>Date of Birth</strong></td><td>MM/DD/YYYY format. Very effective combined with last name</td><td class="opt">Optional</td></tr>
+            <tr><td><strong>MRN</strong></td><td>Most precise search — pulls exact patient immediately</td><td class="opt">Optional</td></tr>
+            <tr><td><strong>SSN</strong></td><td>Last 4 digits accepted. Use when name is unclear</td><td class="opt">Optional</td></tr>
+            <tr><td><strong>Phone Number</strong></td><td>Useful when patient can't spell name</td><td class="opt">Optional</td></tr>
+            <tr><td><strong>Address</strong></td><td>Street number or zip code can help</td><td class="opt">Optional</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Step-by-Step: Searching for a Patient</h3>
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>Open Patient Search (Ctrl + E)</strong>
+              The search dialog opens. You'll see fields for Last Name, First Name, DOB, MRN, and more.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Enter Last Name + Date of Birth</strong>
+              This combination catches most existing patients even with name spelling variations. Example: Last Name <code>Garcia</code>, DOB <code>03/22/1978</code>
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Click Search or press Enter</strong>
+              A results list appears. Review all results — do not just click the first match.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Verify identity before opening the chart</strong>
+              Confirm: full name, DOB, address, and last 4 of SSN if available. Never rely on name alone — two patients may have the same name and similar DOB.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>If multiple results appear</strong>
+              Check each record. Look for the one with the most complete information, matching insurance, and your clinic's organization listed. If you see two records that appear to be the same person, do NOT merge — report to your supervisor or the Ochin Help Desk.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>If no match is found</strong>
+              Try alternate spellings, maiden names, nicknames, and different DOB formats before proceeding to new registration. Ask the patient to spell their name and confirm their DOB verbally.
+            </div>
+          </li>
+        </ol>
+
+        <div class="screen-mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f57"></div>
+            <div class="mock-dot" style="background:#febc2e"></div>
+            <div class="mock-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.4);font-size:11px;margin-left:8px;font-family:sans-serif">Epic — Patient Search</span>
+          </div>
+          <div class="mock-body"><span class="hl-gray">┌────────────────── PATIENT SEARCH ──────────────────────────────┐</span>
+│  Last Name:  <span class="hl-white">Garcia          </span>  First Name: <span class="hl-white">Maria           </span>  │
+│  DOB:        <span class="hl-white">03/22/1978      </span>  MRN:        <span class="hl-gray">____________    </span>  │
+│  SSN (last4):<span class="hl-gray">____            </span>  Phone:      <span class="hl-gray">____________    </span>  │
+│                                                                 │
+│  <span class="hl-teal">[ Search ]</span>   [ Clear ]                                         │
+<span class="hl-gray">├─────────────────────────────────────────────────────────────────┤</span>
+│  RESULTS (2 found):                                             │
+│                                                                 │
+│  <span class="hl-gold">►</span> GARCIA, MARIA L.    DOB: 03/22/1978   MRN: <span class="hl-teal">00123456</span>         │
+│    Addr: 123 Main St, Portland OR   PCP: Johnson, A MD          │
+│    <span class="hl-green">Organization: Green Valley Community Health  ← YOUR CLINIC</span>    │
+│                                                                 │
+│    GARCIA, MARIA      DOB: 03/22/1978   MRN: <span class="hl-teal">00098312</span>         │
+│    Addr: 456 Oak Ave, Portland OR   PCP: (none)                 │
+│    <span class="hl-gray">Organization: Riverside Health Center         ← different org</span>  │
+<span class="hl-gray">└─────────────────────────────────────────────────────────────────┘</span></div>
+        </div>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — Soundex Search:</strong> Ochin Epic's search uses phonetic matching. If a patient's name is spelled differently than expected (e.g., "Gonzales" vs "Gonzalez"), try searching with just the first few letters and DOB to catch spelling variations.
+        </div>
+
+        <div class="info-box warn">
+          <strong>⚠️ MPI Overlap Alert:</strong> Because Ochin is a shared environment, a patient may have visited a different Ochin member clinic before yours. You will see their record with that other clinic's organization. You can still open their chart and add your organization — but do NOT create a new patient record for them.
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-primary" onclick="markSection('s1'); showSection('s2',null)">Next: New Registration →</button>
+      </div>
+    </div><!-- /sec-s1 -->
+
+
+    <!-- ══════════════════════════════════════
+         SECTION 2.2 — NEW PATIENT REGISTRATION
+    ══════════════════════════════════════ -->
+    <div class="section-content" id="sec-s2">
+
+      <div class="card">
+        <h2><span class="ch-icon">🪪</span> 2.2 Registering a New Patient</h2>
+        <p>Only create a new patient record after confirming through a thorough search that no existing record exists. In Ochin Epic, new patient registration is accessed through <strong>Epic Button → Patient Registration</strong> or through the scheduling module when creating a new appointment for an unknown patient.</p>
+
+        <h3>Registration Demographics — Required Fields</h3>
+        <p>Fields marked <span class="chip red">Required</span> must be completed before the registration can be saved. Fields marked <span class="chip gray">Conditional</span> are required only in certain circumstances.</p>
+
+        <div class="field-row">
+          <div class="field-mock">
+            <label>Legal Last Name <span class="req-star">*</span></label>
+            <div class="field-input filled">Garcia</div>
+          </div>
+          <div class="field-mock">
+            <label>Legal First Name <span class="req-star">*</span></label>
+            <div class="field-input filled">Maria</div>
+          </div>
+          <div class="field-mock">
+            <label>Middle Name</label>
+            <div class="field-input filled">Luz</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-mock">
+            <label>Date of Birth <span class="req-star">*</span></label>
+            <div class="field-input filled">03/22/1978</div>
+          </div>
+          <div class="field-mock">
+            <label>Legal Sex <span class="req-star">*</span></label>
+            <div class="field-input filled">Female</div>
+          </div>
+          <div class="field-mock">
+            <label>Gender Identity</label>
+            <div class="field-input filled">Woman</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-mock">
+            <label>Preferred Name / Nickname</label>
+            <div class="field-input filled">Mari</div>
+          </div>
+          <div class="field-mock">
+            <label>Pronouns</label>
+            <div class="field-input filled">She/Her</div>
+          </div>
+          <div class="field-mock">
+            <label>Sexual Orientation</label>
+            <div class="field-input filled">Straight</div>
+          </div>
+        </div>
+
+        <div class="info-box key">
+          <strong>🔑 FQHC Requirement:</strong> Ochin Epic collects <strong>Sexual Orientation and Gender Identity (SOGI)</strong> data as required for UDS reporting. All staff must be trained to ask these questions respectfully and document accurately. If a patient declines to answer, select <em>"Choose not to disclose"</em> — never leave blank or guess.
+        </div>
+
+        <h3>Contact Information</h3>
+        <table class="compare-table">
+          <thead><tr><th>Field</th><th>Format / Notes</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Home Address — Street</td><td>Full street address. If homeless, select "Experiencing Homelessness" and enter a shelter or PO Box if available.</td><td class="req">Required</td></tr>
+            <tr><td>City, State, ZIP</td><td>ZIP auto-populates city/state in Ochin Epic.</td><td class="req">Required</td></tr>
+            <tr><td>Phone — Primary</td><td>Enter type: Cell, Home, or Work. Cell preferred for appointment reminders.</td><td class="req">Required</td></tr>
+            <tr><td>Phone — Secondary</td><td>Emergency contact or alternate number.</td><td class="opt">Optional</td></tr>
+            <tr><td>Email Address</td><td>Used for MyChart invitation and appointment reminders.</td><td class="opt">Optional</td></tr>
+            <tr><td>Preferred Contact Method</td><td>Phone call, text, email, or mail.</td><td class="req">Required</td></tr>
+            <tr><td>Preferred Language</td><td>Drives interpreter flags and UDS language reporting.</td><td class="req">Required</td></tr>
+            <tr><td>Interpreter Needed</td><td>Yes/No. If Yes, flags appear on schedule and check-in to arrange interpreter services.</td><td class="req">Required</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Demographics for UDS Reporting</h3>
+        <table class="compare-table">
+          <thead><tr><th>Field</th><th>Notes</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Race</td><td>Multi-select. Required for federal UDS reporting. If unknown, document "Unknown."</td><td class="req">Required</td></tr>
+            <tr><td>Ethnicity</td><td>Hispanic/Latino or Not Hispanic/Latino. Separate from race per OMB standards.</td><td class="req">Required</td></tr>
+            <tr><td>Country of Birth</td><td>Used for FQHC health equity and UDS reporting.</td><td class="opt">Optional</td></tr>
+            <tr><td>Primary Language</td><td>Language spoken at home — may differ from preferred contact language.</td><td class="req">Required</td></tr>
+            <tr><td>Veteran Status</td><td>Yes/No/Unknown. FQHC reporting requirement.</td><td class="req">Required</td></tr>
+            <tr><td>Agricultural Worker</td><td>Migrant or seasonal farm worker — FQHC special population.</td><td class="opt">Conditional</td></tr>
+            <tr><td>Homeless Status</td><td>Currently experiencing homelessness — FQHC special population.</td><td class="opt">Conditional</td></tr>
+          </tbody>
+        </table>
+
+        <div class="info-box">
+          <strong>UDS Special Populations:</strong> Agricultural workers and individuals experiencing homelessness are "special populations" tracked in FQHC UDS reporting. Your clinic may receive additional federal funding based on serving these populations — accurate documentation directly affects your clinic's budget and compliance.
+        </div>
+
+        <h3>Guarantor and Emergency Contact</h3>
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>Guarantor</strong>
+              The person financially responsible for the account. For adults, the guarantor is usually <em>Self</em>. For minors, the guarantor is typically a parent or guardian. In Epic: Registration → Guarantor tab → set relationship and enter guarantor's information if different from patient.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Emergency Contact</strong>
+              Name, relationship, and phone number. Required for all patients. Ask: "In case of emergency, who should we contact?"
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Authorized Representatives</strong>
+              If a parent, guardian, or healthcare proxy should have access to this patient's information, document them here. This affects MyChart access and who can call for information.
+            </div>
+          </li>
+        </ol>
+
+        <h3>Saving the Registration</h3>
+        <p>Click <strong>Accept</strong> (or the checkmark icon) to save. Epic will assign a new MRN automatically. Write down or print the MRN for the patient's wristband or check-in paperwork if your clinic uses printed labels.</p>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — Preferred Name:</strong> Always ask "What name do you go by?" and enter it in the <em>Preferred Name</em> field. Providers see this name in the chart header, which reduces misgendering and improves patient experience. The legal name is still used for billing and insurance.
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s1',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s2'); showSection('s3',null)">Next: Insurance Verification →</button>
+      </div>
+    </div><!-- /sec-s2 -->
+
+
+    <!-- ══════════════════════════════════════
+         SECTION 2.3 — INSURANCE VERIFICATION
+    ══════════════════════════════════════ -->
+    <div class="section-content" id="sec-s3">
+
+      <div class="card">
+        <h2><span class="ch-icon">💳</span> 2.3 Insurance Verification in Ochin Epic</h2>
+        <p>Accurate insurance coverage information is essential for billing. In Ochin Epic, insurance is managed in the <strong>Coverage</strong> section of the patient's registration. You must verify insurance at every visit — coverage changes frequently.</p>
+
+        <h3>Where to Find Coverage</h3>
+        <p>From the patient's chart: <strong>Registration → Coverage</strong> tab. Or from check-in: the system prompts you to verify coverage during the check-in workflow automatically.</p>
+
+        <h3>Adding a New Insurance Plan</h3>
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>Click "Add Coverage" in the Coverage tab</strong>
+              A new coverage entry form opens.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Search for the Payor (Insurance Company)</strong>
+              Type the insurance company name in the Payor field. Ochin Epic has a pre-built payor library. Select the exact plan — e.g., "Medicaid Oregon (OHP)" not just "Medicaid." If you cannot find the payor, contact your billing department before creating a new one.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Enter Member ID and Group Number</strong>
+              Copy exactly from the insurance card. Member ID is the patient's individual ID. Group number identifies the employer or plan group (often blank for Medicaid/Medicare).
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Enter Effective and Termination Dates</strong>
+              From the insurance card or eligibility check. Leave Termination Date blank if coverage is ongoing.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Set the Coverage Sequence</strong>
+              Primary = 1, Secondary = 2, Tertiary = 3. This tells Epic which insurance to bill first. Incorrect sequencing causes claim denials.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Enter Subscriber Information</strong>
+              If the patient is the policyholder, select "Self." If a spouse or parent holds the plan, enter the subscriber's name, DOB, and relationship. This is required for billing.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Run Electronic Eligibility Verification</strong>
+              Click <strong>Verify Eligibility</strong> (or the checkmark icon in the coverage row). Epic sends a real-time 270/271 transaction to the payor and returns coverage details within seconds.
+            </div>
+          </li>
+        </ol>
+
+        <div class="screen-mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f57"></div>
+            <div class="mock-dot" style="background:#febc2e"></div>
+            <div class="mock-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.4);font-size:11px;margin-left:8px;font-family:sans-serif">Epic — Coverage / Insurance</span>
+          </div>
+          <div class="mock-body"><span class="hl-gray">Registration → Coverage</span>
+
+<span class="hl-white">GARCIA, MARIA L.   MRN: 00123456   DOB: 03/22/1978</span>
+<span class="hl-gray">─────────────────────────────────────────────────────────────────</span>
+  Coverage Sequence   Payor                    Status        Elig.
+<span class="hl-gray">─────────────────────────────────────────────────────────────────</span>
+  <span class="hl-green">1 · Primary     </span>  Oregon Health Plan       <span class="hl-green">Active     </span>  <span class="hl-green">✓ Verified 06/14/26</span>
+  <span class="hl-teal">2 · Secondary   </span>  OHP Dental (CareOregon)  <span class="hl-green">Active     </span>  <span class="hl-green">✓ Verified 06/14/26</span>
+  <span class="hl-gray">3 · Self-Pay     </span>  (none)                   <span class="hl-gray">—          </span>  <span class="hl-gray">—</span>
+<span class="hl-gray">─────────────────────────────────────────────────────────────────</span>
+  <span class="hl-teal">[ + Add Coverage ]</span>   <span class="hl-gold">[ Verify All ]</span>   [ Edit ]   [ Remove ]</div>
+        </div>
+
+        <h3>Reading the Eligibility Response</h3>
+        <table class="compare-table">
+          <thead><tr><th>Status</th><th>Meaning</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><span class="yes">✓ Active / Eligible</span></td><td>Coverage confirmed for today's date</td><td>Proceed with visit</td></tr>
+            <tr><td><span style="color:var(--gold);font-weight:700">⚠ Warning</span></td><td>Coverage may have limits, referral required, or deductible not met</td><td>Review details; inform patient of potential cost</td></tr>
+            <tr><td><span class="no">✗ Inactive / Not Eligible</span></td><td>Coverage not found or terminated</td><td>Ask patient for new insurance card; consider Self-Pay or Sliding Fee</td></tr>
+            <tr><td><span style="color:var(--gray3);font-weight:700">? Unable to Verify</span></td><td>Payor not responding electronically</td><td>Call payor directly or verify next business day</td></tr>
+          </tbody>
+        </table>
+
+        <div class="info-box warn">
+          <strong>⚠️ Important:</strong> "Unable to Verify" does NOT mean the patient has no coverage. Some payors (especially smaller Medicaid managed care plans) do not participate in real-time eligibility. Always call the number on the back of the card if you cannot verify electronically.
+        </div>
+
+        <h3>Common Insurance Scenarios at Ochin FQHCs</h3>
+
+        <h3>Medicaid / OHP (Oregon Health Plan)</h3>
+        <ul>
+          <li>Most common coverage at Ochin member clinics</li>
+          <li>Verify the specific <strong>Coordinated Care Organization (CCO)</strong> — e.g., CareOregon, PacificSource, Health Share. The CCO determines which specialists and labs are covered</li>
+          <li>OHP covers most preventive care at $0 cost to the patient</li>
+        </ul>
+
+        <h3>Medicare</h3>
+        <ul>
+          <li>Part A = hospital/inpatient. Part B = outpatient office visits (relevant for FQHC billing)</li>
+          <li>FQHCs bill Medicare at the all-inclusive <strong>FQHC PPS rate</strong> — different from standard Medicare billing</li>
+          <li>Check for a Medicare Advantage plan (Part C) — these may have different networks and cost-sharing</li>
+        </ul>
+
+        <h3>Self-Pay / Uninsured</h3>
+        <ul>
+          <li>Document as "Self-Pay" in the coverage section</li>
+          <li>Patient will be evaluated for <strong>Sliding Fee Scale</strong> (see Section 2.4)</li>
+          <li>Offer to help patient apply for Medicaid or marketplace coverage — document assistance provided</li>
+        </ul>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — Scan Insurance Cards:</strong> Ochin Epic allows you to scan and attach insurance card images directly to the patient's registration. Use your clinic's scanner and attach via the paperclip icon in the Coverage section. This creates a reference if there are billing questions later.
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s2',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s3'); showSection('s4',null)">Next: Sliding Fee Scale →</button>
+      </div>
+    </div><!-- /sec-s3 -->
+
+
+    <!-- ══════════════════════════════════════
+         SECTION 2.4 — SLIDING FEE SCALE
+    ══════════════════════════════════════ -->
+    <div class="section-content" id="sec-s4">
+
+      <div class="card">
+        <h2><span class="ch-icon">💲</span> 2.4 Sliding Fee Scale (SFS) in Ochin Epic</h2>
+        <p>The <strong>Sliding Fee Scale</strong> is a core FQHC requirement. Under federal law (Section 330), FQHCs must offer discounted or free services to patients whose income falls below 200% of the Federal Poverty Level (FPL). Ochin Epic has a built-in Sliding Fee Scale module that automates discount calculations once income is documented.</p>
+
+        <div class="info-box key">
+          <strong>🔑 Federal Requirement:</strong> No patient may be denied care due to inability to pay. FQHCs are required by law to apply the sliding fee scale. Failure to apply it correctly can result in federal audit findings and repayment demands.
+        </div>
+
+        <h3>Understanding the Discount Levels</h3>
+        <p>Ochin Epic uses a tiered discount system based on <strong>household income as a percentage of the Federal Poverty Level</strong>. Each year, the FPL is updated by HHS — Ochin updates the thresholds in Epic automatically.</p>
+
+        <table class="fee-table">
+          <thead>
+            <tr><th>Level</th><th>Income (% of FPL)</th><th>Discount Applied</th><th>Example (family of 3, 2026)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="level-a">Level A — Full Discount</span></td>
+              <td>0% – 100% FPL</td>
+              <td>100% — Patient pays $0 (or nominal fee only)</td>
+              <td>&lt; ~$24,860/year</td>
+            </tr>
+            <tr>
+              <td><span class="level-b">Level B — High Discount</span></td>
+              <td>101% – 150% FPL</td>
+              <td>~75–80% discount</td>
+              <td>~$24,861 – $37,290/year</td>
+            </tr>
+            <tr>
+              <td><span class="level-c">Level C — Moderate Discount</span></td>
+              <td>151% – 200% FPL</td>
+              <td>~50% discount</td>
+              <td>~$37,291 – $49,720/year</td>
+            </tr>
+            <tr>
+              <td><span class="level-d">Level D — Minimal Discount</span></td>
+              <td>&gt;200% FPL (insured)</td>
+              <td>Billed at full rate (insurance primary)</td>
+              <td>&gt; ~$49,720/year</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="font-size:12px;color:var(--gray3);margin-top:-8px;">* Exact thresholds vary by year and family size. These are illustrative examples based on 2026 HHS FPL guidelines.</p>
+
+        <h3>How to Document Sliding Fee Eligibility in Epic</h3>
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>Open the Sliding Fee Application</strong>
+              From the patient's registration: <strong>Registration → Financial Assistance</strong> tab, or from the check-in workflow when a Self-Pay or low-income flag appears. Your clinic may call this the "SFS Application" or "Discount Application."
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Document Household Size</strong>
+              Ask: "How many people live in your household?" Include the patient, their spouse/partner, dependent children, and any others financially dependent on the household. Enter the total number.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Document Gross Annual Household Income</strong>
+              Ask: "What is your total household income before taxes?" Include all income sources: wages, Social Security, disability, child support, etc. If the patient does not know the annual total, ask for monthly and multiply by 12, or weekly and multiply by 52. Enter in the <em>Annual Income</em> field.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Select Income Documentation Type</strong>
+              Self-declaration is acceptable at most Ochin clinics — the patient verbally states income and signs the form. If your clinic requires documentation, accepted forms include: recent pay stubs, prior year tax return, employer letter, SSI/SSDI award letter, or zero-income declaration form.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Epic Calculates the Discount Level Automatically</strong>
+              Based on household size and income, Epic assigns the appropriate discount level (A, B, C, or D) and displays it on the screen. Confirm with the patient and explain what they will owe.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Set the Expiration Date</strong>
+              Sliding fee applications expire — typically every 12 months. Epic will flag expired applications at future check-ins. Enter the expiration date (usually today + 1 year, per your clinic's policy).
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Print and Have Patient Sign the SFS Agreement</strong>
+              The patient must sign acknowledging their discount level and any nominal fee owed. Scan the signed form and attach it to the patient's registration, or document that it was signed in the SFS application note field.
+            </div>
+          </li>
+        </ol>
+
+        <div class="screen-mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f57"></div>
+            <div class="mock-dot" style="background:#febc2e"></div>
+            <div class="mock-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.4);font-size:11px;margin-left:8px;font-family:sans-serif">Epic — Sliding Fee Scale Application</span>
+          </div>
+          <div class="mock-body"><span class="hl-gray">Registration → Financial Assistance → Sliding Fee Scale</span>
+
+<span class="hl-white">GARCIA, MARIA L.</span>   MRN: 00123456   Application Date: <span class="hl-gold">06/14/2026</span>
+<span class="hl-gray">──────────────────────────────────────────────────────────────────</span>
+  Household Size:     <span class="hl-white">3</span>
+  Gross Annual Income:<span class="hl-white">$28,500</span>
+  Income Source:      <span class="hl-white">Self-Declaration</span>
+  % of FPL:          <span class="hl-gold">114.6%</span>
+<span class="hl-gray">──────────────────────────────────────────────────────────────────</span>
+  <span class="hl-green">ASSIGNED LEVEL: B — Approximately 75% discount applied</span>
+  Nominal Fee Due:    <span class="hl-gold">$10.00 per visit (per clinic policy)</span>
+  Application Expires:<span class="hl-white">06/14/2027</span>
+<span class="hl-gray">──────────────────────────────────────────────────────────────────</span>
+  Patient Signature:  <span class="hl-white">_____________________</span>   Date: <span class="hl-white">__________</span>
+  Staff Initials:     <span class="hl-white">_____________________</span>
+  <span class="hl-teal">[ Save &amp; Print Agreement ]</span>   [ Cancel ]</div>
+        </div>
+
+        <h3>Sliding Fee: Common Questions &amp; Situations</h3>
+
+        <h3>Patient refuses to disclose income</h3>
+        <p>Document <em>"Patient declined to provide income information."</em> Per FQHC policy, patients who decline are typically assigned the highest discount level (Level A) or billed at full rate depending on your clinic's policy. Consult your billing supervisor. Never deny care.</p>
+
+        <h3>Patient has insurance AND low income</h3>
+        <p>Insurance is billed first. The sliding fee applies to the patient's <em>out-of-pocket portion</em> after insurance pays — copays, coinsurance, and deductibles may be discounted based on the SFS level. This is an important distinction for Medicaid patients who may have a small copay.</p>
+
+        <h3>SFS application is expired</h3>
+        <p>Epic will flag this at check-in. Complete a new application before or during the current visit. If the patient cannot complete it today, document the attempt and follow up.</p>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — Privacy:</strong> Income and household information is sensitive. Conduct the SFS conversation privately — not at an open front desk where other patients can hear. Many clinics use a private window, phone call, or online pre-registration form to collect this information before the patient arrives.
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s3',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s4'); showSection('s5',null)">Next: Check-In Workflow →</button>
+      </div>
+    </div><!-- /sec-s4 -->
+
+
+    <!-- ══════════════════════════════════════
+         SECTION 2.5 — CHECK-IN WORKFLOW
+    ══════════════════════════════════════ -->
+    <div class="section-content" id="sec-s5">
+
+      <div class="card">
+        <h2><span class="ch-icon">✅</span> 2.5 The Check-In Workflow</h2>
+        <p>When a patient arrives for their scheduled appointment, the <strong>Check-In</strong> process updates their status in Epic from "Scheduled" to "Arrived" and prompts staff to verify all registration information. This is one of the most frequently performed tasks in Ochin Epic.</p>
+
+        <h3>Accessing the Check-In Workflow</h3>
+        <ul>
+          <li><strong>From the Schedule:</strong> Open the schedule for your clinic/provider, right-click on the patient's appointment → <em>Check In</em>, OR</li>
+          <li><strong>From the Appointment Desk:</strong> Epic Button → Appointment Desk → find the patient → Check In button, OR</li>
+          <li><strong>From Patient Search:</strong> Open patient → Appointments tab → highlight today's appointment → Check In</li>
+        </ul>
+
+        <h3>Full Check-In Step-by-Step</h3>
+
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-node navy">🔍 Step 1: Open Schedule &amp; Find Patient</div>
+            <div class="flow-note">Locate the patient's appointment on today's schedule. Right-click → Check In.</div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-node">👤 Step 2: Verify Patient Identity</div>
+            <div class="flow-note">Confirm name, DOB, and address verbally. Ask for photo ID if your clinic requires it.</div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-node">📋 Step 3: Review &amp; Update Demographics</div>
+            <div class="flow-note">Epic presents a demographics summary. Confirm address, phone, emergency contact. Update any changes. Click Accept.</div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-node">💳 Step 4: Verify Insurance Coverage</div>
+            <div class="flow-note">Review coverage list. Run eligibility check. Add or update coverage as needed. Confirm coverage sequence.</div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-node">💲 Step 5: Review Sliding Fee Status</div>
+            <div class="flow-note">If SFS on file: confirm not expired. If expired or new patient: complete SFS application. If insured: skip or apply to out-of-pocket.</div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-node">📝 Step 6: Consent &amp; Questionnaires</div>
+            <div class="flow-note">Confirm annual consent for treatment on file. Present any required intake questionnaires (PHQ-9, AUDIT, etc.).</div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-node gold">✅ Step 7: Arrive the Appointment</div>
+            <div class="flow-note">Click "Arrive" to change patient status. The provider's schedule will now show the patient as Arrived (green/yellow indicator).</div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-node navy">💰 Step 8: Collect Copay / Nominal Fee</div>
+            <div class="flow-note">Collect any copay, coinsurance, or SFS nominal fee. Post payment in Epic → Patient → Payments. Print receipt.</div>
+          </div>
+        </div>
+
+        <h3>Appointment Status Colors in Ochin Epic</h3>
+        <table class="compare-table">
+          <thead><tr><th>Status</th><th>Color</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Scheduled</td><td>White/Gray</td><td>Appointment booked; patient has not arrived</td></tr>
+            <tr><td>Arrived</td><td><span style="color:var(--green);font-weight:700">● Green</span></td><td>Patient checked in; waiting to be roomed</td></tr>
+            <tr><td>With Nurse/MA</td><td><span style="color:var(--teal);font-weight:700">● Teal/Blue</span></td><td>Patient being roomed — vitals in progress</td></tr>
+            <tr><td>Ready for Provider</td><td><span style="color:var(--gold);font-weight:700">● Gold/Yellow</span></td><td>Rooming complete; provider can enter</td></tr>
+            <tr><td>With Provider</td><td><span style="color:var(--navy);font-weight:700">● Dark Blue</span></td><td>Provider actively with patient</td></tr>
+            <tr><td>Check-Out</td><td><span style="color:var(--gray3);font-weight:700">● Gray</span></td><td>Visit complete; financial checkout in progress</td></tr>
+            <tr><td>No Show</td><td><span style="color:var(--red);font-weight:700">● Red</span></td><td>Patient did not arrive; marked after appointment time</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Posting a Copay Payment</h3>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>From the check-in workflow or patient chart:</strong> Go to <strong>Patient → Payments</strong> or click the <em>Collect Payment</em> button that appears at the end of check-in.</div></li>
+          <li><div class="step-text"><strong>Enter the payment amount and method:</strong> Cash, Check, Credit/Debit Card, or Money Order. Select from the dropdown. Enter amount.</div></li>
+          <li><div class="step-text"><strong>Apply to the correct account/visit:</strong> Epic will suggest the current visit. Confirm it's applying to the right encounter.</div></li>
+          <li><div class="step-text"><strong>Print receipt:</strong> Always offer a receipt. Epic generates one automatically — click Print Receipt.</div></li>
+          <li><div class="step-text"><strong>Zero-dollar copay visits:</strong> If the patient owes $0 (Level A SFS or Medicaid with no copay), still click through the payment screen and document $0.00 collected. This closes the payment step and allows the visit to proceed.</div></li>
+        </ol>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — Kiosk Check-In:</strong> Some Ochin clinics have patient self-service kiosks (Epic MyChart Bedside or third-party kiosks). When a patient checks in on the kiosk, their status changes to "Arrived" automatically. Staff should still review the demographics and coverage queue in Epic to confirm accuracy.
+        </div>
+
+        <div class="info-box warn">
+          <strong>⚠️ Never skip the Arrive step.</strong> If a patient is not "Arrived" in Epic, providers may not know they are in the building. The appointment will appear on no-show reports. Always complete the full check-in workflow — even if the patient is already in the exam room.
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s4',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s5'); showSection('s6',null)">Next: Consent &amp; Documents →</button>
+      </div>
+    </div><!-- /sec-s5 -->
+
+
+    <!-- ══════════════════════════════════════
+         SECTION 2.6 — CONSENT & DOCUMENTS
+    ══════════════════════════════════════ -->
+    <div class="section-content" id="sec-s6">
+
+      <div class="card">
+        <h2><span class="ch-icon">📋</span> 2.6 Consent Forms &amp; Patient Documents</h2>
+        <p>Ochin Epic manages patient consent and forms through the <strong>eConsent</strong> module and the patient's chart Documents section. Most clinics require a fresh consent for treatment annually, and specific consents for procedures, telehealth, or release of information.</p>
+
+        <h3>Types of Consent Managed in Epic</h3>
+        <table class="compare-table">
+          <thead><tr><th>Consent Type</th><th>Frequency</th><th>How to Document</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Consent for Treatment</strong></td><td>Annually (or per visit)</td><td>eConsent → General Consent. Patient signs on tablet or paper → scan and attach.</td></tr>
+            <tr><td><strong>HIPAA Notice of Privacy Practices</strong></td><td>Once (initial visit); re-issue if policy changes</td><td>Document acknowledgment in Registration → Consents. Attach signed NPP.</td></tr>
+            <tr><td><strong>Telehealth Consent</strong></td><td>First telehealth visit</td><td>eConsent → Telehealth. Required before any video visit.</td></tr>
+            <tr><td><strong>Release of Information (ROI)</strong></td><td>Per request</td><td>ROI module in Epic. Specify sender, recipient, and information to be released.</td></tr>
+            <tr><td><strong>Sliding Fee Agreement</strong></td><td>Annually</td><td>Signed during SFS application. Attach scan to patient registration.</td></tr>
+            <tr><td><strong>Procedure Consent</strong></td><td>Per procedure</td><td>Linked to the specific order or encounter. Provider or nurse documents in the chart.</td></tr>
+            <tr><td><strong>Research / Opt-Out</strong></td><td>As applicable</td><td>Per your clinic's research protocols — document in Registration → Research.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>How to Document Consent in Ochin Epic</h3>
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>Navigate to eConsent</strong>
+              From the patient's chart: <em>Chart → Consents</em> tab, or during check-in the system may prompt for outstanding consents automatically.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Review Outstanding Consents</strong>
+              Epic shows a list of required consents with status: Obtained, Expired, or Missing. Address any Missing or Expired items.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Obtain Signature</strong>
+              Option A: Digital signature on a tablet or signature pad connected to the workstation.<br>
+              Option B: Print the form, obtain wet signature, scan it back, and attach it to the patient's chart using the paperclip / Media Manager.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Document in Epic</strong>
+              In the Consents tab, change the status to <em>Obtained</em> and enter the date. If paper-signed, add a note: "Signed paper copy scanned to chart."
+            </div>
+          </li>
+        </ol>
+
+        <h3>Attaching Scanned Documents</h3>
+        <p>Scanned documents (insurance cards, signed consents, ID copies) are stored in Epic's <strong>Media Manager</strong>:</p>
+        <ul>
+          <li>Patient chart → <strong>Media</strong> tab (or search "Media Manager" in Epic Button)</li>
+          <li>Click <strong>Acquire</strong> → scan directly or upload a file from your workstation</li>
+          <li>Select the document <strong>Type</strong> from the dropdown (Insurance Card, Consent Form, Photo ID, etc.)</li>
+          <li>Add a Description and click <strong>Accept</strong></li>
+          <li>Documents appear in the Media tab and can be viewed by any authorized staff member</li>
+        </ul>
+
+        <div class="info-box">
+          <strong>Release of Information (ROI):</strong> When a patient or external provider requests medical records, use Epic's ROI module — not email or fax without proper authorization. The ROI module tracks the request, documents authorization, applies HIPAA minimum-necessary rules, and generates an audit trail. Never release records without a completed ROI authorization form.
+        </div>
+
+        <h3>Minors and Guardian Consent</h3>
+        <ul>
+          <li>For patients under 18, consent is typically provided by a <strong>parent or legal guardian</strong></li>
+          <li>In some states, minors may consent for specific services independently (reproductive health, mental health, substance use) — check your state's minor consent laws and your clinic's policy</li>
+          <li>In Epic, document the consenting guardian in the <strong>Guarantor / Authorized Representatives</strong> section of registration</li>
+          <li>Emancipated minors can consent for themselves — document emancipation status in Registration → Legal</li>
+        </ul>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — Consent Expiration Alerts:</strong> During check-in, if a patient's General Consent for Treatment has expired, a yellow alert will appear in the check-in workflow. Do not skip it — take two minutes to have the patient sign a new consent before they are roomed.
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s5',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s6'); showSection('s7',null)">Next: Walk-In &amp; No-Show →</button>
+      </div>
+    </div><!-- /sec-s6 -->
+
+
+    <!-- ══════════════════════════════════════
+         SECTION 2.7 — WALK-IN & NO-SHOW
+    ══════════════════════════════════════ -->
+    <div class="section-content" id="sec-s7">
+
+      <div class="card">
+        <h2><span class="ch-icon">🚶</span> 2.7 Walk-In Patients &amp; No-Shows</h2>
+
+        <h3>Handling Walk-In Patients</h3>
+        <p>Walk-in patients (no scheduled appointment) are common at community health centers. Ochin Epic handles them through <strong>Add-On appointments</strong> or <strong>Walk-In slots</strong> on the schedule.</p>
+
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>Search for the patient first</strong>
+              Always search for an existing record before creating a new one (see Section 2.1).
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Determine if a walk-in slot is available</strong>
+              Open the schedule for the desired provider or department. Look for designated "Walk-In" or "Open Access" slots. If none are available, check with the charge nurse or supervisor.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Schedule an Add-On appointment</strong>
+              Right-click on an empty slot on the schedule → <em>Schedule Appointment</em>. Select visit type <em>Walk-In</em> or <em>Add-On</em> (your clinic may have specific visit types for this). Add a brief chief complaint in the appointment notes.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Complete the full check-in workflow</strong>
+              Follow all steps in Section 2.5: demographics, insurance, sliding fee, consent, arrive the appointment.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Notify the provider or charge nurse</strong>
+              Communicate that a walk-in has been added to the schedule. Use the Epic <strong>In Basket → Staff Message</strong> or call the nurse directly.
+            </div>
+          </li>
+        </ol>
+
+        <div class="info-box tip">
+          <strong>💡 Open Access Scheduling:</strong> Many Ochin FQHCs use an <em>Open Access</em> scheduling model where a percentage of each day's slots are held for same-day appointments. These slots open at a set time each morning. Know your clinic's open access policy — it affects how you manage walk-ins.
+        </div>
+
+        <h3>Marking a No-Show</h3>
+        <p>When a patient does not arrive for their scheduled appointment and does not call to cancel, mark them as <strong>No Show</strong> in Epic. This is typically done after a set waiting period (commonly 15–30 minutes past the appointment time, per clinic policy).</p>
+
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>From the Schedule:</strong> Right-click the patient's appointment → <em>No Show</em>
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Select a reason</strong> from the dropdown: Patient No-Call/No-Show, Patient Called to Cancel (late), Transportation Issue, etc. Document the reason — it populates no-show reports.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Epic changes the appointment status to "No Show"</strong> (red indicator). The slot may now be available for another patient depending on your clinic's scheduling rules.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Attempt to contact the patient</strong> per your clinic's no-show protocol. Some clinics have an MA or front desk staff call the patient. Document the outreach attempt in a telephone encounter note if required.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Reschedule if appropriate</strong> Right-click the no-show appointment → <em>Reschedule</em>, or ask the patient to call back to reschedule when you reach them.
+            </div>
+          </li>
+        </ol>
+
+        <div class="info-box warn">
+          <strong>⚠️ Never cancel instead of no-showing.</strong> Marking an appointment as Cancelled when the patient simply did not show removes the appointment from no-show reports and distorts your clinic's data. Use <em>No Show</em> for patients who did not arrive. Use <em>Cancel</em> only when the patient or clinic initiated the cancellation in advance.
+        </div>
+
+        <h3>Late Cancellations</h3>
+        <table class="compare-table">
+          <thead><tr><th>Situation</th><th>Action in Epic</th></tr></thead>
+          <tbody>
+            <tr><td>Patient calls to cancel &gt;24 hours in advance</td><td>Cancel appointment → reason "Patient Cancelled." Offer to reschedule.</td></tr>
+            <tr><td>Patient calls to cancel same-day (&lt;24 hours)</td><td>Cancel with reason "Same-Day Cancellation." Document time of call in appointment notes.</td></tr>
+            <tr><td>Clinic cancels (provider out, emergency closure)</td><td>Cancel with reason "Provider Cancelled" or "Clinic Closure." Epic can send automated notification to patients via MyChart/text.</td></tr>
+            <tr><td>Patient no-calls, no-shows</td><td>Mark No Show. Do not cancel.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>HIPAA and Appointment Reminders</h3>
+        <p>Ochin Epic can automatically send appointment reminders via phone call, text message, or MyChart notification. Before activating these, ensure:</p>
+        <ul>
+          <li>The patient has consented to text reminders (documented in registration communication preferences)</li>
+          <li>Reminder messages do not include sensitive information (e.g., "Your behavioral health appointment is tomorrow" — this reveals the appointment type)</li>
+          <li>Your clinic has configured reminder messaging per HIPAA minimum-necessary standards</li>
+        </ul>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s6',null)">← Back</button>
+        <button class="btn btn-gold" onclick="markSection('s7'); showSection('quiz',null)">Take the Module 2 Quiz →</button>
+      </div>
+    </div><!-- /sec-s7 -->
+
+
+    <!-- ══════════════════════════════════════
+         MODULE 2 QUIZ
+    ══════════════════════════════════════ -->
+    <div class="section-content" id="sec-quiz">
+
+      <div class="quiz-card">
+        <h2>📝 Module 2 Knowledge Check</h2>
+        <div class="quiz-subtitle">Answer all 8 questions. Score 7/8 or higher to complete this module.</div>
+
+        <!-- Q1 -->
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">1.</span> Before registering a new patient, what should you ALWAYS do first?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> Ask the patient to fill out a paper registration form</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> Search Epic for an existing record using name and date of birth</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> Call the insurance company to verify benefits</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="d"> Create a new MRN immediately to hold their place</label>
+          </div>
+          <div class="quiz-feedback" id="fb1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">2.</span> A patient states they have Medicaid but cannot find their card. You run an eligibility check in Epic and get "Unable to Verify." What should you do?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> Tell the patient they have no coverage and bill them as self-pay</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> Refuse to check the patient in until they produce the card</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> Call the payor directly using the number on file or look up the Medicaid phone number to manually verify</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="d"> Mark the coverage as Active and proceed without verification</label>
+          </div>
+          <div class="quiz-feedback" id="fb2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">3.</span> A family of 4 reports a gross annual income of $35,000. Based on Ochin's sliding fee scale structure, which level would they likely fall into?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> Level A — 100% discount, $0 owed</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> Level B — High discount (~75%)</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> Level C — Moderate discount (~50%)</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="d"> Level D — Billed at full rate</label>
+          </div>
+          <div class="quiz-feedback" id="fb3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">4.</span> Which of these fields is required in Ochin Epic registration and is critical for FQHC UDS federal reporting?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q4" value="a"> Patient's middle name</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="b"> Race, Ethnicity, and Preferred Language</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="c"> Patient's employer name</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="d"> High school education level</label>
+          </div>
+          <div class="quiz-feedback" id="fb4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">5.</span> A patient arrives without an appointment. After searching and finding their existing record, what is your next step?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q5" value="a"> Create a new patient record for today's walk-in visit</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="b"> Schedule an Add-On or Walk-In appointment on today's schedule, then complete check-in</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="c"> Tell the patient to call and schedule a future appointment</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="d"> Open their chart and mark them Arrived without scheduling an appointment</label>
+          </div>
+          <div class="quiz-feedback" id="fb5"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">6.</span> A patient does not arrive for their 10:00 AM appointment. It is now 10:35 AM and there has been no phone call. What should you do in Epic?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q6" value="a"> Cancel the appointment so another patient can use the slot</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="b"> Mark the appointment as No Show and document a reason</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="c"> Leave the appointment as Scheduled and wait longer</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="d"> Delete the appointment from the schedule</label>
+          </div>
+          <div class="quiz-feedback" id="fb6"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">7.</span> During check-in, Epic alerts you that the patient's Consent for Treatment expired 3 months ago. What is the correct action?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q7" value="a"> Click through and ignore it — the old consent is still valid</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="b"> Have the patient sign a new consent for treatment before rooming</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="c"> Ask the provider to handle it during the visit</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="d"> Delete the expired consent and leave the field blank</label>
+          </div>
+          <div class="quiz-feedback" id="fb7"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">8.</span> When a patient's primary insurance is Medicaid and they qualify for a Level B sliding fee, what does the sliding fee discount apply to?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q8" value="a"> The entire visit charge before insurance pays</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="b"> Nothing — patients with insurance are never eligible for sliding fee</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="c"> The patient's out-of-pocket portion after insurance pays (copays, coinsurance, deductibles)</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="d"> Only pharmacy costs, not office visits</label>
+          </div>
+          <div class="quiz-feedback" id="fb8"></div>
+        </div>
+
+        <div class="quiz-submit-row">
+          <button class="btn btn-primary" onclick="gradeQuiz2()">Submit Answers</button>
+          <span class="quiz-score" id="quiz2-score"></span>
+        </div>
+      </div>
+
+      <div id="quiz2-result" style="display:none">
+        <div class="card" id="quiz2-pass" style="display:none;border-left:5px solid var(--green);">
+          <h2><span class="ch-icon">🎉</span> Module 2 Complete!</h2>
+          <p>Excellent work. You've mastered Patient Check-In &amp; Registration in Ochin Epic. You now know how to search for patients, register new ones, verify insurance, apply the sliding fee scale, complete the full check-in workflow, manage consent, and handle walk-ins and no-shows.</p>
+          <div class="info-box green">
+            <strong>✓ Next:</strong> Load <strong>ochin-epic-part3.html</strong> to continue with <strong>Module 3: Clinical Documentation</strong> — SOAP notes, SmartPhrases, flowsheets, and provider cosigning.
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+            <span class="chip">✓ Patient Search</span>
+            <span class="chip">✓ New Registration</span>
+            <span class="chip">✓ Insurance Verification</span>
+            <span class="chip">✓ Sliding Fee Scale</span>
+            <span class="chip">✓ Check-In Workflow</span>
+            <span class="chip">✓ Consent &amp; Documents</span>
+            <span class="chip">✓ Walk-In &amp; No-Show</span>
+          </div>
+        </div>
+        <div class="card" id="quiz2-fail" style="display:none;border-left:5px solid var(--red);">
+          <h2><span class="ch-icon">📖</span> Review and Try Again</h2>
+          <p>You missed a few questions. Review the sections highlighted below and retake the quiz. There's no penalty — take as much time as you need.</p>
+          <button class="btn btn-outline" onclick="resetQuiz2()" style="margin-top:10px">↺ Retake Quiz</button>
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s7',null)">← Back to Section 2.7</button>
+        <a href="ochin-epic-part3.html">
+          <button class="btn btn-gold" id="btn-part3" style="opacity:.5;pointer-events:none">Part 3: Clinical Documentation → <span style="font-size:11px">(unlock by passing quiz)</span></button>
+        </a>
+      </div>
+
+    </div><!-- /sec-quiz -->
+
+  </main>
+</div><!-- /layout -->
+
+<script>
+// ── SECTION NAVIGATION ──
+const sectionIds = ['s1','s2','s3','s4','s5','s6','s7','quiz'];
+
+function showSection(id, navEl) {
+  sectionIds.forEach(s => {
+    const el = document.getElementById('sec-' + s);
+    if (el) el.classList.remove('active');
+  });
+  const target = document.getElementById('sec-' + id);
+  if (target) target.classList.add('active');
+
+  // update sidebar nav
+  document.querySelectorAll('#sidebar .nav-item').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+
+  // update tabs
+  document.querySelectorAll('.sec-tab').forEach((t,i) => {
+    t.classList.toggle('active', sectionIds[i] === id);
+  });
+
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function markSection(id) {
+  const chk = document.getElementById('chk-' + id);
+  if (chk) chk.style.display = 'inline';
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = 7; // 7 content sections
+  const done = document.querySelectorAll('.nav-check[style*="inline"]').length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('overall-progress').style.width = pct + '%';
+  document.getElementById('overall-pct').textContent = pct + '%';
+}
+
+// ── QUIZ 2 ──
+const answers2 = {
+  q1:'b', q2:'c', q3:'b', q4:'b', q5:'b', q6:'b', q7:'b', q8:'c'
+};
+const explanations2 = {
+  q1:{ ok:"Correct! Always search first. Duplicate medical records are a patient safety risk and require a formal merge process to fix.", bad:"Incorrect. You must always search Epic for an existing record before creating a new patient registration." },
+  q2:{ ok:"Correct! 'Unable to Verify' means the electronic eligibility check failed, not that the patient has no coverage. Always call the payor directly to manually confirm.", bad:"Incorrect. 'Unable to Verify' is an electronic communication failure, not a confirmation of no coverage. Call the payor to verify manually." },
+  q3:{ ok:"Correct! $35,000 for a family of 4 is approximately 101–150% of the FPL — which falls into Level B (high discount).", bad:"Incorrect. $35,000 for a family of 4 falls between 101–150% of the FPL, which is Level B in the sliding fee structure." },
+  q4:{ ok:"Correct! Race, Ethnicity, and Preferred Language are federally required UDS data elements that affect your clinic's compliance and funding.", bad:"Incorrect. Race, Ethnicity, and Preferred Language are the required UDS demographic fields that every FQHC must collect and report." },
+  q5:{ ok:"Correct! Walk-ins need a scheduled Add-On or Walk-In appointment before check-in. You cannot arrive a patient without an associated appointment.", bad:"Incorrect. Even for walk-ins, you must schedule an appointment (Add-On/Walk-In slot) before completing the check-in workflow." },
+  q6:{ ok:"Correct! Mark No Show with a documented reason. Do not cancel — cancellations and no-shows are tracked differently in reporting.", bad:"Incorrect. You must mark this as No Show, not Cancel. These statuses are tracked separately in quality and reporting metrics." },
+  q7:{ ok:"Correct! An expired consent must be renewed. Have the patient sign a new one before rooming — do not skip this step.", bad:"Incorrect. Expired consent must be renewed. Have the patient sign a new Consent for Treatment before proceeding with the visit." },
+  q8:{ ok:"Correct! When a patient has insurance, the sliding fee applies to their out-of-pocket portion — copays, coinsurance, and deductibles — after insurance pays.", bad:"Incorrect. With insurance, the SFS applies to the patient's share after insurance pays — not the entire visit charge." }
+};
+
+let quiz2Done = false;
+
+function gradeQuiz2() {
+  if (quiz2Done) return;
+  let score = 0;
+  let allAnswered = true;
+
+  Object.keys(answers2).forEach((q, i) => {
+    const sel = document.querySelector(`input[name="${q}"]:checked`);
+    const fb = document.getElementById(`fb${i+1}`);
+    if (!sel) { allAnswered = false; return; }
+
+    document.querySelectorAll(`input[name="${q}"]`).forEach(l =>
+      l.closest('.quiz-option').classList.remove('selected','correct','wrong')
+    );
+
+    const chosen = sel.closest('.quiz-option');
+    if (sel.value === answers2[q]) {
+      chosen.classList.add('correct');
+      fb.className = 'quiz-feedback ok show';
+      fb.textContent = '✓ ' + explanations2[q].ok;
+      score++;
+    } else {
+      chosen.classList.add('wrong');
+      fb.className = 'quiz-feedback bad show';
+      fb.textContent = '✗ ' + explanations2[q].bad;
+      document.querySelectorAll(`input[name="${q}"]`).forEach(l => {
+        if (l.value === answers2[q]) l.closest('.quiz-option').classList.add('correct');
+      });
+    }
+  });
+
+  if (!allAnswered) { alert('Please answer all 8 questions before submitting.'); return; }
+
+  quiz2Done = true;
+  const scoreEl = document.getElementById('quiz2-score');
+  scoreEl.textContent = `Score: ${score}/8`;
+  scoreEl.style.color = score >= 7 ? 'var(--green)' : 'var(--red)';
+
+  document.getElementById('quiz2-result').style.display = 'block';
+
+  if (score >= 7) {
+    document.getElementById('quiz2-pass').style.display = 'block';
+    document.getElementById('quiz2-fail').style.display = 'none';
+    document.getElementById('overall-progress').style.width = '100%';
+    document.getElementById('overall-pct').textContent = '100%';
+    const btn = document.getElementById('btn-part3');
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+    btn.closest('a').href = 'ochin-epic-part3.html';
+  } else {
+    document.getElementById('quiz2-fail').style.display = 'block';
+    document.getElementById('quiz2-pass').style.display = 'none';
+  }
+}
+
+function resetQuiz2() {
+  quiz2Done = false;
+  document.querySelectorAll('#sec-quiz input[type=radio]').forEach(r => r.checked = false);
+  document.querySelectorAll('#sec-quiz .quiz-option').forEach(o => o.className = 'quiz-option');
+  document.querySelectorAll('#sec-quiz .quiz-feedback').forEach(f => f.className = 'quiz-feedback');
+  document.getElementById('quiz2-score').textContent = '';
+  document.getElementById('quiz2-result').style.display = 'none';
+}
+
+// ── OPTION INTERACTION ──
+document.addEventListener('change', e => {
+  if (e.target.type === 'radio') {
+    const name = e.target.name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r =>
+      r.closest('.quiz-option').classList.remove('selected')
+    );
+    e.target.closest('.quiz-option').classList.add('selected');
+  }
+});
+
+// ── SCROLL PROGRESS ──
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('scroll-indicator').style.transform = `scaleX(${Math.min(pct,1)})`;
+}, {passive:true});
+</script>
+
+</body>
+</html>

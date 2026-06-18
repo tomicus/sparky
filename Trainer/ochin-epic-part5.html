@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 5: Orders &amp; Results</title>
+<style>
+  :root {
+    --navy:#0D2B4E; --teal:#006D75; --teal-lt:#00A3AD;
+    --gold:#E8A020; --gold-lt:#F5C842;
+    --cream:#F4F8FA; --white:#FFFFFF;
+    --gray1:#1A2B3C; --gray2:#3D5166; --gray3:#7A93A8;
+    --gray4:#C5D5E0; --gray5:#EDF2F5;
+    --red:#C0392B; --green:#1E7E4C; --purple:#6B3FA0;
+    --orange:#C05C00;
+    --shadow:0 2px 12px rgba(13,43,78,.13);
+    --radius:10px;
+    --font-body:'Segoe UI','Arial',sans-serif;
+    --font-mono:'Consolas','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);background:var(--cream);color:var(--gray1);min-height:100vh;}
+
+  /* TOP BAR */
+  #topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo-box{background:var(--teal-lt);color:#fff;font-weight:800;font-size:15px;padding:5px 10px;border-radius:6px;}
+  .bar-title{font-size:17px;font-weight:600;}
+  .bar-sub{font-size:11px;color:var(--gray4);margin-top:1px;}
+  .pbwrap{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gray4);}
+  .pbtrack{width:160px;height:7px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;}
+  .pbfill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s;}
+  .ubadge{background:rgba(255,255,255,.12);border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;}
+
+  /* LAYOUT */
+  #layout{display:flex;min-height:calc(100vh - 60px);}
+
+  /* SIDEBAR */
+  #sidebar{width:260px;flex-shrink:0;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding-bottom:20px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;border-right:1px solid rgba(255,255,255,.07);}
+  #sidebar::-webkit-scrollbar{width:4px;}
+  #sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+  .sb-sec{padding:18px 20px 6px;}
+  .sb-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal-lt);text-transform:uppercase;margin-bottom:8px;}
+  .ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.78);transition:background .15s;margin-bottom:2px;}
+  .ni:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .ni.active{background:var(--teal);color:#fff;}
+  .ni.locked{opacity:.4;cursor:not-allowed;}
+  .ni .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+  .ni .lbl{flex:1;}
+  .ni .badge{font-size:10px;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 7px;font-weight:700;}
+  .ni .chk{font-size:13px;color:#4cd964;}
+  .ndiv{height:1px;background:rgba(255,255,255,.08);margin:10px 20px;}
+
+  /* MAIN */
+  #main{flex:1;padding:36px 44px;max-width:900px;}
+
+  /* SECTION TABS */
+  .stabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px;}
+  .stab{padding:7px 16px;border-radius:20px;border:1.5px solid var(--gray4);font-size:12px;font-weight:600;cursor:pointer;color:var(--gray2);background:#fff;transition:all .15s;}
+  .stab:hover{border-color:var(--teal);color:var(--teal);}
+  .stab.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .sc{display:none;}
+  .sc.active{display:block;}
+
+  /* PAGE HEADER */
+  .ph{background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 100%);color:#fff;border-radius:var(--radius);padding:28px 32px 24px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .ph::after{content:'';position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .ph .mt{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px;}
+  .ph h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+  .ph p{font-size:14px;color:rgba(255,255,255,.8);max-width:560px;line-height:1.6;}
+  .ph .meta{display:flex;gap:20px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.65);}
+
+  /* CARDS */
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card h3{font-size:14px;font-weight:700;color:var(--teal);margin:18px 0 8px;}
+  .card p{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:10px;}
+  .card ul,.card ol{padding-left:20px;}
+  .card li{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:5px;}
+
+  /* INFO BOXES */
+  .ib{border-left:4px solid var(--teal);background:var(--gray5);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.6;color:var(--gray2);}
+  .ib.tip{border-color:var(--gold);background:#FFFBF0;}
+  .ib.warn{border-color:var(--red);background:#FFF5F5;}
+  .ib.key{border-color:var(--navy);background:#F0F4FF;}
+  .ib.green{border-color:var(--green);background:#EEF9F3;}
+  .ib.purple{border-color:var(--purple);background:#F5F0FF;}
+  .ib.orange{border-color:var(--orange);background:#FFF4EA;}
+  .ib strong{color:var(--gray1);}
+
+  /* STEP LIST */
+  .sl{counter-reset:s;list-style:none;padding:0;}
+  .sl li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--gray5);}
+  .sl li:last-child{border-bottom:none;}
+  .sl li::before{content:counter(s);background:var(--teal);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .sl li .st{flex:1;font-size:13.5px;line-height:1.6;color:var(--gray2);}
+  .sl li .st strong{color:var(--gray1);display:block;margin-bottom:3px;}
+  .sl li .st code{background:var(--gray5);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12px;color:var(--navy);}
+
+  /* TABLES */
+  .ct{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+  .ct th{background:var(--navy);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px;}
+  .ct td{padding:9px 14px;border-bottom:1px solid var(--gray4);color:var(--gray2);vertical-align:top;}
+  .ct tr:nth-child(even) td{background:var(--gray5);}
+  .ct .yes{color:var(--green);font-weight:700;}
+  .ct .no{color:var(--red);font-weight:700;}
+  .ct .warn-cell{color:var(--orange);font-weight:700;}
+  .ct .crit{color:var(--red);font-weight:700;}
+
+  /* SCREEN MOCK */
+  .sm{background:#1A2B3C;border-radius:10px;overflow:hidden;margin:16px 0;box-shadow:0 4px 18px rgba(0,0,0,.22);font-family:var(--font-mono);}
+  .sm-bar{background:var(--navy);padding:8px 14px;display:flex;align-items:center;gap:8px;}
+  .sm-dot{width:10px;height:10px;border-radius:50%;}
+  .sm-body{padding:16px 20px;font-size:12px;color:#B8D4E8;line-height:1.9;white-space:pre;overflow-x:auto;}
+  .rg{color:#F5C842;font-weight:700;}
+  .rt{color:#00C9D4;}
+  .rw{color:#fff;font-weight:700;}
+  .rd{color:#546E7A;}
+  .rr{color:#EF9A9A;}
+  .rgn{color:#A5D6A7;}
+  .ro{color:#FFCC80;}
+
+  /* RESULT BADGE */
+  .result-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin:2px;}
+  .rb-normal{background:#EEF9F3;color:var(--green);border:1px solid var(--green);}
+  .rb-high{background:#FFF5F5;color:var(--red);border:1px solid var(--red);}
+  .rb-low{background:#FFF4EA;color:var(--orange);border:1px solid var(--orange);}
+  .rb-crit{background:var(--red);color:#fff;}
+  .rb-pend{background:var(--gray5);color:var(--gray3);border:1px solid var(--gray4);}
+  .rb-final{background:#F0F4FF;color:var(--navy);border:1px solid var(--navy);}
+
+  /* ALERT BOX */
+  .alert-box{border:2px solid var(--red);border-radius:8px;background:#FFF0EF;padding:14px 18px;margin:14px 0;display:flex;gap:12px;align-items:flex-start;}
+  .alert-box .alert-icon{font-size:22px;flex-shrink:0;margin-top:1px;}
+  .alert-box .alert-body{flex:1;}
+  .alert-box .alert-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px;}
+  .alert-box .alert-text{font-size:12.5px;color:var(--gray2);line-height:1.6;}
+  .alert-box.gold-box{border-color:var(--gold);background:#FFFBF0;}
+  .alert-box.gold-box .alert-title{color:#9a6c00;}
+  .alert-box.green-box{border-color:var(--green);background:#EEF9F3;}
+  .alert-box.green-box .alert-title{color:var(--green);}
+
+  /* CHIPS */
+  .chip{display:inline-block;background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;margin:2px;}
+  .chip.gold{background:var(--gold);color:var(--navy);}
+  .chip.red{background:var(--red);}
+  .chip.gray{background:var(--gray3);}
+  .chip.purple{background:var(--purple);}
+  .chip.orange{background:var(--orange);}
+  .chip.green{background:var(--green);}
+
+  /* WORKFLOW DIAGRAM */
+  .wf{display:flex;align-items:flex-start;gap:0;margin:16px 0;flex-wrap:wrap;}
+  .wf-step{flex:1;min-width:100px;background:#fff;border:1.5px solid var(--gray4);border-radius:8px;padding:12px 14px;margin:4px;position:relative;text-align:center;}
+  .wf-step .wf-num{background:var(--teal);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:0 auto 8px;}
+  .wf-step .wf-label{font-size:12px;font-weight:700;color:var(--navy);}
+  .wf-step .wf-sub{font-size:11px;color:var(--gray3);margin-top:4px;}
+  .wf-arrow{align-self:center;font-size:18px;color:var(--gray4);flex:0;padding:0 2px;}
+
+  /* PRIORITY MATRIX */
+  .priority-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+  .prio-box{border-radius:8px;padding:14px 16px;border:1.5px solid;}
+  .prio-stat{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+  .prio-box.stat{background:#FFF5F5;border-color:var(--red);}
+  .prio-box.stat .prio-stat{color:var(--red);}
+  .prio-box.urg{background:#FFFBF0;border-color:var(--gold);}
+  .prio-box.urg .prio-stat{color:#9a6c00;}
+  .prio-box.rout{background:#EEF9F3;border-color:var(--green);}
+  .prio-box.rout .prio-stat{color:var(--green);}
+  .prio-box.stand{background:#F0F4FF;border-color:var(--navy);}
+  .prio-box.stand .prio-stat{color:var(--navy);}
+  .prio-box p{font-size:12.5px;color:var(--gray2);line-height:1.5;margin:0;}
+
+  /* QUIZ */
+  .qc{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .qc h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .qsub{font-size:13px;color:var(--gray3);margin-bottom:18px;}
+  .qq{margin-bottom:20px;}
+  .qt{font-size:13.5px;font-weight:600;color:var(--gray1);margin-bottom:10px;}
+  .qn{color:var(--teal);margin-right:6px;}
+  .qopts{display:flex;flex-direction:column;gap:7px;}
+  .qo{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--gray4);border-radius:8px;cursor:pointer;font-size:13px;transition:border-color .15s,background .15s;}
+  .qo:hover{border-color:var(--teal);background:var(--gray5);}
+  .qo.sel{border-color:var(--teal);background:#E8F6F8;}
+  .qo.correct{border-color:var(--green);background:#E8F5EE;color:var(--green);font-weight:600;}
+  .qo.wrong{border-color:var(--red);background:#FFF0EF;color:var(--red);}
+  .qo input{accent-color:var(--teal);}
+  .qfb{font-size:12.5px;margin-top:8px;padding:8px 12px;border-radius:6px;display:none;}
+  .qfb.show{display:block;}
+  .qfb.ok{background:#E8F5EE;color:var(--green);}
+  .qfb.bad{background:#FFF0EF;color:var(--red);}
+  .qrow{display:flex;align-items:center;gap:14px;margin-top:6px;}
+  .qsc{font-size:14px;font-weight:700;color:var(--navy);}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .bp{background:var(--teal);color:#fff;}
+  .bg{background:var(--gold);color:var(--navy);}
+  .bo{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+
+  .mnav{display:flex;gap:12px;margin-top:30px;padding-top:20px;border-top:1px solid var(--gray4);}
+  #si{position:fixed;top:60px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal-lt),var(--gold));transform-origin:left;transform:scaleX(0);z-index:200;transition:transform .1s;}
+
+  @media(max-width:780px){#sidebar{display:none;}#main{padding:20px 16px;}}
+</style>
+</head>
+<body>
+<div id="si"></div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="brand">
+    <div class="logo-box">OCHIN</div>
+    <div>
+      <div class="bar-title">Epic Training Portal</div>
+      <div class="bar-sub">Part 5 of 8 · Orders &amp; Results</div>
+    </div>
+  </div>
+  <div class="pbwrap">
+    <span>Module Progress</span>
+    <div class="pbtrack"><div class="pbfill" id="pbf" style="width:0%"></div></div>
+    <span id="ppct">0%</span>
+  </div>
+  <div class="ubadge">👤 Learner</div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Part 5 Sections</div>
+      <div class="ni active" onclick="show('s1',this)"><span class="ico">🔬</span><span class="lbl">5.1 · CPOE Overview</span><span class="chk" id="c1" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s2',this)"><span class="ico">🧪</span><span class="lbl">5.2 · Lab Orders</span><span class="chk" id="c2" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s3',this)"><span class="ico">🩻</span><span class="lbl">5.3 · Imaging Orders</span><span class="chk" id="c3" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s4',this)"><span class="ico">📋</span><span class="lbl">5.4 · Order Sets &amp; Protocols</span><span class="chk" id="c4" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s5',this)"><span class="ico">📊</span><span class="lbl">5.5 · Reviewing Results</span><span class="chk" id="c5" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s6',this)"><span class="ico">📬</span><span class="lbl">5.6 · Results in the In Basket</span><span class="chk" id="c6" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s7',this)"><span class="ico">🔗</span><span class="lbl">5.7 · Referrals &amp; Care Everywhere</span><span class="chk" id="c7" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('quiz',this)"><span class="ico">📝</span><span class="lbl">Module Quiz</span></div>
+    </div>
+    <div class="ndiv"></div>
+    <div class="sb-sec">
+      <div class="sb-lbl">All Parts</div>
+      <div class="ni" onclick="alert('Load ochin-epic-part1.html to review.')"><span class="ico">🏥</span><span class="lbl">Part 1 · Overview &amp; Login</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part2.html to review.')"><span class="ico">🪪</span><span class="lbl">Part 2 · Check-In</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part3.html to review.')"><span class="ico">📝</span><span class="lbl">Part 3 · Documentation</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part4.html to review.')"><span class="ico">💊</span><span class="lbl">Part 4 · Medications &amp; Rx</span><span class="chk">✓</span></div>
+      <div class="ni active"><span class="ico">🔬</span><span class="lbl">Part 5 · Orders &amp; Results (HERE)</span></div>
+      <div class="ni locked"><span class="ico">📅</span><span class="lbl">Part 6 · Scheduling &amp; Billing</span><span class="badge">Coming</span></div>
+      <div class="ni locked"><span class="ico">📖</span><span class="lbl">Part 7 · Top 100 Q&amp;A</span><span class="badge">Coming</span></div>
+      <div class="ni locked"><span class="ico">🎓</span><span class="lbl">Part 8 · Final Assessment</span><span class="badge">Coming</span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- PAGE HEADER -->
+    <div class="ph">
+      <div class="mt">Module 5 of 6 · Part 5 of 8</div>
+      <h1>Orders &amp; Results</h1>
+      <p>Master Computerized Provider Order Entry (CPOE) in Ochin Epic: placing lab and imaging orders, using order sets, reviewing results with proper clinical workflow, managing the Results In Basket, and handling referrals and external records through Care Everywhere.</p>
+      <div class="meta">
+        <span>🕐 Est. 60–75 min</span>
+        <span>👥 Providers · MAs · Nurses</span>
+        <span>📝 8-question quiz to advance</span>
+      </div>
+    </div>
+
+    <!-- SECTION TABS -->
+    <div class="stabs">
+      <div class="stab active" onclick="show('s1',this)">5.1 CPOE Overview</div>
+      <div class="stab" onclick="show('s2',this)">5.2 Lab Orders</div>
+      <div class="stab" onclick="show('s3',this)">5.3 Imaging</div>
+      <div class="stab" onclick="show('s4',this)">5.4 Order Sets</div>
+      <div class="stab" onclick="show('s5',this)">5.5 Results Review</div>
+      <div class="stab" onclick="show('s6',this)">5.6 In Basket</div>
+      <div class="stab" onclick="show('s7',this)">5.7 Referrals</div>
+      <div class="stab" onclick="show('quiz',this)">📝 Quiz</div>
+    </div>
+
+    <!-- ═══ SECTION 5.1: CPOE OVERVIEW ═══ -->
+    <div class="sc active" id="sec-s1">
+
+      <div class="card">
+        <h2><span>🔬</span> 5.1 Computerized Provider Order Entry (CPOE) in Ochin Epic</h2>
+        <p>CPOE is the process of entering all clinical orders — labs, imaging, referrals, procedures, and more — directly into Epic rather than on paper or verbally. At all Ochin member sites, CPOE is <strong>mandatory</strong> for all orders. This ensures safety, auditability, and proper billing.</p>
+
+        <div class="ib key"><strong>Why CPOE matters at Ochin FQHCs:</strong> Every order entered in Epic creates a traceable record, triggers billing, alerts the appropriate care team, and routes the request to the right department — all automatically. Paper orders bypass these safety nets and create compliance and billing gaps.</div>
+
+        <h3>The Order Entry Workflow — Big Picture</h3>
+        <div class="wf">
+          <div class="wf-step"><div class="wf-num">1</div><div class="wf-label">Open Encounter</div><div class="wf-sub">Patient is checked in, encounter is open</div></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-step"><div class="wf-num">2</div><div class="wf-label">Enter Orders</div><div class="wf-sub">Labs, imaging, referrals via Order Entry</div></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-step"><div class="wf-num">3</div><div class="wf-label">Sign Orders</div><div class="wf-sub">Provider electronically signs all orders</div></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-step"><div class="wf-num">4</div><div class="wf-label">Orders Route</div><div class="wf-sub">Auto-routes to lab, radiology, specialist</div></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-step"><div class="wf-num">5</div><div class="wf-label">Results Return</div><div class="wf-sub">Appear in In Basket and chart</div></div>
+        </div>
+
+        <h3>Who Can Enter Orders in Ochin Epic?</h3>
+        <table class="ct">
+          <thead><tr><th>Role</th><th>Can Enter Orders</th><th>Can Sign/Release Orders</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Physician / NP / PA (Provider)</td><td class="yes">Yes</td><td class="yes">Yes</td><td>Full ordering authority</td></tr>
+            <tr><td>MA / Medical Assistant</td><td class="yes">Yes (per protocol)</td><td class="no">No</td><td>Enters standing orders; provider co-signs</td></tr>
+            <tr><td>RN / LPN</td><td class="yes">Yes (per scope)</td><td class="warn-cell">Limited</td><td>Nurse-initiated orders require provider co-sign</td></tr>
+            <tr><td>Front Desk Staff</td><td class="no">No</td><td class="no">No</td><td>Cannot place clinical orders</td></tr>
+            <tr><td>Ochin Billing Staff</td><td class="no">No</td><td class="no">No</td><td>Read-only access to charge-related data</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Navigating to Order Entry</h3>
+        <div class="sm">
+          <div class="sm-bar">
+            <div class="sm-dot" style="background:#FF5F57"></div>
+            <div class="sm-dot" style="background:#FEBC2E"></div>
+            <div class="sm-dot" style="background:#28C840"></div>
+            <span style="color:#8899AA;font-size:11px;margin-left:8px;">Epic Hyperspace — Order Entry</span>
+          </div>
+          <div class="sm-body"><span class="rg">Patient Chart Navigator (Left Panel)</span>
+<span class="rt">└─ Orders</span>             <span class="rd">← Click to open Order Entry panel</span>
+<span class="rt">└─ Order Entry</span>       <span class="rd">← Or use this shortcut from toolbar</span>
+<span class="rt">└─ Results</span>           <span class="rd">← View returned results here</span>
+
+<span class="rg">Toolbar Shortcut:</span>
+  <span class="rw">Ctrl + Shift + O</span>     <span class="rd">← Opens Order Entry from anywhere</span>
+
+<span class="rg">Order Modes:</span>
+  <span class="rgn">Inpatient Order Mode</span>  <span class="rd">← Hospital admissions (rare at FQHC)</span>
+  <span class="ro">Outpatient Order Mode</span> <span class="rd">← Standard for FQHC clinic visits ✓</span></div>
+        </div>
+
+        <h3>Order Priorities — Know Before You Order</h3>
+        <div class="priority-grid">
+          <div class="prio-box stat">
+            <div class="prio-stat">🔴 STAT</div>
+            <p>Results needed immediately. Used for acute life-threatening situations. Lab processes within 1 hour. Reserve for genuine emergencies — overuse dilutes urgency.</p>
+          </div>
+          <div class="prio-box urg">
+            <div class="prio-stat">🟡 URGENT</div>
+            <p>Results needed same day, typically within 2–4 hours. Use for acute but non-critical situations (severe pain, suspected infection with fever).</p>
+          </div>
+          <div class="prio-box rout">
+            <div class="prio-stat">🟢 ROUTINE</div>
+            <p>Standard processing time, usually 24–72 hours. The correct choice for most outpatient labs, chronic disease monitoring, and preventive screenings.</p>
+          </div>
+          <div class="prio-box stand">
+            <div class="prio-stat">🔵 FUTURE</div>
+            <p>Ordered now but not to be collected immediately — used for "come back fasting" labs, follow-up orders, or pre-visit workup for the next appointment.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Key CPOE Rules in Ochin's Shared Environment</h3>
+        <ul>
+          <li><strong>All orders must be signed before the patient leaves</strong> — unsigned orders do not route to the lab or radiology department and are not billed</li>
+          <li><strong>Verbal orders are only permitted in emergencies</strong> — the receiving nurse must immediately enter them into Epic with the "Verbal Order" designation and the ordering provider must co-sign within your clinic's timeframe (usually 24 hours)</li>
+          <li><strong>Do not use "telephone orders" as a workaround</strong> — if a provider is on the phone asking for a lab order, they must log in and enter it themselves unless it qualifies as a true verbal order situation</li>
+          <li><strong>Order sets are Ochin's preferred method</strong> for complex or multi-order scenarios — they reduce errors and ensure completeness (covered in Section 5.4)</li>
+          <li><strong>Never create duplicate orders</strong> — check Pending Orders before entering a new one to avoid sending duplicate lab draws to the patient</li>
+        </ul>
+
+        <div class="ib warn"><strong>⚠️ Shared Instance Warning:</strong> In Ochin's shared Epic, orders placed at your clinic are visible to all Ochin-member sites if the patient visits another clinic. This is intentional — it prevents redundant testing. But it also means: if an order from another site is already pending, check before duplicating it.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bp" onclick="show('s2',null);mark('s1')">Next: 5.2 Lab Orders →</button>
+      </div>
+    </div><!-- end s1 -->
+
+    <!-- ═══ SECTION 5.2: LAB ORDERS ═══ -->
+    <div class="sc" id="sec-s2">
+
+      <div class="card">
+        <h2><span>🧪</span> 5.2 Lab Orders in Ochin Epic</h2>
+        <p>Laboratory orders are the most frequently placed orders at FQHCs. Ochin's Epic includes pre-configured lab compendiums connected to your clinic's contracted lab partner (most commonly LabCorp, Quest, or an in-house lab). Knowing how to search, select, and properly configure lab orders is a core clinical skill.</p>
+
+        <h3>Placing a Lab Order — Step by Step</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Open the patient's encounter</strong><br>The encounter must be open to place orders. Navigate to the Order Entry section from the left navigator or press <code>Ctrl+Shift+O</code>.</div></li>
+          <li><div class="st"><strong>Click "New Order" or use the search bar</strong><br>Type the name of the lab test (e.g., "HbA1c", "CBC", "CMP"). Results appear from Ochin's curated lab compendium — always select from this list, never free-text.</div></li>
+          <li><div class="st"><strong>Select the correct test</strong><br>Some tests have multiple versions — confirm you're selecting the right panel vs. individual component. Example: "CBC with differential" vs. "CBC without differential" — they are different tests with different costs.</div></li>
+          <li><div class="st"><strong>Set the Priority</strong><br>Routine, Urgent, or STAT. Default to Routine unless clinical urgency warrants otherwise. STAT must be clinically justified.</div></li>
+          <li><div class="st"><strong>Enter the diagnosis (ICD-10)</strong><br>Every lab order requires at least one ICD-10 diagnosis code. This is required for billing and medical necessity. Epic will prompt you — do not skip this field.</div></li>
+          <li><div class="st"><strong>Set the Collection Date/Time</strong><br>For same-day collection, leave as "Now" or "Today." For future orders (e.g., "fasting labs, come back next week"), set the future date and add an instruction.</div></li>
+          <li><div class="st"><strong>Add any Collection Instructions</strong><br>Use the "Comments" or "Special Instructions" field for patient-specific notes: "Fasting 12 hours," "First morning void for UA," "Trough level — collect 30 min before next dose."</div></li>
+          <li><div class="st"><strong>Sign the order</strong><br>Click Sign. Unsigned orders do not route to the lab. The order will appear in the Pending Orders list until signed.</div></li>
+        </ol>
+
+        <div class="ib tip"><strong>💡 Tip:</strong> In Ochin Epic, when you sign orders, the system automatically generates a Lab Requisition that can be printed and given to the patient if they are going to an external collection site (e.g., LabCorp patient service center). For in-clinic draws, the nurse receives the order electronically.</div>
+      </div>
+
+      <div class="card">
+        <h3>Common Lab Orders and Ochin-Specific Notes</h3>
+        <table class="ct">
+          <thead><tr><th>Test</th><th>Search Term in Epic</th><th>Ochin/FQHC Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Complete Blood Count</strong></td><td><code>CBC</code></td><td>Order "CBC with Diff" for infection workup; "CBC w/o Diff" for routine monitoring</td></tr>
+            <tr><td><strong>Comprehensive Metabolic Panel</strong></td><td><code>CMP</code></td><td>Includes glucose, creatinine, electrolytes, LFTs — covers most chronic disease monitoring in one order</td></tr>
+            <tr><td><strong>HbA1c</strong></td><td><code>HbA1c</code> or <code>Hemoglobin A1c</code></td><td>UDS quality measure — ensure ICD-10 E11.x (T2DM) is on the order for proper tracking</td></tr>
+            <tr><td><strong>Lipid Panel</strong></td><td><code>Lipid</code></td><td>Requires fasting instruction — add "Fasting 12 hrs" in the special instructions field</td></tr>
+            <tr><td><strong>TSH</strong></td><td><code>TSH</code></td><td>If ordering for hypothyroidism management, pair with Free T4</td></tr>
+            <tr><td><strong>Urine Drug Screen</strong></td><td><code>UDS</code> or <code>Drug Screen</code></td><td>Required for PDMP compliance on certain controlled substance patients — clinical vs. forensic panels differ</td></tr>
+            <tr><td><strong>HIV Screening</strong></td><td><code>HIV 1/2</code></td><td>UDS quality measure — document patient consent per your state's requirements before ordering</td></tr>
+            <tr><td><strong>Pregnancy Test (urine)</strong></td><td><code>hCG urine</code></td><td>In-house point-of-care test at most Ochin sites — results entered manually via flowsheet</td></tr>
+            <tr><td><strong>Blood Culture</strong></td><td><code>Blood Culture</code></td><td>Requires two separate blood draw sites (aerobic + anaerobic bottles) — order as a set</td></tr>
+            <tr><td><strong>STI Panel</strong></td><td><code>STI</code> or <code>GC/Chlamydia</code></td><td>NAAT testing preferred; check your clinic's configured STI panel in Ochin's compendium</td></tr>
+          </tbody>
+        </table>
+
+        <div class="sm">
+          <div class="sm-bar">
+            <div class="sm-dot" style="background:#FF5F57"></div>
+            <div class="sm-dot" style="background:#FEBC2E"></div>
+            <div class="sm-dot" style="background:#28C840"></div>
+            <span style="color:#8899AA;font-size:11px;margin-left:8px;">Epic Order Entry — Lab Order Screen</span>
+          </div>
+          <div class="sm-body"><span class="rg">ORDER ENTRY</span>                              <span class="rd">[ + New Order ]  [ Order Sets ]</span>
+
+<span class="rw">Search:</span> <span class="ro">HbA1c_</span>
+
+  <span class="rgn">▶ Hemoglobin A1c (HbA1c)</span>             <span class="rd">← SELECT THIS</span>
+  <span class="rd">  Hemoglobin A1c with eAG</span>
+  <span class="rd">  Hemoglobin Electrophoresis (different)</span>
+
+<span class="rg">──────────────────────────────────────────</span>
+<span class="rg">ORDER DETAILS</span>
+  <span class="rw">Test:</span>        <span class="rgn">Hemoglobin A1c (HbA1c)</span>
+  <span class="rw">Priority:</span>    <span class="ro">[ Routine ▼ ]</span>
+  <span class="rw">Collection:</span>  <span class="ro">[ Today ▼ ]</span>   <span class="rd">Time: [ Now ]</span>
+  <span class="rw">Diagnosis:</span>   <span class="ro">E11.9 — Type 2 Diabetes Mellitus</span>
+  <span class="rw">Lab:</span>         <span class="rgn">LabCorp (Ochin Network Partner)</span>
+  <span class="rw">Comments:</span>    <span class="rd">[                              ]</span>
+
+<span class="rd">                          [ Cancel ]  </span><span class="rgn">[ Sign Order ]</span></div>
+        </div>
+
+        <h3>Lab Order Errors to Avoid</h3>
+        <ul>
+          <li><strong>Missing ICD-10 code</strong> — the order cannot be billed and may be rejected by the lab. Always enter the diagnosis.</li>
+          <li><strong>Wrong priority</strong> — marking everything STAT desensitizes the lab to true urgencies and may cause unnecessary patient anxiety</li>
+          <li><strong>Ordering the wrong panel</strong> — "CMP" vs. "BMP" vs. "LFTs" each have different components; confirm what you actually need</li>
+          <li><strong>Forgetting fasting instructions</strong> — lipids and glucose need fasting instructions in the order comments, or the patient won't prepare correctly</li>
+          <li><strong>Not printing the requisition</strong> — for external lab visits, the patient needs a printed requisition or the lab may not be able to draw the specimen</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Point-of-Care (POC) Testing Documentation in Ochin</h3>
+        <p>Many Ochin FQHCs perform POC testing in-clinic: urine dipstick, rapid strep, rapid flu, glucose, pregnancy tests, and others. These are <em>not</em> ordered through the standard lab order screen — they are documented through <strong>Flowsheets</strong> in Epic.</p>
+        <ol class="sl">
+          <li><div class="st"><strong>Navigate to Flowsheets</strong> in the patient encounter navigator</div></li>
+          <li><div class="st"><strong>Select the appropriate POC flowsheet</strong> (e.g., "POC Testing," "Urine Dipstick," "Rapid Strep")</div></li>
+          <li><div class="st"><strong>Enter the result</strong> directly — the value is stored in the chart and appears in the results section</div></li>
+          <li><div class="st"><strong>For waived tests</strong>: document the lot number and expiration of the test kit per CLIA waiver requirements — this is required at all FQHC sites</div></li>
+        </ol>
+        <div class="ib green"><strong>✓ Ochin CLIA Compliance:</strong> Point-of-care testing at Ochin-member FQHCs must follow CLIA waiver documentation requirements. Lot numbers, expiration dates, and control results must be documented. Your clinic's CLIA officer will train you on site-specific requirements.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s1',null)">← Back to 5.1</button>
+        <button class="btn bp" onclick="show('s3',null);mark('s2')">Next: 5.3 Imaging Orders →</button>
+      </div>
+    </div><!-- end s2 -->
+
+    <!-- ═══ SECTION 5.3: IMAGING ORDERS ═══ -->
+    <div class="sc" id="sec-s3">
+
+      <div class="card">
+        <h2><span>🩻</span> 5.3 Imaging Orders in Ochin Epic</h2>
+        <p>Radiology and imaging orders follow a similar workflow to lab orders but have additional considerations: selecting the correct imaging protocol, coordinating with external radiology partners, and managing prior authorization requirements for certain studies.</p>
+
+        <h3>Placing an Imaging Order — Step by Step</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Open Order Entry</strong> and search for the imaging study<br>Use clinical terminology: "Chest X-ray," "CT Abdomen Pelvis," "MRI Knee," "Mammogram." Epic will return Ochin's configured imaging compendium.</div></li>
+          <li><div class="st"><strong>Select the correct study and laterality (if applicable)</strong><br>For extremity imaging, always specify: "X-ray Right Knee" vs. "X-ray Left Knee." For bilateral studies, order separately or select "Bilateral" if available.</div></li>
+          <li><div class="st"><strong>Enter the Clinical Indication</strong><br>This is separate from the ICD-10 code — it's a brief free-text note explaining WHY you're ordering the study. Radiologists use this to guide their reads. Example: "Persistent right knee pain after fall, rule out fracture."</div></li>
+          <li><div class="st"><strong>Select the Radiology Site / Partner</strong><br>Ochin clinics have contracted radiology partners. Select the appropriate facility or use your clinic's default. For in-house imaging (X-ray at clinic), this routes to your on-site machine queue.</div></li>
+          <li><div class="st"><strong>Set the Priority and Scheduling Instructions</strong><br>Routine, Urgent, or STAT. For routine studies, the scheduling team will contact the patient. For STAT, the patient may need to go to radiology directly.</div></li>
+          <li><div class="st"><strong>Note Prior Authorization (PA) Requirements</strong><br>CT, MRI, PET, and nuclear medicine studies almost always require prior authorization from the patient's insurance. Epic will flag this — do not proceed without addressing it.</div></li>
+          <li><div class="st"><strong>Sign the order</strong><br>Click Sign. For external imaging, the order generates a requisition. For in-house imaging, it routes to the radiology queue.</div></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Common Imaging Orders by Category</h3>
+        <table class="ct">
+          <thead><tr><th>Study</th><th>Epic Search Term</th><th>PA Typically Required?</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Chest X-ray (CXR)</td><td><code>Chest X-ray</code> or <code>CXR</code></td><td class="yes">Rarely</td><td>Most common imaging order at FQHCs — rarely requires PA. PA/AP and Lateral views are standard.</td></tr>
+            <tr><td>Abdominal X-ray</td><td><code>KUB</code> or <code>Abd X-ray</code></td><td class="yes">Rarely</td><td>KUB = Kidneys, Ureters, Bladder view</td></tr>
+            <tr><td>CT Scan</td><td><code>CT [body part]</code></td><td class="no">Almost Always</td><td>Specify with/without contrast. PA required by most insurers — check before ordering.</td></tr>
+            <tr><td>MRI</td><td><code>MRI [body part]</code></td><td class="no">Almost Always</td><td>Specify with/without contrast. Longer PA process — plan ahead. Patient must complete MRI screening form.</td></tr>
+            <tr><td>Ultrasound</td><td><code>US [body part]</code></td><td class="warn-cell">Sometimes</td><td>OB ultrasound, renal ultrasound: commonly ordered at FQHCs. Pelvic US often requires full bladder.</td></tr>
+            <tr><td>Mammogram</td><td><code>Mammogram</code></td><td class="yes">Rarely for Screening</td><td>Screening vs. Diagnostic — specify. UDS quality measure. Annual for women 50–74 per USPSTF.</td></tr>
+            <tr><td>DEXA Scan</td><td><code>DEXA</code> or <code>Bone Density</code></td><td class="warn-cell">Sometimes</td><td>Medicare requires specific indication criteria. Spine + hip standard protocol.</td></tr>
+            <tr><td>Echocardiogram</td><td><code>Echo</code> or <code>Echocardiogram</code></td><td class="no">Usually</td><td>Transthoracic (TTE) most common. Requires cardiology referral at most Ochin clinics.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ib warn"><strong>⚠️ Prior Authorization for Imaging:</strong> Ordering a CT or MRI without confirming insurance coverage can result in a denied claim — leaving the patient with a large unexpected bill. Ochin's Epic will display a "PA Required" alert for studies that commonly need authorization. Work with your referral coordinator before placing high-cost imaging orders.</div>
+
+        <h3>Radiology Reports — How They Return</h3>
+        <p>When the radiologist completes their read, the report returns to Epic in one of two ways:</p>
+        <ul>
+          <li><strong>Electronic (Preferred):</strong> The radiology partner sends the report directly into Epic via HL7/FHIR interface. The report appears in the patient chart under "Results → Imaging" and routes to your In Basket for review.</li>
+          <li><strong>Fax-to-Chart:</strong> If the radiology partner is not directly integrated with Ochin's Epic, their staff fax the report to your clinic. The fax is scanned into Epic and attached to the order. Your Ochin analyst will tell you which radiology partners are directly integrated at your site.</li>
+        </ul>
+
+        <div class="ib tip"><strong>💡 Critical Radiology Findings:</strong> When a radiologist identifies a critical or urgent finding (e.g., suspected pulmonary embolism, unexpected mass, acute fracture), they are required to contact you directly by phone — this is called a "Critical Call." Document the conversation in the chart: time, who called, what was communicated, and your plan. Then review the full report when it arrives.</div>
+      </div>
+
+      <div class="card">
+        <h3>In-House vs. External Imaging at Ochin Sites</h3>
+        <table class="ct">
+          <thead><tr><th>Setting</th><th>Order Routes To</th><th>Patient Instructions</th><th>Report Returns Via</th></tr></thead>
+          <tbody>
+            <tr><td><strong>In-House X-ray</strong><br>(at your clinic)</td><td>On-site radiology queue in Epic — tech sees it on their worklist</td><td>Go directly to the X-ray room today</td><td>Teleradiology read; report in Epic within 2–24 hrs</td></tr>
+            <tr><td><strong>External Imaging Center</strong></td><td>Prints requisition / sends electronically to partner</td><td>Call the imaging center to schedule; bring the requisition</td><td>Electronic or fax-to-chart depending on partner integration</td></tr>
+            <tr><td><strong>Hospital Radiology</strong><br>(ER or inpatient referral)</td><td>Not directly from clinic — patient goes to ER or is referred</td><td>Go to hospital; bring clinical history</td><td>Appears via Care Everywhere if hospital uses Epic</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s2',null)">← Back to 5.2</button>
+        <button class="btn bp" onclick="show('s4',null);mark('s3')">Next: 5.4 Order Sets →</button>
+      </div>
+    </div><!-- end s3 -->
+
+    <!-- ═══ SECTION 5.4: ORDER SETS ═══ -->
+    <div class="sc" id="sec-s4">
+
+      <div class="card">
+        <h2><span>📋</span> 5.4 Order Sets &amp; Protocols in Ochin Epic</h2>
+        <p>Order sets are pre-built groups of related orders that can be placed together with a single action. In Ochin's shared Epic environment, order sets are maintained at the Ochin network level and can also be customized per clinic. They represent a critical efficiency and safety tool — especially for complex chronic disease management, preventive care, and pre-procedure workups.</p>
+
+        <div class="ib green"><strong>✓ Ochin's Order Set Library:</strong> Ochin maintains a curated library of evidence-based order sets aligned with FQHC care delivery, UDS requirements, and HRSA quality measures. Before building a custom order set, check whether Ochin already has one that fits your need — it's likely in the library.</div>
+
+        <h3>How to Access and Use an Order Set</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Open Order Entry</strong> in the patient's encounter</div></li>
+          <li><div class="st"><strong>Click "Order Sets"</strong> (button next to the search bar, or search <code>Order Sets</code>)</div></li>
+          <li><div class="st"><strong>Search for the relevant order set</strong> by name or clinical condition. Example: "Diabetes Annual Visit," "Well Child 2-Year," "Annual Wellness Visit (AWV)"</div></li>
+          <li><div class="st"><strong>Review the order set contents</strong> — a checkbox list appears showing all included orders. Uncheck anything that doesn't apply to this specific patient.</div></li>
+          <li><div class="st"><strong>Complete any required fields</strong> — some orders within the set will require you to enter a diagnosis or priority before signing</div></li>
+          <li><div class="st"><strong>Click "Sign All"</strong> to place all selected orders simultaneously</div></li>
+        </ol>
+
+        <div class="sm">
+          <div class="sm-bar">
+            <div class="sm-dot" style="background:#FF5F57"></div>
+            <div class="sm-dot" style="background:#FEBC2E"></div>
+            <div class="sm-dot" style="background:#28C840"></div>
+            <span style="color:#8899AA;font-size:11px;margin-left:8px;">Epic Order Sets — Diabetes Annual Visit</span>
+          </div>
+          <div class="sm-body"><span class="rg">ORDER SET: Diabetes Annual Visit (Ochin FQHC)</span>
+<span class="rd">Evidence-based | Last reviewed 2024 | Ochin Quality Team</span>
+<span class="rg">──────────────────────────────────────────────────────</span>
+
+<span class="rw">LABS</span>
+  <span class="rgn">[✓] HbA1c</span>                       <span class="rd">Priority: Routine</span>
+  <span class="rgn">[✓] CMP (Comprehensive Metabolic)</span>  <span class="rd">Priority: Routine</span>
+  <span class="rgn">[✓] Lipid Panel</span>                  <span class="rd">Fasting required — add instructions</span>
+  <span class="rgn">[✓] Urine Microalbumin/Creatinine</span> <span class="rd">Spot urine</span>
+  <span class="ro">[ ] Urine Drug Screen</span>            <span class="rd">Uncheck if not clinically indicated</span>
+
+<span class="rw">PREVENTIVE</span>
+  <span class="rgn">[✓] Flu Vaccine (if not given)</span>
+  <span class="rgn">[✓] Pneumovax (if age ≥65 or indicated)</span>
+  <span class="ro">[ ] Shingrix (if not completed series)</span>
+
+<span class="rw">REFERRALS</span>
+  <span class="rgn">[✓] Ophthalmology — Annual Diabetic Eye Exam</span>
+  <span class="ro">[ ] Podiatry — Annual Diabetic Foot Exam</span>
+  <span class="ro">[ ] Diabetes Education (DSMES)</span>
+
+<span class="rd">              [ Cancel ]  [ Sign Selected Orders ]</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Key Order Sets Available in Ochin</h3>
+        <table class="ct">
+          <thead><tr><th>Order Set Name</th><th>When to Use</th><th>Audience</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Diabetes Annual Visit</strong></td><td>Annual comprehensive diabetes management visit — labs, referrals, vaccines, education</td><td>Provider</td></tr>
+            <tr><td><strong>Hypertension Management</strong></td><td>Labs + monitoring for HTN patients — CMP, urine microalbumin, lipids</td><td>Provider</td></tr>
+            <tr><td><strong>Annual Wellness Visit (AWV)</strong></td><td>Medicare preventive visit — cognitive screen, fall risk, advance directive, preventive labs</td><td>Provider</td></tr>
+            <tr><td><strong>Well Child Visit (by age)</strong></td><td>Age-specific well child labs, vaccines, developmental screening, hearing/vision orders</td><td>Provider / MA</td></tr>
+            <tr><td><strong>Prenatal Initial OB Panel</strong></td><td>First prenatal visit labs — blood type, Rh, rubella, HIV, syphilis, CBC, UA, urine culture</td><td>Provider</td></tr>
+            <tr><td><strong>STI Screening Panel</strong></td><td>GC/Chlamydia NAAT, HIV, syphilis, hepatitis B/C for STI screening</td><td>Provider / RN</td></tr>
+            <tr><td><strong>Pre-Op Clearance</strong></td><td>Pre-surgical labs and workup — CBC, CMP, EKG, coagulation depending on procedure</td><td>Provider</td></tr>
+            <tr><td><strong>Standing Orders (MA Protocol)</strong></td><td>Ochin-approved standing orders that MAs can initiate per protocol (flu vaccine, UDS, vitals-triggered orders)</td><td>MA / Nurse</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Standing Orders — The MA's Role</h3>
+        <p>Standing orders are pre-authorized protocols that allow MAs and nurses to initiate specific orders without waiting for a provider to write them individually. In Ochin's Epic, standing orders are configured at the clinic level and must be approved by the medical director.</p>
+        <div class="ib key"><strong>Common Ochin Standing Orders Examples:</strong><br>
+        • Influenza vaccine — MA can administer to eligible patients without individual provider order<br>
+        • Urine dipstick — MA can perform POC urinalysis on patients presenting with urinary symptoms<br>
+        • Blood glucose POC — MA can check fingerstick glucose on diabetic patients per rooming protocol<br>
+        • BMI/weight reassessment — MA documents and initiates BMI-triggered order per standing protocol<br><br>
+        <strong>Standing orders do NOT mean unsupervised practice</strong> — the provider reviews all standing order results and co-signs the encounter. Know your clinic's specific approved standing orders.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s3',null)">← Back to 5.3</button>
+        <button class="btn bp" onclick="show('s5',null);mark('s4')">Next: 5.5 Reviewing Results →</button>
+      </div>
+    </div><!-- end s4 -->
+
+    <!-- ═══ SECTION 5.5: REVIEWING RESULTS ═══ -->
+    <div class="sc" id="sec-s5">
+
+      <div class="card">
+        <h2><span>📊</span> 5.5 Reviewing Lab &amp; Imaging Results in Ochin Epic</h2>
+        <p>Reviewing results is not just checking a number — it's a clinical act that requires interpretation, patient notification, documentation of your assessment, and follow-up planning. In Ochin's Epic, this process is tracked, auditable, and has direct implications for patient safety and regulatory compliance.</p>
+
+        <h3>Where Results Live in the Chart</h3>
+        <table class="ct">
+          <thead><tr><th>Location</th><th>What's There</th><th>Best For</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Results → Labs</strong><br>(Left Navigator)</td><td>All returned lab results, organized by date and panel</td><td>Reviewing an individual result; seeing current values</td></tr>
+            <tr><td><strong>Results → Imaging</strong><br>(Left Navigator)</td><td>Radiology reports and imaging results</td><td>Reading the radiologist's interpretation</td></tr>
+            <tr><td><strong>Chart Review → Labs</strong></td><td>All historical lab results in chronological table or trend view</td><td>Comparing values over time; trending HbA1c, creatinine, etc.</td></tr>
+            <tr><td><strong>In Basket → Results</strong></td><td>New, unreviewed results routed to your inbox for action</td><td>Systematic review of all pending results each day</td></tr>
+            <tr><td><strong>Flowsheet</strong></td><td>POC test results and structured data entry</td><td>Reviewing point-of-care test results; vital trends</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Result Status Flags — Know What Each Means</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;">
+          <div style="flex:1;min-width:140px;background:#EEF9F3;border:1.5px solid var(--green);border-radius:8px;padding:12px;">
+            <div class="result-badge rb-normal">NORMAL</div>
+            <p style="font-size:12px;margin-top:8px;color:var(--gray2);">Within reference range. Still requires provider review and acknowledgment — "normal" doesn't mean "ignore."</p>
+          </div>
+          <div style="flex:1;min-width:140px;background:#FFF5F5;border:1.5px solid var(--red);border-radius:8px;padding:12px;">
+            <div class="result-badge rb-high">HIGH</div>
+            <p style="font-size:12px;margin-top:8px;color:var(--gray2);">Above the reference range. Requires clinical interpretation — mildly elevated vs. significantly elevated require different responses.</p>
+          </div>
+          <div style="flex:1;min-width:140px;background:#FFF4EA;border:1.5px solid var(--orange);border-radius:8px;padding:12px;">
+            <div class="result-badge rb-low">LOW</div>
+            <p style="font-size:12px;margin-top:8px;color:var(--gray2);">Below the reference range. Some LOW values are as dangerous as HIGH (e.g., low sodium, low potassium, low glucose).</p>
+          </div>
+          <div style="flex:1;min-width:140px;background:var(--red);border-radius:8px;padding:12px;">
+            <div class="result-badge rb-crit" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);">CRITICAL</div>
+            <p style="font-size:12px;margin-top:8px;color:#fff;"><strong>Requires immediate action.</strong> The lab calls you directly (Critical Call). Document the call. Contact the patient urgently. Do not just acknowledge and move on.</p>
+          </div>
+        </div>
+
+        <h3>The Right Way to Review a Result</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Open the result</strong> from In Basket or the Results navigator<br>Read the full result — not just the value, but the reference range, the collection time, and any lab comments or flags.</div></li>
+          <li><div class="st"><strong>Interpret clinically in context</strong><br>A creatinine of 1.3 means something very different in a 25-year-old vs. a 78-year-old. Reference ranges are population averages — your clinical judgment must contextualize every abnormal value.</div></li>
+          <li><div class="st"><strong>Document your assessment</strong><br>For significant results, add a note or result comment in Epic: "HbA1c 9.2% — suboptimal control. Increasing metformin dose, patient counseled on diet, follow-up in 3 months."</div></li>
+          <li><div class="st"><strong>Communicate with the patient</strong><br>Every result requires some form of patient communication. Determine the appropriate method: MyChart message, phone call, letter, or scheduled follow-up visit.</div></li>
+          <li><div class="st"><strong>Mark as Reviewed</strong><br>Click "Mark as Reviewed" in the In Basket. This removes the result from your pending queue and documents that you have personally reviewed it.</div></li>
+          <li><div class="st"><strong>Place follow-up orders if needed</strong><br>Abnormal results often trigger additional workup. Document the plan and place any new orders within the same review workflow.</div></li>
+        </ol>
+
+        <div class="alert-box">
+          <div class="alert-icon">🚨</div>
+          <div class="alert-body">
+            <div class="alert-title">Critical Values — Non-Negotiable Response Requirements</div>
+            <div class="alert-text">
+              <strong>When a lab calls with a critical value, you must:</strong><br>
+              1. Receive and document the "read-back" — repeat the value back to the lab tech verbatim<br>
+              2. Document in Epic: the time of call, the name of the lab tech who called, the value reported, and your clinical response<br>
+              3. Contact the patient immediately — critical values require same-day patient notification<br>
+              4. Acknowledge the result in the In Basket<br><br>
+              <em>Failure to act on a critical result is a major patient safety event and a CMS/accreditation violation.</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Trending Results Over Time — The Trend View</h3>
+        <p>For chronic disease management, single values are less important than trends. Epic's Chart Review → Labs section allows you to view a patient's lab values plotted over time.</p>
+        <div class="sm">
+          <div class="sm-bar">
+            <div class="sm-dot" style="background:#FF5F57"></div>
+            <div class="sm-dot" style="background:#FEBC2E"></div>
+            <div class="sm-dot" style="background:#28C840"></div>
+            <span style="color:#8899AA;font-size:11px;margin-left:8px;">Chart Review → Labs → Trend View: HbA1c</span>
+          </div>
+          <div class="sm-body"><span class="rg">PATIENT: Garcia, Maria   DOB: 08/22/1990   MRN: 00847291</span>
+<span class="rg">TEST: Hemoglobin A1c (HbA1c)</span>
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rt">Date</span>          <span class="rt">Result</span>    <span class="rt">Flag</span>    <span class="rt">Trend</span>
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rd">02/10/2022</span>    <span class="rr">10.2%</span>    <span class="rr">HIGH</span>    <span class="rr">↑</span>  <span class="rd">Initial DM2 diagnosis</span>
+<span class="rd">08/15/2022</span>    <span class="ro"> 9.1%</span>    <span class="ro">HIGH</span>    <span class="ro">↓</span>  <span class="rd">Started metformin</span>
+<span class="rd">02/22/2023</span>    <span class="ro"> 8.4%</span>    <span class="ro">HIGH</span>    <span class="ro">↓</span>  <span class="rd">Diet + medication adjustment</span>
+<span class="rd">09/01/2023</span>    <span class="rgn"> 7.6%</span>    <span class="rgn">HIGH</span>    <span class="rgn">↓</span>  <span class="rd">Added GLP-1 agonist</span>
+<span class="rd">03/15/2024</span>    <span class="rgn"> 7.1%</span>    <span class="rgn">HIGH</span>    <span class="rgn">↓</span>  <span class="rd">Patient adherent, continuing</span>
+<span class="rd">10/02/2024</span>    <span class="rgn"> 6.8%</span>          <span class="rgn">↓</span>  <span class="rd">Near goal — excellent progress ✓</span>
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rd">Goal: </span><span class="rgn">&lt; 7.0%</span>   <span class="rd">UDS Measure: HbA1c Control</span>   <span class="rgn">[ View Graph ]</span></div>
+        </div>
+        <p>This trend view at a glance tells the full story of this patient's diabetes management over 2+ years. Use it at every chronic disease visit to show patients their progress and guide your clinical decision-making.</p>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s4',null)">← Back to 5.4</button>
+        <button class="btn bp" onclick="show('s6',null);mark('s5')">Next: 5.6 In Basket Results →</button>
+      </div>
+    </div><!-- end s5 -->
+
+    <!-- ═══ SECTION 5.6: IN BASKET ═══ -->
+    <div class="sc" id="sec-s6">
+
+      <div class="card">
+        <h2><span>📬</span> 5.6 Managing Results in the In Basket</h2>
+        <p>The In Basket is Epic's central hub for all provider tasks and communications — and the Results folder is where new lab and imaging results land for your review. Letting your In Basket fill up with unreviewed results is a patient safety problem and a liability risk. Build a daily habit of clearing your Results In Basket.</p>
+
+        <div class="ib warn"><strong>⚠️ Results Do Not Read Themselves:</strong> In Ochin Epic, a result that has returned but has NOT been reviewed and acknowledged by the ordering provider is considered "unreviewed." Unreviewed results create both patient safety and legal liability for the provider. Ochin support staff and Ochin quality monitors track unreviewed result rates across the network.</div>
+
+        <h3>Result Routing — How Results Get to Your In Basket</h3>
+        <table class="ct">
+          <thead><tr><th>Result Type</th><th>Routes To</th><th>Default Notification</th></tr></thead>
+          <tbody>
+            <tr><td>Lab result (ordered by you)</td><td>Your In Basket → Results folder</td><td>Immediate upon release from lab</td></tr>
+            <tr><td>Lab result (ordered by colleague, you are covering)</td><td>Original ordering provider's In Basket; your In Basket if you are set as covering</td><td>Coverage In Basket during your on-call/coverage period</td></tr>
+            <tr><td>Radiology report</td><td>Ordering provider's In Basket → Results folder</td><td>Same as lab — immediate on release</td></tr>
+            <tr><td>Critical Value (STAT call)</td><td>Phone call to ordering provider + In Basket flag</td><td>Phone call is primary; In Basket is secondary confirmation</td></tr>
+            <tr><td>Outside Records (via Care Everywhere)</td><td>Your In Basket if you requested them; otherwise in chart without routing</td><td>No automatic routing — you must pull them manually</td></tr>
+          </tbody>
+        </table>
+
+        <h3>The Result Review Workflow in In Basket</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Open In Basket</strong> — <code>Ctrl + G</code> from anywhere in Epic, or click the In Basket icon in the toolbar</div></li>
+          <li><div class="st"><strong>Click the "Results" folder</strong><br>Results are organized by patient. A bold number shows how many unreviewed results are waiting. Results are color-coded: critical results appear in red at the top.</div></li>
+          <li><div class="st"><strong>Click a result to open it</strong><br>The full lab or radiology report opens. Review the values, flags, reference ranges, and any lab comments.</div></li>
+          <li><div class="st"><strong>Choose your action from the toolbar:</strong><br>
+            <span class="chip">Acknowledge</span> — Result reviewed, no further action needed<br>
+            <span class="chip gold">Route to Patient</span> — Send to patient via MyChart with optional message<br>
+            <span class="chip">Add Comment</span> — Add your clinical interpretation to the result<br>
+            <span class="chip">Route to Staff</span> — Send to a nurse or MA for follow-up action<br>
+            <span class="chip red">Pend</span> — Keep in In Basket if you need to act later (use sparingly)
+          </div></li>
+          <li><div class="st"><strong>For abnormal results: Document your plan</strong><br>Before acknowledging, click "Add Comment" and document what you are doing: "Result reviewed. HbA1c 9.4% — increasing metformin, patient called and informed, follow-up in 3 months."</div></li>
+          <li><div class="st"><strong>For results requiring immediate patient contact</strong><br>Call the patient first. Document the call in a Telephone Encounter note. Then acknowledge the result in the In Basket.</div></li>
+        </ol>
+
+        <div class="sm">
+          <div class="sm-bar">
+            <div class="sm-dot" style="background:#FF5F57"></div>
+            <div class="sm-dot" style="background:#FEBC2E"></div>
+            <div class="sm-dot" style="background:#28C840"></div>
+            <span style="color:#8899AA;font-size:11px;margin-left:8px;">Epic In Basket — Results Folder</span>
+          </div>
+          <div class="sm-body"><span class="rg">IN BASKET</span>                                   <span class="rd">Dr. Chen | Monday 10:14 AM</span>
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rt">📬 Results</span>                              <span class="rg">7 unreviewed</span>
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rr">🔴 CRITICAL  Thompson, James     Potassium 2.8 mEq/L (L!)  </span><span class="rr">URGENT</span>
+<span class="ro">⚠  HIGH      Garcia, Maria      HbA1c 9.4%                </span><span class="ro">Review</span>
+<span class="rgn">✓  NORMAL    Patel, Anita       Lipid Panel — all normal   </span><span class="rd">Routine</span>
+<span class="rgn">✓  NORMAL    Johnson, Robert    CMP — within limits        </span><span class="rd">Routine</span>
+<span class="rd">📋 REPORT    Williams, Sandra   CT Chest — Final Report    </span><span class="rd">Imaging</span>
+<span class="rd">📋 REPORT    Lee, David         Mammogram — Final Report   </span><span class="rd">Imaging</span>
+<span class="ro">⚠  HIGH      Kim, Susan         TSH 8.2 (H) — Hypothyroid </span><span class="ro">Review</span>
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rd">Start with the red CRITICAL — Thompson's potassium needs action NOW.</span></div>
+        </div>
+
+        <h3>Releasing Results to Patients via MyChart</h3>
+        <p>Ochin's Epic is configured with MyChart result release rules. Providers can release results to patients through MyChart directly from the In Basket:</p>
+        <ul>
+          <li><strong>Auto-release rules</strong> — Your clinic's MyChart configuration determines which result types auto-release and after what delay (commonly 3–7 days for labs, immediately for some providers)</li>
+          <li><strong>Manual release</strong> — Click "Route to Patient" in the In Basket and select "Send to MyChart." You can add a patient-friendly message.</li>
+          <li><strong>Sensitive results</strong> — HIV, cancer pathology, and certain mental health results may have different release rules. Check your clinic's MyChart configuration and follow your clinic's policy.</li>
+          <li><strong>Patient message tips</strong> — When releasing an abnormal result, always include a brief explanation: "Your HbA1c is 9.4%, which is above the goal of 7%. I'll be calling you to discuss next steps."</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>In Basket Best Practices at Ochin Sites</h3>
+        <div class="ib tip"><strong>💡 Daily Habits That Prevent Problems:</strong><br>
+        • <strong>Clear results every day</strong> — unreviewed results accumulate quickly. Block 15–20 minutes at the start and end of each clinical day to work through your In Basket.<br>
+        • <strong>Set up coverage</strong> — when you are out of clinic (vacation, leave), set a covering provider in your In Basket settings so your results are routed appropriately. Unreviewed results with no coverage create dangerous gaps.<br>
+        • <strong>Use the "Pend" function sparingly</strong> — pending a result in your In Basket without action is not a solution. If you can't act immediately, route it to your nurse or MA to facilitate the patient contact, then acknowledge.<br>
+        • <strong>Document every phone notification</strong> — if you call a patient about an abnormal result, open a Telephone Encounter note and document the call. This creates the clinical record that the patient was notified.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s5',null)">← Back to 5.5</button>
+        <button class="btn bp" onclick="show('s7',null);mark('s6')">Next: 5.7 Referrals &amp; Care Everywhere →</button>
+      </div>
+    </div><!-- end s6 -->
+
+    <!-- ═══ SECTION 5.7: REFERRALS & CARE EVERYWHERE ═══ -->
+    <div class="sc" id="sec-s7">
+
+      <div class="card">
+        <h2><span>🔗</span> 5.7 Referrals &amp; Care Everywhere in Ochin Epic</h2>
+        <p>As an FQHC, your clinic is the hub of primary care for your patient population — but patients frequently need specialist care, hospital services, and external diagnostics. Managing referrals and accessing outside records through Care Everywhere are critical care coordination skills in Ochin's Epic.</p>
+
+        <h3>Placing a Referral Order</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Open Order Entry</strong> in the patient's encounter</div></li>
+          <li><div class="st"><strong>Search for the specialty referral</strong><br>Type the specialty: "Cardiology Referral," "Orthopedics Referral," "Behavioral Health Referral." Ochin's order compendium includes referral types configured for your clinic's specialist network.</div></li>
+          <li><div class="st"><strong>Select the referring specialty and provider (if known)</strong><br>If your clinic has a preferred specialist or a formal relationship with a specialty group, select them from the list. If open to any provider, leave as the specialty pool.</div></li>
+          <li><div class="st"><strong>Enter the Clinical Indication and Urgency</strong><br>Write a brief, clear reason for the referral. The specialist's office uses this to triage: "T2DM with HbA1c 10.2% despite max oral therapy — refer to endocrinology for insulin initiation and management."</div></li>
+          <li><div class="st"><strong>Attach relevant clinical information</strong><br>In the referral order, you can attach the last visit note, relevant labs, or a specific document. This is critical — a referral sent without supporting information delays the specialist appointment.</div></li>
+          <li><div class="st"><strong>Set the Urgency</strong><br>Routine (standard scheduling), Urgent (within 1–2 weeks), or STAT (same day — for referrals that are essentially emergency transfers).</div></li>
+          <li><div class="st"><strong>Indicate Prior Authorization need</strong><br>Most specialist referrals require insurance PA. Flag this in the order so your referral coordinator knows to initiate the PA process before scheduling.</div></li>
+          <li><div class="st"><strong>Sign the referral order</strong><br>The referral routes to your clinic's referral coordinator, who will contact the specialist office, obtain PA, and schedule the patient. Alternatively, your clinic may have a Direct Scheduling arrangement with certain specialists.</div></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Tracking Referral Status in Ochin Epic</h3>
+        <p>One of the most critical care coordination functions is ensuring patients actually complete their referrals — this is called "closing the loop." Epic tracks referral status, and Ochin has specific workflows for this.</p>
+        <table class="ct">
+          <thead><tr><th>Referral Status</th><th>Meaning</th><th>Action Needed</th></tr></thead>
+          <tbody>
+            <tr><td><span class="chip">Ordered</span></td><td>Referral placed by provider — not yet processed</td><td>Referral coordinator picks up and initiates scheduling</td></tr>
+            <tr><td><span class="chip gold">Pending PA</span></td><td>Waiting for prior authorization from insurance</td><td>Referral coordinator working with insurer — no action from provider</td></tr>
+            <tr><td><span class="chip">Scheduled</span></td><td>Patient has an appointment with the specialist</td><td>Patient should be notified of appointment date and instructions</td></tr>
+            <tr><td><span class="chip orange">No Show / Cancelled</span></td><td>Patient did not attend or cancelled the specialist visit</td><td>Follow up with patient — understand barriers; reschedule or address</td></tr>
+            <tr><td><span class="chip green">Completed</span></td><td>Patient was seen; specialist consult note received</td><td>Provider reviews specialist note; close the referral loop in Epic</td></tr>
+            <tr><td><span class="chip red">Denied (PA)</span></td><td>Insurance denied prior authorization</td><td>Provider may appeal or identify alternative options</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ib tip"><strong>💡 Closing the Referral Loop:</strong> Ochin's Epic tracks whether specialist consult notes have been received and reviewed. When the specialist note arrives (via Care Everywhere, fax-to-chart, or Direct Messaging), it should be attached to the original referral order and marked as completed. Unresolved referrals with no follow-up represent a patient safety gap and are tracked as a quality metric at Ochin FQHCs.</div>
+      </div>
+
+      <div class="card">
+        <h3>Care Everywhere — Accessing External Records</h3>
+        <p>Care Everywhere is Epic's interoperability network that allows clinicians to view records from other Epic organizations and health information exchanges (HIEs). In Ochin's shared instance, this gives you access to a patient's records from hospitals, specialist offices, urgent care centers, and other Epic-based health systems nationwide.</p>
+
+        <h3>How to Use Care Everywhere</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Open the patient chart</strong></div></li>
+          <li><div class="st"><strong>Look for the "Care Everywhere" indicator</strong><br>A banner or button in the chart header shows if external records are available. You may also see a globe icon 🌐 in the chart navigator.</div></li>
+          <li><div class="st"><strong>Click "External Records" or "Care Everywhere"</strong><br>Epic queries the network for records linked to this patient. This may take a few seconds. Results show the participating organizations that have records for this patient.</div></li>
+          <li><div class="st"><strong>Select the organization and review available records</strong><br>You can see external medications, problem lists, allergies, visit notes, lab results, and imaging reports. Not all record types are available from every organization.</div></li>
+          <li><div class="st"><strong>Selectively pull records into your chart</strong><br>You can reconcile external medications, pull in problem list items, or view notes. "Pulling in" creates a copy in your chart that you can act on. Always review before pulling — not all external data is current or accurate.</div></li>
+          <li><div class="st"><strong>Document your review</strong><br>Note in your visit documentation that you reviewed Care Everywhere records: "External records reviewed via Care Everywhere — no significant changes to medications or problem list identified."</div></li>
+        </ol>
+
+        <div class="sm">
+          <div class="sm-bar">
+            <div class="sm-dot" style="background:#FF5F57"></div>
+            <div class="sm-dot" style="background:#FEBC2E"></div>
+            <div class="sm-dot" style="background:#28C840"></div>
+            <span style="color:#8899AA;font-size:11px;margin-left:8px;">Epic — Care Everywhere External Records</span>
+          </div>
+          <div class="sm-body"><span class="rg">CARE EVERYWHERE — External Records</span>
+<span class="rd">Patient: Johnson, Robert   DOB: 05/14/1962</span>
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rgn">✓ Oregon Health &amp; Science University</span>       <span class="rt">Last visit: 11/02/2024</span>
+  <span class="rd">· Cardiology note — Post-CABG follow-up</span>
+  <span class="rd">· Medications: Aspirin, metoprolol, lisinopril, atorvastatin</span>
+  <span class="rd">· Labs: BMP 10/28/2024 — Creatinine 1.4 (stable)</span>
+
+<span class="rgn">✓ Providence St. Vincent Medical Center</span>    <span class="rt">Last visit: 09/15/2024</span>
+  <span class="rd">· ED Visit — Chest pain, ruled out ACS</span>
+  <span class="rd">· Troponin x2 negative | EKG: normal sinus rhythm</span>
+
+<span class="ro">▶ Kaiser Permanente Northwest</span>              <span class="rd">Records available (click to load)</span>
+
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rd">            [ Reconcile Medications ]  [ Pull into Chart ]</span></div>
+        </div>
+
+        <h3>Care Everywhere Networks Ochin Participates In</h3>
+        <table class="ct">
+          <thead><tr><th>Network</th><th>What It Connects</th><th>Coverage</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Epic Care Everywhere</strong></td><td>Other Epic-based health systems (hospitals, large practices, other Ochin sites)</td><td>600+ Epic organizations nationwide</td></tr>
+            <tr><td><strong>CommonWell Health Alliance</strong></td><td>Non-Epic EHR systems that participate in CommonWell (Cerner/Oracle, athenahealth, etc.)</td><td>Expands access to non-Epic organizations</td></tr>
+            <tr><td><strong>Carequality</strong></td><td>National health information exchange framework — connects diverse EHR systems</td><td>Broadest coverage of any network</td></tr>
+            <tr><td><strong>State HIE</strong></td><td>State-specific health information exchange (e.g., OneHealthPort in WA, OCHIN/CQC in OR)</td><td>Varies by state; often includes Medicaid records</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ib key"><strong>Privacy Important:</strong> Care Everywhere access is logged in the audit trail. Only access records you have a legitimate treatment relationship with the patient to access. Do not browse external records out of curiosity. Ochin's privacy team monitors Care Everywhere access patterns across the network.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s6',null)">← Back to 5.6</button>
+        <button class="btn bp" onclick="show('quiz',null);mark('s7')">Proceed to Module Quiz →</button>
+      </div>
+    </div><!-- end s7 -->
+
+    <!-- ═══ SECTION: QUIZ ═══ -->
+    <div class="sc" id="sec-quiz">
+
+      <div class="qc">
+        <h2>📝 Module 5 Knowledge Check</h2>
+        <p class="qsub">Answer all 8 questions. You need 7/8 (88%) to pass and unlock Part 6: Scheduling &amp; Billing.</p>
+
+        <!-- Q1 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">1.</span> A provider enters a lab order in Epic but leaves before signing it. What happens to the order?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q1" value="a"> <span>a) It automatically signs after 30 minutes</span></label>
+            <label class="qo"><input type="radio" name="q1" value="b"> <span>b) It remains as an unsigned order and does NOT route to the lab — the specimen will not be collected</span></label>
+            <label class="qo"><input type="radio" name="q1" value="c"> <span>c) The MA can sign it on the provider's behalf</span></label>
+            <label class="qo"><input type="radio" name="q1" value="d"> <span>d) It routes to the lab as a "pending" order automatically</span></label>
+          </div>
+          <div class="qfb" id="fb1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">2.</span> You order a CT scan for a patient with Medicaid. What step should you take BEFORE signing the imaging order?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q2" value="a"> <span>a) Nothing — CT scans never require prior authorization for Medicaid patients</span></label>
+            <label class="qo"><input type="radio" name="q2" value="b"> <span>b) Confirm whether prior authorization (PA) is required and alert your referral coordinator before signing</span></label>
+            <label class="qo"><input type="radio" name="q2" value="c"> <span>c) Order it STAT to bypass the PA process</span></label>
+            <label class="qo"><input type="radio" name="q2" value="d"> <span>d) Ask the patient to call their insurance directly before the appointment</span></label>
+          </div>
+          <div class="qfb" id="fb2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">3.</span> The lab calls with a critical potassium value of 2.8 mEq/L on your patient. What is the correct sequence of actions?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q3" value="a"> <span>a) Acknowledge the result in In Basket, then contact the patient when convenient</span></label>
+            <label class="qo"><input type="radio" name="q3" value="b"> <span>b) Read-back the value to the lab tech, document the critical call in Epic, contact the patient immediately, then acknowledge in In Basket</span></label>
+            <label class="qo"><input type="radio" name="q3" value="c"> <span>c) Ask the lab to re-run the test before taking action</span></label>
+            <label class="qo"><input type="radio" name="q3" value="d"> <span>d) Route the result to your nurse to call the patient</span></label>
+          </div>
+          <div class="qfb" id="fb3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">4.</span> What is the benefit of using an Ochin order set instead of ordering labs individually?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q4" value="a"> <span>a) Order sets are cheaper than individual orders for the patient</span></label>
+            <label class="qo"><input type="radio" name="q4" value="b"> <span>b) Order sets automatically generate billing codes without provider input</span></label>
+            <label class="qo"><input type="radio" name="q4" value="c"> <span>c) Order sets allow you to bypass the ICD-10 requirement</span></label>
+            <label class="qo"><input type="radio" name="q4" value="d"> <span>d) Order sets reduce errors, ensure completeness, and align care with Ochin's evidence-based FQHC protocols in a single action</span></label>
+          </div>
+          <div class="qfb" id="fb4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">5.</span> An MA wants to enter a lab order for a patient presenting with symptoms. What is the correct understanding of an MA's ordering authority in Ochin Epic?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q5" value="a"> <span>a) MAs cannot enter any orders under any circumstances</span></label>
+            <label class="qo"><input type="radio" name="q5" value="b"> <span>b) MAs can enter and sign orders with full authority, same as providers</span></label>
+            <label class="qo"><input type="radio" name="q5" value="c"> <span>c) MAs can enter orders per approved standing order protocols, but cannot sign/release orders — a provider must co-sign</span></label>
+            <label class="qo"><input type="radio" name="q5" value="d"> <span>d) MAs can sign lab orders but not imaging orders</span></label>
+          </div>
+          <div class="qfb" id="fb5"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">6.</span> You review a patient's HbA1c result of 9.4% in your In Basket. What is the MOST complete correct action?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q6" value="a"> <span>a) Click "Acknowledge" to clear it from your In Basket — the result is documented</span></label>
+            <label class="qo"><input type="radio" name="q6" value="b"> <span>b) Add a clinical comment documenting your assessment and plan, communicate with the patient, then acknowledge the result</span></label>
+            <label class="qo"><input type="radio" name="q6" value="c"> <span>c) Route the result to the front desk to schedule a follow-up visit</span></label>
+            <label class="qo"><input type="radio" name="q6" value="d"> <span>d) Mark as reviewed but wait for the patient to call before taking any action</span></label>
+          </div>
+          <div class="qfb" id="fb6"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">7.</span> A new patient says they were recently hospitalized at a large regional hospital that uses Epic. How can you access their hospital records in Ochin Epic?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q7" value="a"> <span>a) You cannot — each Epic system is completely separate and cannot share records</span></label>
+            <label class="qo"><input type="radio" name="q7" value="b"> <span>b) Request that the patient bring printed records to their next visit</span></label>
+            <label class="qo"><input type="radio" name="q7" value="c"> <span>c) Use Care Everywhere in the patient's chart to query external Epic organizations and pull in their hospital records</span></label>
+            <label class="qo"><input type="radio" name="q7" value="d"> <span>d) Submit a formal medical records request that takes 7–10 business days</span></label>
+          </div>
+          <div class="qfb" id="fb7"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">8.</span> Which of the following BEST describes what happens to an Ochin Epic referral order after a provider signs it?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q8" value="a"> <span>a) It is automatically sent to the specialist's office and the patient is scheduled</span></label>
+            <label class="qo"><input type="radio" name="q8" value="b"> <span>b) It routes to the clinic's referral coordinator, who initiates prior authorization, contacts the specialist, and coordinates scheduling</span></label>
+            <label class="qo"><input type="radio" name="q8" value="c"> <span>c) The patient receives a MyChart notification and must call the specialist themselves</span></label>
+            <label class="qo"><input type="radio" name="q8" value="d"> <span>d) It is faxed to the specialist automatically by Ochin's system</span></label>
+          </div>
+          <div class="qfb" id="fb8"></div>
+        </div>
+
+        <div class="qrow">
+          <button class="btn bp" onclick="grade()">Submit Answers</button>
+          <button class="btn bo" onclick="reset()">Reset</button>
+          <span class="qsc" id="qsc"></span>
+        </div>
+      </div>
+
+      <!-- QUIZ RESULT -->
+      <div id="qresult" style="display:none;">
+
+        <div id="qpass" style="display:none;" class="card">
+          <h2><span>🎉</span> Module 5 Complete!</h2>
+          <p>Outstanding work — you've mastered Orders &amp; Results in Ochin Epic. You understand CPOE workflow, lab and imaging order placement, order sets, result review best practices, In Basket management, and referrals through Care Everywhere.</p>
+          <div class="ib green"><strong>✓ Key Takeaways from Part 5:</strong><br>
+          • All orders must be SIGNED before they route — unsigned orders go nowhere<br>
+          • STAT is for true emergencies — routine and urgent are appropriate for most orders<br>
+          • Critical values require immediate action: read-back, documentation, and patient contact<br>
+          • The In Basket is a patient safety tool — unreviewed results create liability and harm<br>
+          • Care Everywhere connects Ochin to hundreds of outside Epic organizations for seamless care coordination</div>
+          <div class="mnav">
+            <button class="btn bo" onclick="show('s7',null)">← Review Section 5.7</button>
+            <button class="btn bg" id="btnp6" onclick="alert('Part 6: Scheduling &amp; Billing — Load ochin-epic-part6.html to continue your training.')">Part 6: Scheduling &amp; Billing → 📅</button>
+          </div>
+        </div>
+
+        <div id="qfail" style="display:none;" class="card">
+          <h2><span>📖</span> Review and Try Again</h2>
+          <p>Good effort — review the sections where you made errors and retry the quiz. You need 7/8 to unlock Part 6. The answer explanations above will guide your review.</p>
+          <div class="mnav">
+            <button class="btn bo" onclick="show('s1',null)">← Start from 5.1</button>
+            <button class="btn bp" onclick="reset()">Retry Quiz</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- end quiz -->
+
+  </main>
+</div><!-- end layout -->
+
+<script>
+const sids=['s1','s2','s3','s4','s5','s6','s7','quiz'];
+
+function show(id, nav) {
+  sids.forEach(s => {
+    const e = document.getElementById('sec-' + s);
+    if (e) e.classList.remove('active');
+  });
+  const t = document.getElementById('sec-' + id);
+  if (t) t.classList.add('active');
+  document.querySelectorAll('#sidebar .ni').forEach(n => n.classList.remove('active'));
+  if (nav) nav.classList.add('active');
+  document.querySelectorAll('.stab').forEach((tab, i) => tab.classList.toggle('active', sids[i] === id));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function mark(id) {
+  const num = sids.indexOf(id) + 1;
+  const c = document.getElementById('c' + num);
+  if (c) c.style.display = 'inline';
+  const done = document.querySelectorAll('.chk[style*="inline"]').length;
+  const p = Math.round((done / 7) * 100);
+  document.getElementById('pbf').style.width = p + '%';
+  document.getElementById('ppct').textContent = p + '%';
+}
+
+const ans = { q1:'b', q2:'b', q3:'b', q4:'d', q5:'c', q6:'b', q7:'c', q8:'b' };
+
+const ex = {
+  q1: {
+    ok: "Correct! An unsigned order in Epic is just a draft — it does NOT transmit to the lab, does NOT appear on the nursing worklist, and will NOT result in specimen collection. Always sign before leaving the encounter.",
+    bad: "Incorrect. Unsigned orders remain in 'Pending' status and do NOT route anywhere. The lab never receives them, the specimen is not collected, and there is no billing. Providers must always sign orders before they leave."
+  },
+  q2: {
+    ok: "Correct! CT scans almost always require prior authorization from insurance — including Medicaid. Placing an imaging order without PA can result in a denied claim and leave the patient with a large unexpected bill. Always check and alert your referral coordinator.",
+    bad: "Incorrect. CT scans and MRIs nearly always require prior authorization, regardless of insurance type. Ordering without confirming PA can result in denied claims. Alert your referral coordinator and confirm PA before the order is scheduled."
+  },
+  q3: {
+    ok: "Correct! The critical value response protocol is: (1) read-back the value verbatim to the lab tech and confirm the patient name, (2) document the critical call in Epic including time, tech name, and value, (3) contact the patient immediately, and (4) acknowledge and document your clinical response in the In Basket. This sequence is required by CMS and accreditation standards.",
+    bad: "Incorrect. Critical values require an immediate structured response: read-back to the lab, documentation of the call in Epic, immediate patient contact, and clinical response. Simply acknowledging in the In Basket is not sufficient — this is a patient safety event requiring prompt action."
+  },
+  q4: {
+    ok: "Correct! Ochin order sets bundle evidence-based, FQHC-appropriate orders into a single action. They reduce errors by ensuring no component is forgotten, align with UDS quality measures, and save time compared to ordering each item individually. For complex visits like Annual Wellness Visits or diabetes management, order sets are the gold standard.",
+    bad: "Incorrect. The primary benefits of order sets are: reducing ordering errors, ensuring completeness of care (nothing forgotten), alignment with Ochin's evidence-based FQHC protocols, and efficiency. They don't bypass ICD-10 requirements or change billing costs."
+  },
+  q5: {
+    ok: "Correct! MAs in Ochin Epic can enter orders per approved standing order protocols — this is an important efficiency tool in busy FQHC settings. However, MAs cannot sign or release orders. A licensed provider must co-sign all orders entered by MAs. Knowing and following your clinic's standing order protocols is essential.",
+    bad: "Incorrect. MAs can enter orders in Epic when doing so falls within their clinic's approved standing order protocols — for example, initiating a flu vaccine administration or a urine dipstick per standing protocol. However, they cannot sign or release orders. A provider must always co-sign MA-initiated orders."
+  },
+  q6: {
+    ok: "Correct! Simply clicking 'Acknowledge' on a significantly abnormal result like HbA1c 9.4% is not adequate clinical care. The complete response is: (1) add a clinical comment with your assessment and plan (e.g., medication adjustment, follow-up timeframe), (2) communicate with the patient — phone call or MyChart message with context, and (3) acknowledge the result. This is the standard of care and is what the medical record should reflect.",
+    bad: "Incorrect. For a significantly abnormal result, simply clicking Acknowledge is medically and legally insufficient. You must: document your clinical assessment and plan in a comment, communicate the result to the patient with context and next steps, and THEN acknowledge. This creates the complete medical record of your response."
+  },
+  q7: {
+    ok: "Correct! Care Everywhere is Epic's interoperability network that connects Ochin's shared instance to hundreds of other Epic-based organizations nationwide, plus CommonWell and Carequality networks. When a new patient was seen at another Epic hospital, their records are often immediately available — medications, problem lists, notes, labs, and imaging reports.",
+    bad: "Incorrect. Care Everywhere allows you to access records from other Epic-based health systems and participating HIE networks directly within the patient's Ochin Epic chart. If the patient's hospital uses Epic (most major health systems do), their records are often immediately accessible without waiting for formal records requests."
+  },
+  q8: {
+    ok: "Correct! In the standard Ochin referral workflow, the signed referral order routes to the clinic's referral coordinator — not directly to the specialist. The coordinator then manages the process: initiating prior authorization with the insurance company, contacting the specialist's scheduling office, and coordinating the appointment with the patient. This ensures PA is obtained before the visit and the patient has clear instructions.",
+    bad: "Incorrect. After a provider signs a referral in Ochin Epic, it routes to the clinic's referral coordinator. The coordinator — not an automated system — handles prior authorization, contacts the specialist office, and coordinates scheduling. This human-managed workflow ensures PA compliance and proper care coordination."
+  }
+};
+
+let done = false;
+
+function grade() {
+  if (done) return;
+  let score = 0, all = true;
+
+  Object.keys(ans).forEach((q, i) => {
+    const s = document.querySelector(`input[name="${q}"]:checked`);
+    const fb = document.getElementById(`fb${i + 1}`);
+    if (!s) { all = false; return; }
+
+    document.querySelectorAll(`input[name="${q}"]`).forEach(l => l.closest('.qo').classList.remove('sel', 'correct', 'wrong'));
+    const ch = s.closest('.qo');
+
+    if (s.value === ans[q]) {
+      ch.classList.add('correct');
+      fb.className = 'qfb ok show';
+      fb.textContent = '✓ ' + ex[q].ok;
+      score++;
+    } else {
+      ch.classList.add('wrong');
+      fb.className = 'qfb bad show';
+      fb.textContent = '✗ ' + ex[q].bad;
+      document.querySelectorAll(`input[name="${q}"]`).forEach(l => {
+        if (l.value === ans[q]) l.closest('.qo').classList.add('correct');
+      });
+    }
+  });
+
+  if (!all) { alert('Please answer all 8 questions before submitting.'); return; }
+
+  done = true;
+  const sc = document.getElementById('qsc');
+  sc.textContent = `Score: ${score}/8`;
+  sc.style.color = score >= 7 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('qresult').style.display = 'block';
+
+  if (score >= 7) {
+    document.getElementById('qpass').style.display = 'block';
+    document.getElementById('qfail').style.display = 'none';
+    document.getElementById('pbf').style.width = '100%';
+    document.getElementById('ppct').textContent = '100%';
+  } else {
+    document.getElementById('qfail').style.display = 'block';
+    document.getElementById('qpass').style.display = 'none';
+  }
+}
+
+function reset() {
+  done = false;
+  document.querySelectorAll('#sec-quiz input[type=radio]').forEach(r => r.checked = false);
+  document.querySelectorAll('#sec-quiz .qo').forEach(o => o.className = 'qo');
+  document.querySelectorAll('#sec-quiz .qfb').forEach(f => f.className = 'qfb');
+  document.getElementById('qsc').textContent = '';
+  document.getElementById('qresult').style.display = 'none';
+}
+
+document.addEventListener('change', e => {
+  if (e.target.type === 'radio') {
+    const n = e.target.name;
+    document.querySelectorAll(`input[name="${n}"]`).forEach(r => r.closest('.qo').classList.remove('sel'));
+    e.target.closest('.qo').classList.add('sel');
+  }
+});
+
+window.addEventListener('scroll', () => {
+  const p = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('si').style.transform = `scaleX(${Math.min(p, 1)})`;
+}, { passive: true });
+</script>
+</body>
+</html>

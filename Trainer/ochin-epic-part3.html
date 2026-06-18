@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 3: Clinical Documentation</title>
+<style>
+  :root {
+    --navy:#0D2B4E; --teal:#006D75; --teal-lt:#00A3AD;
+    --gold:#E8A020; --gold-lt:#F5C842;
+    --cream:#F4F8FA; --white:#FFFFFF;
+    --gray1:#1A2B3C; --gray2:#3D5166; --gray3:#7A93A8;
+    --gray4:#C5D5E0; --gray5:#EDF2F5;
+    --red:#C0392B; --green:#1E7E4C;
+    --shadow:0 2px 12px rgba(13,43,78,.13);
+    --radius:10px;
+    --font-body:'Segoe UI','Arial',sans-serif;
+    --font-mono:'Consolas','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);background:var(--cream);color:var(--gray1);min-height:100vh;}
+
+  #topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+  #topbar .brand{display:flex;align-items:center;gap:12px;}
+  #topbar .brand .logo-box{background:var(--teal-lt);color:#fff;font-weight:800;font-size:15px;padding:5px 10px;border-radius:6px;}
+  #topbar .brand .title{font-size:17px;font-weight:600;}
+  #topbar .brand .subtitle{font-size:11px;color:var(--gray4);margin-top:1px;}
+  #topbar .progress-bar-wrap{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gray4);}
+  #topbar .progress-bar-track{width:160px;height:7px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;}
+  #topbar .progress-bar-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s;}
+  #topbar .user-badge{background:rgba(255,255,255,.12);border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;}
+
+  #layout{display:flex;min-height:calc(100vh - 60px);}
+
+  #sidebar{width:260px;flex-shrink:0;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding-bottom:20px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;border-right:1px solid rgba(255,255,255,.07);}
+  #sidebar::-webkit-scrollbar{width:4px;}
+  #sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+  .sidebar-section{padding:18px 20px 6px;}
+  .sidebar-section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal-lt);text-transform:uppercase;margin-bottom:8px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.78);transition:background .15s,color .15s;margin-bottom:2px;}
+  .nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .nav-item.active{background:var(--teal);color:#fff;}
+  .nav-item.locked{opacity:.45;cursor:not-allowed;}
+  .nav-item .nav-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+  .nav-item .nav-label{flex:1;}
+  .nav-item .nav-badge{font-size:10px;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 7px;font-weight:700;}
+  .nav-item .nav-check{font-size:13px;color:#4cd964;}
+  .nav-divider{height:1px;background:rgba(255,255,255,.08);margin:10px 20px;}
+
+  #main{flex:1;padding:36px 44px;max-width:900px;overflow-y:auto;}
+
+  .section-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px;}
+  .sec-tab{padding:7px 16px;border-radius:20px;border:1.5px solid var(--gray4);font-size:12px;font-weight:600;cursor:pointer;color:var(--gray2);background:#fff;transition:all .15s;}
+  .sec-tab:hover{border-color:var(--teal);color:var(--teal);}
+  .sec-tab.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .section-content{display:none;}
+  .section-content.active{display:block;}
+
+  .page-header{background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 100%);color:#fff;border-radius:var(--radius);padding:28px 32px 24px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .page-header::after{content:'';position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .page-header .mod-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px;}
+  .page-header h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+  .page-header p{font-size:14px;color:rgba(255,255,255,.8);max-width:560px;line-height:1.6;}
+  .page-header .meta{display:flex;gap:20px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.65);}
+
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card h3{font-size:14px;font-weight:700;color:var(--teal);margin:18px 0 8px;}
+  .card p{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:10px;}
+  .card ul,.card ol{padding-left:20px;}
+  .card li{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:5px;}
+
+  .info-box{border-left:4px solid var(--teal);background:var(--gray5);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.6;color:var(--gray2);}
+  .info-box.tip{border-color:var(--gold);background:#FFFBF0;}
+  .info-box.warn{border-color:var(--red);background:#FFF5F5;}
+  .info-box.key{border-color:var(--navy);background:#F0F4FF;}
+  .info-box.green{border-color:var(--green);background:#EEF9F3;}
+  .info-box strong{color:var(--gray1);}
+
+  .step-list{counter-reset:step;list-style:none;padding:0;}
+  .step-list li{counter-increment:step;display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--gray5);}
+  .step-list li:last-child{border-bottom:none;}
+  .step-list li::before{content:counter(step);background:var(--teal);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .step-list li .step-text{flex:1;font-size:13.5px;line-height:1.6;color:var(--gray2);}
+  .step-list li .step-text strong{color:var(--gray1);display:block;margin-bottom:3px;}
+
+  .compare-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+  .compare-table th{background:var(--navy);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px;}
+  .compare-table td{padding:9px 14px;border-bottom:1px solid var(--gray4);color:var(--gray2);vertical-align:top;}
+  .compare-table tr:nth-child(even) td{background:var(--gray5);}
+
+  /* NOTE EDITOR MOCK */
+  .note-editor{background:#1E2A35;border-radius:10px;overflow:hidden;margin:16px 0;box-shadow:0 4px 18px rgba(0,0,0,.25);}
+  .note-toolbar{background:#162028;padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .note-toolbar .ntb-btn{background:rgba(255,255,255,.1);color:#aac;border:none;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font-body);}
+  .note-toolbar .ntb-btn:hover{background:rgba(255,255,255,.18);}
+  .note-toolbar .ntb-sep{width:1px;height:18px;background:rgba(255,255,255,.15);}
+  .note-body{padding:16px 20px;font-family:var(--font-mono);font-size:12px;color:#B8D4E8;line-height:1.9;white-space:pre-wrap;}
+  .nb-section{color:#F5C842;font-weight:700;}
+  .nb-text{color:#B8D4E8;}
+  .nb-smart{color:#4FC3F7;font-style:italic;}
+  .nb-cursor{display:inline-block;width:2px;height:14px;background:#4FC3F7;animation:blink 1s step-end infinite;vertical-align:middle;}
+  @keyframes blink{50%{opacity:0;}}
+  .nb-filled{color:#A5D6A7;}
+  .nb-comment{color:#546E7A;}
+
+  /* SMARTPHRASE TABLE */
+  .sp-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+  .sp-table th{background:var(--teal);color:#fff;padding:9px 14px;text-align:left;font-size:12px;font-weight:600;}
+  .sp-table td{padding:9px 14px;border-bottom:1px solid var(--gray4);color:var(--gray2);vertical-align:top;}
+  .sp-table tr:nth-child(even) td{background:var(--gray5);}
+  .sp-table code{background:var(--navy);color:#F5C842;padding:2px 7px;border-radius:4px;font-family:var(--font-mono);font-size:11px;}
+
+  /* FLOWSHEET MOCK */
+  .flowsheet{background:#fff;border:1.5px solid var(--gray4);border-radius:8px;overflow:hidden;margin:14px 0;}
+  .flowsheet-header{background:var(--navy);color:#fff;padding:8px 14px;font-size:12px;font-weight:700;display:flex;gap:20px;}
+  .flowsheet-row{display:flex;align-items:stretch;border-bottom:1px solid var(--gray4);}
+  .flowsheet-row:last-child{border-bottom:none;}
+  .flowsheet-row.header-row{background:var(--gray5);}
+  .flowsheet-label{width:180px;flex-shrink:0;padding:8px 12px;font-size:12px;font-weight:600;color:var(--gray2);border-right:1px solid var(--gray4);}
+  .flowsheet-cell{flex:1;padding:8px 12px;font-size:12px;color:var(--gray1);border-right:1px solid var(--gray4);min-width:80px;}
+  .flowsheet-cell:last-child{border-right:none;}
+  .flowsheet-cell.abnormal{color:var(--red);font-weight:700;}
+  .flowsheet-cell.normal{color:var(--green);}
+  .flowsheet-cell.empty{color:var(--gray4);}
+
+  /* SCREEN MOCK */
+  .screen-mock{background:#1A2B3C;border-radius:10px;padding:0;overflow:hidden;margin:16px 0;box-shadow:0 4px 18px rgba(0,0,0,.2);font-family:var(--font-mono);}
+  .screen-mock .mock-bar{background:var(--navy);padding:8px 14px;display:flex;align-items:center;gap:8px;}
+  .screen-mock .mock-dot{width:10px;height:10px;border-radius:50%;}
+  .screen-mock .mock-body{padding:16px 20px;font-size:12px;color:#B8D4E8;line-height:1.8;white-space:pre;overflow-x:auto;}
+  .hl-gold{color:#F5C842;font-weight:700;}
+  .hl-teal{color:#00C9D4;}
+  .hl-white{color:#fff;font-weight:700;}
+  .hl-gray{color:#546E7A;}
+  .hl-green{color:#A5D6A7;}
+  .hl-red{color:#EF9A9A;}
+
+  .quiz-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .quiz-card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .quiz-subtitle{font-size:13px;color:var(--gray3);margin-bottom:18px;}
+  .quiz-q{margin-bottom:20px;}
+  .qtext{font-size:13.5px;font-weight:600;color:var(--gray1);margin-bottom:10px;}
+  .qnum{color:var(--teal);margin-right:6px;}
+  .quiz-options{display:flex;flex-direction:column;gap:7px;}
+  .quiz-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--gray4);border-radius:8px;cursor:pointer;font-size:13px;transition:border-color .15s,background .15s;}
+  .quiz-option:hover{border-color:var(--teal);background:var(--gray5);}
+  .quiz-option.selected{border-color:var(--teal);background:#E8F6F8;}
+  .quiz-option.correct{border-color:var(--green);background:#E8F5EE;color:var(--green);font-weight:600;}
+  .quiz-option.wrong{border-color:var(--red);background:#FFF0EF;color:var(--red);}
+  .quiz-option input[type=radio]{accent-color:var(--teal);}
+  .quiz-feedback{font-size:12.5px;margin-top:8px;padding:8px 12px;border-radius:6px;display:none;}
+  .quiz-feedback.show{display:block;}
+  .quiz-feedback.ok{background:#E8F5EE;color:var(--green);}
+  .quiz-feedback.bad{background:#FFF0EF;color:var(--red);}
+  .quiz-submit-row{display:flex;align-items:center;gap:14px;margin-top:6px;}
+  .quiz-score{font-size:14px;font-weight:700;color:var(--navy);}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-gold{background:var(--gold);color:var(--navy);}
+  .btn-outline{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+
+  .chip{display:inline-block;background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;margin:2px;}
+  .chip.gold{background:var(--gold);color:var(--navy);}
+  .chip.red{background:var(--red);color:#fff;}
+
+  .mod-nav{display:flex;gap:12px;margin-top:30px;padding-top:20px;border-top:1px solid var(--gray4);}
+
+  #scroll-indicator{position:fixed;top:60px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal-lt),var(--gold));transform-origin:left;transform:scaleX(0);z-index:200;transition:transform .1s;}
+
+  @media(max-width:780px){#sidebar{display:none;}#main{padding:20px 16px;}}
+</style>
+</head>
+<body>
+<div id="scroll-indicator"></div>
+
+<div id="topbar">
+  <div class="brand">
+    <div class="logo-box">OCHIN</div>
+    <div>
+      <div class="title">Epic Training Portal</div>
+      <div class="subtitle">Part 3 of 8 · Clinical Documentation</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <span>Module Progress</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="overall-progress" style="width:0%"></div></div>
+    <span id="overall-pct">0%</span>
+  </div>
+  <div class="user-badge">👤 Learner</div>
+</div>
+
+<div id="layout">
+  <nav id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Part 3 Sections</div>
+      <div class="nav-item active" onclick="showSection('s1',this)"><span class="nav-icon">📂</span><span class="nav-label">3.1 · The Patient Chart</span><span class="nav-check" id="chk-s1" style="display:none">✓</span></div>
+      <div class="nav-item" onclick="showSection('s2',this)"><span class="nav-icon">📝</span><span class="nav-label">3.2 · Visit Notes &amp; SOAP</span><span class="nav-check" id="chk-s2" style="display:none">✓</span></div>
+      <div class="nav-item" onclick="showSection('s3',this)"><span class="nav-icon">✨</span><span class="nav-label">3.3 · SmartPhrases &amp; Dot Phrases</span><span class="nav-check" id="chk-s3" style="display:none">✓</span></div>
+      <div class="nav-item" onclick="showSection('s4',this)"><span class="nav-icon">📊</span><span class="nav-label">3.4 · Flowsheets &amp; Vitals</span><span class="nav-check" id="chk-s4" style="display:none">✓</span></div>
+      <div class="nav-item" onclick="showSection('s5',this)"><span class="nav-icon">🩺</span><span class="nav-label">3.5 · Problem List &amp; Diagnoses</span><span class="nav-check" id="chk-s5" style="display:none">✓</span></div>
+      <div class="nav-item" onclick="showSection('s6',this)"><span class="nav-icon">🔏</span><span class="nav-label">3.6 · Signing &amp; Cosigning</span><span class="nav-check" id="chk-s6" style="display:none">✓</span></div>
+      <div class="nav-item" onclick="showSection('s7',this)"><span class="nav-icon">📤</span><span class="nav-label">3.7 · AVS &amp; Visit Wrap-Up</span><span class="nav-check" id="chk-s7" style="display:none">✓</span></div>
+      <div class="nav-item" onclick="showSection('quiz',this)"><span class="nav-icon">📝</span><span class="nav-label">Module Quiz</span></div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">All Parts</div>
+      <div class="nav-item" onclick="alert('Load ochin-epic-part1.html')"><span class="nav-icon">🏥</span><span class="nav-label">Part 1 · Overview &amp; Login</span><span class="nav-check">✓</span></div>
+      <div class="nav-item" onclick="alert('Load ochin-epic-part2.html')"><span class="nav-icon">🪪</span><span class="nav-label">Part 2 · Check-In</span><span class="nav-check">✓</span></div>
+      <div class="nav-item active"><span class="nav-icon">📝</span><span class="nav-label">Part 3 · Documentation (HERE)</span></div>
+      <div class="nav-item locked"><span class="nav-icon">💊</span><span class="nav-label">Part 4 · Medications &amp; Rx</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">🔬</span><span class="nav-label">Part 5 · Orders &amp; Results</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">📅</span><span class="nav-label">Part 6 · Scheduling &amp; Billing</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">📖</span><span class="nav-label">Part 7 · Top 100 Q&amp;A</span><span class="nav-badge">Coming</span></div>
+      <div class="nav-item locked"><span class="nav-icon">🎓</span><span class="nav-label">Part 8 · Final Assessment</span><span class="nav-badge">Coming</span></div>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <div class="page-header">
+      <div class="mod-tag">Module 3 of 6 · Part 3 of 8</div>
+      <h1>Clinical Documentation</h1>
+      <p>Master Ochin Epic's documentation tools: navigating the patient chart, writing SOAP notes with SmartPhrases, entering vitals in flowsheets, managing the problem list, signing and cosigning notes, and completing the visit with the After Visit Summary.</p>
+      <div class="meta">
+        <span>⏱ ~40 min</span>
+        <span>🎯 Providers · Nurses · MAs · All Clinical Staff</span>
+        <span>📋 7 sections · Quiz at end</span>
+      </div>
+    </div>
+
+    <div class="section-tabs">
+      <div class="sec-tab active" onclick="showSection('s1',null)">3.1 Chart</div>
+      <div class="sec-tab" onclick="showSection('s2',null)">3.2 Notes</div>
+      <div class="sec-tab" onclick="showSection('s3',null)">3.3 SmartPhrases</div>
+      <div class="sec-tab" onclick="showSection('s4',null)">3.4 Flowsheets</div>
+      <div class="sec-tab" onclick="showSection('s5',null)">3.5 Problem List</div>
+      <div class="sec-tab" onclick="showSection('s6',null)">3.6 Signing</div>
+      <div class="sec-tab" onclick="showSection('s7',null)">3.7 AVS</div>
+      <div class="sec-tab" onclick="showSection('quiz',null)">📝 Quiz</div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         3.1 THE PATIENT CHART
+    ═══════════════════════════════ -->
+    <div class="section-content active" id="sec-s1">
+      <div class="card">
+        <h2><span class="ch-icon">📂</span> 3.1 Navigating the Patient Chart</h2>
+        <p>The patient chart in Ochin Epic is the central workspace for all clinical activity. Once you open a patient's chart, you'll see a structured layout designed for fast access to the most critical information.</p>
+
+        <h3>Opening a Patient Chart</h3>
+        <ul>
+          <li><strong>From the Schedule:</strong> Click or double-click the patient's appointment</li>
+          <li><strong>From Patient Search (Ctrl+E):</strong> Find the patient → click their name to open chart</li>
+          <li><strong>From In Basket:</strong> Click a message related to a patient — their chart opens alongside the message</li>
+          <li><strong>Recent Patients list:</strong> Epic Button → Recent Patients shows your last 10 opened charts</li>
+        </ul>
+
+        <h3>Chart Layout — Activity Tabs</h3>
+        <p>Once inside a chart, the top row of tabs changes based on the patient's context. Common tabs for clinic visits:</p>
+
+        <div class="screen-mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f57"></div>
+            <div class="mock-dot" style="background:#febc2e"></div>
+            <div class="mock-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.4);font-size:11px;margin-left:8px;font-family:sans-serif">Epic Hyperspace — Patient Chart</span>
+          </div>
+          <div class="mock-body"><span class="hl-white">DOE, JANE</span>  DOB: 01/15/1985  MRN: <span class="hl-teal">00123456</span>  PCP: Smith, J MD  <span class="hl-gold">⚠ NKA</span>
+<span class="hl-gray">─────────────────────────────────────────────────────────────────────────</span>
+<span class="hl-gold">[ Summary ]</span> [ Chart ] [ Orders ] [ Results ] [ Medications ] [ Media ] [ Billing ]
+<span class="hl-gray">─────────────────────────────────────────────────────────────────────────</span>
+  <span class="hl-teal">NAVIGATOR</span>  (left panel)    │   <span class="hl-white">WORKSPACE</span>  (main area)
+  ─────────────────────────────────────────────────────
+  ▸ Chief Complaint             │  [Content loads here
+  ▸ Allergies / Medications     │   based on selected
+  ▸ History                     │   navigator section]
+  ▸ Review of Systems           │
+  ▸ Vitals / Flowsheets         │
+  ▸ Exam                        │
+  ▸ Assessment &amp; Plan           │
+  ▸ Orders                      │
+<span class="hl-gray">─────────────────────────────────────────────────────────────────────────</span>
+<span class="hl-gray">Patient Header:</span> <span class="hl-red">Allergies: Penicillin (hives)</span>  |  Active Meds: 3  |  Problems: 5</div>
+        </div>
+
+        <h3>Key Chart Sections and What They Contain</h3>
+        <table class="compare-table">
+          <thead><tr><th>Tab / Section</th><th>What's Here</th><th>Who Uses It Most</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Summary</strong></td><td>One-page overview: active problems, meds, allergies, recent visits, health maintenance</td><td>Providers, all staff</td></tr>
+            <tr><td><strong>Chart</strong></td><td>Notes (visit notes, telephone encounters, letters), flowsheets</td><td>Providers, nurses, MAs</td></tr>
+            <tr><td><strong>Orders</strong></td><td>Active and past orders: lab, imaging, referrals, procedures</td><td>Providers, nurses</td></tr>
+            <tr><td><strong>Results</strong></td><td>Lab results, radiology reports, outside records</td><td>Providers, nurses</td></tr>
+            <tr><td><strong>Medications</strong></td><td>Active medication list, medication history, refill requests</td><td>Providers, nurses, pharmacy</td></tr>
+            <tr><td><strong>Media</strong></td><td>Scanned documents, photos, attachments</td><td>All staff</td></tr>
+            <tr><td><strong>Billing</strong></td><td>Visit diagnoses (ICD-10), charges, coding, prior authorizations</td><td>Providers, billing staff</td></tr>
+          </tbody>
+        </table>
+
+        <h3>The Patient Header — Always Visible</h3>
+        <p>The patient header bar at the top of the chart shows critical safety information at all times:</p>
+        <ul>
+          <li><strong>Allergies</strong> — displayed in red. "NKA" = No Known Allergies. "NKDA" = No Known Drug Allergies</li>
+          <li><strong>Medications</strong> — count of active medications; click to jump to med list</li>
+          <li><strong>Active Problems</strong> — count and quick preview</li>
+          <li><strong>Alerts / Flags</strong> — safety alerts, care team flags, interpreter needed, etc.</li>
+          <li><strong>Pregnancy status</strong> — if documented, shows EDD and gestational age</li>
+        </ul>
+
+        <div class="info-box warn">
+          <strong>⚠️ Always check the patient header FIRST</strong> when opening any chart. Allergy alerts in red require your attention before ordering anything. A patient with a Penicillin allergy receiving Amoxicillin is a preventable harm — Epic will alert you, but you must be aware.
+        </div>
+
+        <h3>The Chart Navigator (Left Panel)</h3>
+        <p>When writing a note or working through a visit, the <strong>Navigator</strong> appears on the left side of the chart. It's a structured outline of the visit sections. Click any section to jump directly to it. Sections with a green checkmark are complete; gray means incomplete.</p>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — Sticky Note / Patient Flag:</strong> You can add a sticky note to a patient's chart (visible to all staff) for important alerts: "Always needs interpreter," "Escalate billing questions to supervisor," "Preferred name: Alex." To add: click the flag icon in the patient header. Sticky notes are not part of the medical record — they are internal workflow notes.
+        </div>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-primary" onclick="markSection('s1');showSection('s2',null)">Next: Visit Notes & SOAP →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         3.2 VISIT NOTES & SOAP
+    ═══════════════════════════════ -->
+    <div class="section-content" id="sec-s2">
+      <div class="card">
+        <h2><span class="ch-icon">📝</span> 3.2 Writing Visit Notes in Ochin Epic</h2>
+        <p>Clinical notes in Ochin Epic are written directly in the chart using the <strong>Note Editor</strong>. Notes are structured, searchable, and become part of the permanent legal medical record. Ochin Epic uses the standard Epic note architecture with FQHC-specific templates pre-built by the Ochin team.</p>
+
+        <h3>Starting a New Note</h3>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>Open the patient's chart and navigate to the current encounter</strong><br>From the schedule, click on the appointment. The encounter opens automatically. Or: Chart tab → New Note button (or Ctrl+Shift+N).</div></li>
+          <li><div class="step-text"><strong>Select the Note Type</strong><br>A dialog asks which type of note to create. Common types at Ochin FQHCs:
+            <ul style="margin-top:6px">
+              <li><strong>Office Visit Note</strong> — standard outpatient visit (most common)</li>
+              <li><strong>Telephone Encounter Note</strong> — documents phone calls with patients</li>
+              <li><strong>Nurse Triage Note</strong> — MA/RN triage documentation</li>
+              <li><strong>Behavioral Health Note</strong> — mental health/SUD visits (may have different templates)</li>
+              <li><strong>Preventive Care Note</strong> — annual wellness visits</li>
+              <li><strong>Procedure Note</strong> — in-office procedures (IUD, colposcopy, etc.)</li>
+            </ul>
+          </div></li>
+          <li><div class="step-text"><strong>Select a Template (SmartForm or Blank)</strong><br>Ochin has pre-built templates for common visit types. Select the appropriate template — it pre-populates section headers and pulls in relevant patient data automatically.</div></li>
+          <li><div class="step-text"><strong>The Note Editor opens</strong><br>You'll see the structured SOAP layout with the Navigator on the left. Work through each section top to bottom.</div></li>
+        </ol>
+
+        <h3>SOAP Note Structure in Ochin Epic</h3>
+        <p>Ochin Epic organizes clinical notes in the standard <strong>SOAP</strong> format, though the navigator labels may vary slightly by note type:</p>
+
+        <div class="note-editor">
+          <div class="note-toolbar">
+            <button class="ntb-btn">B</button><button class="ntb-btn"><i>I</i></button><button class="ntb-btn">U</button>
+            <div class="ntb-sep"></div>
+            <button class="ntb-btn">SmartPhrase</button><button class="ntb-btn">SmartList</button><button class="ntb-btn">SmartLink</button>
+            <div class="ntb-sep"></div>
+            <button class="ntb-btn">Spell Check</button><button class="ntb-btn">Preview</button>
+          </div>
+          <div class="note-body"><span class="nb-section">CHIEF COMPLAINT:</span>
+<span class="nb-filled">Patient presents for follow-up of type 2 diabetes and annual wellness visit.</span>
+
+<span class="nb-section">SUBJECTIVE (History of Present Illness):</span>
+<span class="nb-filled">Jane Doe is a 41-year-old female with a history of type 2 diabetes mellitus,
+hypertension, and hyperlipidemia presenting for routine follow-up. She reports
+her blood sugars have been running 130-160 fasting at home. She denies polyuria,
+polydipsia, or hypoglycemic episodes. She has been adherent to metformin 1000mg
+BID and reports no GI side effects.</span>
+
+<span class="nb-section">REVIEW OF SYSTEMS:</span>
+<span class="nb-smart">*** SmartLink auto-pulls from ROS flowsheet ***</span>
+<span class="nb-filled">Constitutional: Denies fever, chills, weight loss.
+Cardiovascular: Denies chest pain, palpitations.
+Respiratory: Denies shortness of breath, cough.</span>
+
+<span class="nb-section">OBJECTIVE:</span>
+<span class="nb-section">  Vitals:</span> <span class="nb-smart">{VITALS SMARTLINK — auto-populates from flowsheet}</span>
+<span class="nb-section">  Physical Exam:</span>
+<span class="nb-filled">  General: Alert and oriented, NAD, well-appearing.
+  HEENT: Normocephalic, atraumatic. PERRL. Oropharynx clear.
+  CV: RRR, no murmurs.
+  Pulm: CTAB, no wheeze or crackles.
+  Abdomen: Soft, NT/ND, no HSM.
+  Extremities: No edema. Bilateral DP pulses intact.
+  Neuro: A&amp;O x3, no focal deficits.</span>
+
+<span class="nb-section">ASSESSMENT &amp; PLAN:</span>
+<span class="nb-filled">1. Type 2 Diabetes Mellitus (E11.9) — uncontrolled
+   - Last A1c 7.8% (3 months ago). Order repeat A1c today.
+   - Continue Metformin 1000mg BID.
+   - Referral to diabetes education placed.
+   - Patient counseled on diet and foot care.
+
+2. Hypertension (I10) — controlled
+   - BP 128/76 today. Continue Lisinopril 10mg daily.
+
+3. Preventive Care
+   - Flu vaccine administered today (documented in immunizations).
+   - Mammogram due — order placed.</span>
+
+<span class="nb-section">Time spent:</span> <span class="nb-filled">25 minutes total, &gt;50% counseling.</span>
+<span class="nb-section">Electronically signed by:</span> <span class="nb-smart">{PROVIDER.NAME}, {DEGREE} — {DATE}</span><span class="nb-cursor"></span></div>
+        </div>
+
+        <h3>Pulling Data Into Notes with SmartLinks</h3>
+        <p><strong>SmartLinks</strong> automatically pull live patient data into your note text. They appear as tokens that resolve when the note is signed. Common examples:</p>
+        <table class="compare-table">
+          <thead><tr><th>SmartLink Token</th><th>What It Pulls In</th></tr></thead>
+          <tbody>
+            <tr><td><code>@VITALS@</code></td><td>Today's vitals from the flowsheet</td></tr>
+            <tr><td><code>@MEDLIST@</code></td><td>Current active medication list</td></tr>
+            <tr><td><code>@PROBLEMLIST@</code></td><td>Active problem list</td></tr>
+            <tr><td><code>@ALLERGIES@</code></td><td>Documented allergies with reactions</td></tr>
+            <tr><td><code>@LABRESULTS@</code></td><td>Most recent lab results for selected tests</td></tr>
+            <tr><td><code>@AGE@</code> / <code>@DOB@</code></td><td>Patient age / date of birth</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Telephone Encounter Notes</h3>
+        <p>When you call or receive a call from a patient, document it as a <strong>Telephone Encounter</strong> in Epic — not as a visit note. From the patient's chart: <em>New → Telephone Encounter</em>. Document:</p>
+        <ul>
+          <li>Date and time of call</li>
+          <li>Who was called (patient, guardian, pharmacy)</li>
+          <li>Reason for call</li>
+          <li>Information given / instructions provided</li>
+          <li>Patient's response and plan</li>
+        </ul>
+        <p>Telephone encounters are billable in some circumstances and create a medico-legal record of communication. Never rely on memory — document every patient call.</p>
+
+        <div class="info-box key">
+          <strong>🔑 Documentation Is the Legal Record:</strong> In a malpractice case, the standard rule is: "If it wasn't documented, it didn't happen." Every clinical interaction — including phone calls, patient education, and care coordination — must be documented in Epic. Completeness protects both the patient and the provider.
+        </div>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s1',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s2');showSection('s3',null)">Next: SmartPhrases →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         3.3 SMARTPHRASES & DOT PHRASES
+    ═══════════════════════════════ -->
+    <div class="section-content" id="sec-s3">
+      <div class="card">
+        <h2><span class="ch-icon">✨</span> 3.3 SmartPhrases &amp; Dot Phrases</h2>
+        <p><strong>SmartPhrases</strong> (also called <strong>Dot Phrases</strong>) are text shortcuts that expand into full paragraphs, templates, or data pulls when typed in the Epic note editor. They are one of the most powerful time-saving tools in Epic and dramatically reduce documentation time once mastered.</p>
+
+        <h3>How to Use a Dot Phrase</h3>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>Type a period (.) followed by the phrase abbreviation</strong> in any Epic text field while in the note editor. Example: type <code>.hpi</code></div></li>
+          <li><div class="step-text"><strong>Press F2 or Enter</strong> to expand the phrase. The full template text populates instantly.</div></li>
+          <li><div class="step-text"><strong>Fill in the wildcards</strong> — placeholder text appears between <code>***</code> markers. Press F2 to jump between wildcards and fill them in or delete them.</div></li>
+          <li><div class="step-text"><strong>Edit the expanded text</strong> as needed to reflect the specific patient encounter. SmartPhrases are starting templates — personalize them for accuracy.</div></li>
+        </ol>
+
+        <h3>Ochin's Built-In Dot Phrases (Commonly Used)</h3>
+        <table class="sp-table">
+          <thead><tr><th>Dot Phrase</th><th>Expands To</th><th>Best Used For</th></tr></thead>
+          <tbody>
+            <tr><td><code>.hpi</code></td><td>History of Present Illness template with onset, duration, quality, severity, modifying factors, associated symptoms</td><td>All providers, all visits</td></tr>
+            <tr><td><code>.ros</code></td><td>Full 10-system Review of Systems template</td><td>Providers writing full SOAP notes</td></tr>
+            <tr><td><code>.rosneg</code></td><td>"Review of systems negative except as noted above" — brief version</td><td>Brief notes with minimal positives</td></tr>
+            <tr><td><code>.pe</code></td><td>Full physical exam template (general through neuro)</td><td>Providers</td></tr>
+            <tr><td><code>.normalpe</code></td><td>Pre-filled "normal" physical exam — edit any abnormal findings</td><td>Routine wellness visits</td></tr>
+            <tr><td><code>.dm2</code></td><td>Diabetes management note template with A1c, foot exam, eye exam status, counseling points</td><td>Chronic disease management visits</td></tr>
+            <tr><td><code>.htn</code></td><td>Hypertension follow-up note template</td><td>Chronic disease visits</td></tr>
+            <tr><td><code>.awv</code></td><td>Annual Wellness Visit template (Medicare) — pre-populated with required components</td><td>Medicare AWV</td></tr>
+            <tr><td><code>.counsel</code></td><td>Counseling documentation template (topics, time, patient response)</td><td>Preventive counseling documentation</td></tr>
+            <tr><td><code>.ref</code></td><td>Referral documentation note with reason, specialist, urgency, patient education</td><td>Referral ordering visits</td></tr>
+            <tr><td><code>.phone</code></td><td>Telephone encounter template</td><td>Phone calls, MA triage notes</td></tr>
+            <tr><td><code>.noshow</code></td><td>No-show documentation note</td><td>After no-show, for outreach documentation</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Creating Your Own SmartPhrases</h3>
+        <p>Providers and clinical staff can create <strong>personal SmartPhrases</strong> for their own use. Ochin analysts also maintain shared clinic-wide phrases.</p>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>Go to:</strong> Epic Button → My SmartPhrases (or search "SmartPhrase" in the Epic Button menu)</div></li>
+          <li><div class="step-text"><strong>Click "New"</strong> to create a new phrase. Give it a short, memorable abbreviation — your phrases are prefixed with your initials by convention (e.g., <code>.jsdiabetes</code> for Dr. J. Smith's diabetes template).</div></li>
+          <li><div class="step-text"><strong>Type the expanded text.</strong> Use <code>***</code> as wildcard placeholders for parts that change per patient. Insert SmartLinks using the Insert SmartLink button to auto-pull patient data.</div></li>
+          <li><div class="step-text"><strong>Save and test</strong> in a note. Type your abbreviation and press F2 to confirm it expands correctly.</div></li>
+        </ol>
+
+        <div class="note-editor" style="margin-top:14px">
+          <div class="note-toolbar">
+            <span style="color:#aac;font-size:11px;padding:0 6px">SmartPhrase Editor — .mydiabetes</span>
+          </div>
+          <div class="note-body"><span class="nb-comment">Abbreviation: .mydiabetes</span>
+<span class="nb-comment">Author: Smith, John MD</span>
+
+<span class="nb-section">DIABETES FOLLOW-UP NOTE:</span>
+Patient is a <span class="nb-smart">***age***</span> year old with type 2 diabetes.
+Last A1c: <span class="nb-smart">***result &amp; date***</span>. Goal &lt;7%.
+Home glucose log reviewed: <span class="nb-smart">***findings***</span>.
+Current medications: <span class="nb-smart">@MEDLIST@</span>
+Adherence: <span class="nb-smart">***good / fair / poor***</span>. Side effects: <span class="nb-smart">***none / describe***</span>.
+
+Diabetes complications screening:
+- Foot exam today: <span class="nb-smart">***normal / abnormal findings***</span>
+- Last eye exam: <span class="nb-smart">***date***</span>. Referral needed: <span class="nb-smart">***yes/no***</span>
+- Urine microalbumin: <span class="nb-smart">***date &amp; result***</span>
+- Nephrology referral: <span class="nb-smart">***not indicated / placed***</span>
+
+Patient education provided on: <span class="nb-smart">***topics***</span>.
+Return to clinic in <span class="nb-smart">***timeframe***</span>.</div>
+        </div>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — SmartList Dropdowns:</strong> Inside a SmartPhrase, you can embed <strong>SmartLists</strong> — clickable dropdown menus with pre-set choices. Example: instead of typing "good / fair / poor," a SmartList presents those three options as clickable buttons, and your selection inserts the right word automatically. Ask your Ochin super-user to help you add SmartLists to your personal templates.
+        </div>
+
+        <div class="info-box warn">
+          <strong>⚠️ SmartPhrase Risk — Copy/Paste Errors:</strong> A common documentation error is expanding a SmartPhrase template and forgetting to fill in the wildcards, leaving placeholder text like "***describe***" in a signed note. Always read through your note before signing to ensure all wildcards are replaced with real patient-specific content.
+        </div>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s2',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s3');showSection('s4',null)">Next: Flowsheets &amp; Vitals →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         3.4 FLOWSHEETS & VITALS
+    ═══════════════════════════════ -->
+    <div class="section-content" id="sec-s4">
+      <div class="card">
+        <h2><span class="ch-icon">📊</span> 3.4 Flowsheets &amp; Vitals Entry</h2>
+        <p>Flowsheets are structured data-entry grids in Epic used to record <strong>vitals, rooming information, preventive health screenings, and nursing assessments</strong>. Unlike free-text notes, flowsheet data is stored as discrete, measurable values — enabling reports, trend graphs, and quality measure tracking.</p>
+
+        <h3>Entering Vitals (MA / Nursing Workflow)</h3>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>Open the patient's encounter</strong> and navigate to the <em>Flowsheets</em> section in the navigator, or click the <strong>Vitals</strong> tab.</div></li>
+          <li><div class="step-text"><strong>Select the correct flowsheet row</strong> for each vital sign. Common vitals rows in Ochin Epic:<br><br>
+            <span class="chip">Weight (kg/lbs)</span> <span class="chip">Height (in/cm)</span> <span class="chip">BMI (auto-calculated)</span>
+            <span class="chip">BP Systolic</span> <span class="chip">BP Diastolic</span> <span class="chip">Pulse</span>
+            <span class="chip">Temp (°F/°C)</span> <span class="chip">O2 Sat (%)</span> <span class="chip">Respirations</span>
+            <span class="chip gold">Pain Score (0-10)</span>
+          </div></li>
+          <li><div class="step-text"><strong>Enter values in each cell</strong> and press Tab to move to the next. Values outside normal reference ranges will be <span style="color:var(--red);font-weight:700">highlighted in red</span> automatically.</div></li>
+          <li><div class="step-text"><strong>Note the BP position and site</strong> if clinically relevant (e.g., "Left arm, seated"). Some Ochin flowsheets have a BP Comments row for this.</div></li>
+          <li><div class="step-text"><strong>Click Accept / Sign Flowsheet</strong> to save. Unsigned flowsheet data does not appear in the provider's note SmartLinks until accepted.</div></li>
+        </ol>
+
+        <div class="flowsheet">
+          <div class="flowsheet-header">
+            <span>Vitals Flowsheet — DOE, JANE — 06/14/2026</span>
+          </div>
+          <div class="flowsheet-row header-row">
+            <div class="flowsheet-label">Vital Sign</div>
+            <div class="flowsheet-cell">10:15 AM<br><small>Smith, MA</small></div>
+            <div class="flowsheet-cell">Previous<br><small>03/01/2026</small></div>
+            <div class="flowsheet-cell">Reference Range</div>
+          </div>
+          <div class="flowsheet-row">
+            <div class="flowsheet-label">Weight (lbs)</div>
+            <div class="flowsheet-cell normal">164</div>
+            <div class="flowsheet-cell">168</div>
+            <div class="flowsheet-cell" style="color:var(--gray3)">—</div>
+          </div>
+          <div class="flowsheet-row">
+            <div class="flowsheet-label">Height (in)</div>
+            <div class="flowsheet-cell">65</div>
+            <div class="flowsheet-cell">65</div>
+            <div class="flowsheet-cell" style="color:var(--gray3)">—</div>
+          </div>
+          <div class="flowsheet-row">
+            <div class="flowsheet-label">BMI</div>
+            <div class="flowsheet-cell abnormal">27.3</div>
+            <div class="flowsheet-cell">28.0</div>
+            <div class="flowsheet-cell" style="color:var(--gray3)">18.5–24.9</div>
+          </div>
+          <div class="flowsheet-row">
+            <div class="flowsheet-label">BP (mmHg)</div>
+            <div class="flowsheet-cell">128/76</div>
+            <div class="flowsheet-cell abnormal">148/92</div>
+            <div class="flowsheet-cell" style="color:var(--gray3)">&lt;120/&lt;80</div>
+          </div>
+          <div class="flowsheet-row">
+            <div class="flowsheet-label">Pulse (bpm)</div>
+            <div class="flowsheet-cell normal">72</div>
+            <div class="flowsheet-cell">78</div>
+            <div class="flowsheet-cell" style="color:var(--gray3)">60–100</div>
+          </div>
+          <div class="flowsheet-row">
+            <div class="flowsheet-label">O2 Sat (%)</div>
+            <div class="flowsheet-cell normal">98</div>
+            <div class="flowsheet-cell">97</div>
+            <div class="flowsheet-cell" style="color:var(--gray3)">≥95</div>
+          </div>
+          <div class="flowsheet-row">
+            <div class="flowsheet-label">Temp (°F)</div>
+            <div class="flowsheet-cell normal">98.4</div>
+            <div class="flowsheet-cell">98.6</div>
+            <div class="flowsheet-cell" style="color:var(--gray3)">97.8–99.1</div>
+          </div>
+          <div class="flowsheet-row">
+            <div class="flowsheet-label">Pain Score (0–10)</div>
+            <div class="flowsheet-cell">2</div>
+            <div class="flowsheet-cell">0</div>
+            <div class="flowsheet-cell" style="color:var(--gray3)">—</div>
+          </div>
+        </div>
+
+        <h3>Rooming Flowsheets (MA / Nursing)</h3>
+        <p>Beyond vitals, Ochin Epic includes structured flowsheets for the full rooming process:</p>
+        <table class="compare-table">
+          <thead><tr><th>Flowsheet</th><th>What to Document</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Chief Complaint</strong></td><td>Patient's stated reason for visit, in their own words. Not a diagnosis.</td></tr>
+            <tr><td><strong>Allergies Review</strong></td><td>Confirm current allergies with patient; update if changed. Mark as "Reviewed."</td></tr>
+            <tr><td><strong>Medication Reconciliation</strong></td><td>Review active med list with patient. Mark each as "Taking as Directed," "Not Taking," or "Dose Changed." Add any new OTC medications or supplements.</td></tr>
+            <tr><td><strong>Preventive Health Screenings</strong></td><td>PHQ-2/PHQ-9 (depression), AUDIT-C (alcohol use), DAST (drug use), tobacco use, domestic violence screen (HITS). Enter score in flowsheet.</td></tr>
+            <tr><td><strong>Immunization Review</strong></td><td>Review immunization history; flag any due vaccines. Some clinics have MAs administer vaccines at rooming.</td></tr>
+            <tr><td><strong>Social History / SDOH</strong></td><td>Food insecurity, housing status, transportation, interpersonal violence. Ochin has built-in SDOH screening flowsheets aligned with UDS requirements.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="info-box key">
+          <strong>🔑 PHQ-9 in Ochin Epic:</strong> The PHQ-9 depression screening is a required quality measure for most Ochin member clinics. When you enter the PHQ-9 score in the flowsheet, Ochin Epic can automatically:
+          <ul style="margin-top:6px">
+            <li>Calculate the severity level (Minimal / Mild / Moderate / Severe)</li>
+            <li>Trigger a Best Practice Advisory (BPA) if the score is ≥10</li>
+            <li>Prompt for a safety assessment if question 9 (suicidal ideation) is positive</li>
+            <li>Auto-populate the score into the provider's note via SmartLink</li>
+          </ul>
+          Always document the PHQ-9 as discrete data in the flowsheet — not just as free text in the note.
+        </div>
+
+        <h3>Viewing Flowsheet Trends</h3>
+        <p>Epic's <strong>Flowsheet Trend View</strong> shows values over time in a table or graph. This is invaluable for chronic disease management. To access: open the Flowsheet → click the <em>Trend</em> button or toggle to graph view. You can see a patient's blood pressure, weight, A1c, and other values plotted over months or years.</p>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s3',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s4');showSection('s5',null)">Next: Problem List &amp; Diagnoses →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         3.5 PROBLEM LIST & DIAGNOSES
+    ═══════════════════════════════ -->
+    <div class="section-content" id="sec-s5">
+      <div class="card">
+        <h2><span class="ch-icon">🩺</span> 3.5 Problem List &amp; Visit Diagnoses</h2>
+
+        <h3>The Active Problem List</h3>
+        <p>The <strong>Problem List</strong> is one of the most important sections of the patient's chart. It is a <em>longitudinal</em> list of the patient's active, chronic, and significant medical conditions. It is <strong>not</strong> a visit-by-visit diagnosis list — it persists across encounters and is visible to every provider who opens the chart.</p>
+
+        <h3>Adding a Problem to the Problem List</h3>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>From Chart → Problem List</strong> or the navigator section within a note: click <em>Add</em>.</div></li>
+          <li><div class="step-text"><strong>Search for the diagnosis</strong> by name or ICD-10 code. Type "diabetes" and a list of options appears. Select the most specific code available:<br>
+            <span class="chip">E11.9 — Type 2 DM without complications</span>
+            <span class="chip gold">E11.65 — Type 2 DM with hyperglycemia</span>
+            <span class="chip">E11.40 — Type 2 DM with diabetic neuropathy</span>
+          </div></li>
+          <li><div class="step-text"><strong>Set the Status:</strong> Active (ongoing), Resolved (no longer present), or Deleted (entered in error). Most new additions are Active.</div></li>
+          <li><div class="step-text"><strong>Set the Date of Onset</strong> if known. This date helps track chronicity for quality reporting and coding.</div></li>
+          <li><div class="step-text"><strong>Click Accept.</strong> The problem now appears on the Problem List across all future encounters.</div></li>
+        </ol>
+
+        <div class="info-box tip">
+          <strong>💡 Specificity Matters:</strong> Use the most specific ICD-10 code available. "Diabetes mellitus" (E11.9) is acceptable but "Type 2 DM with diabetic chronic kidney disease Stage 3" (E11.65 + N18.3) is more accurate, better reflects the patient's complexity, supports higher-level coding, and improves quality measure reporting.
+        </div>
+
+        <h3>Visit Diagnoses vs. Problem List</h3>
+        <table class="compare-table">
+          <thead><tr><th></th><th>Problem List</th><th>Visit / Encounter Diagnoses</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Purpose</strong></td><td>Longitudinal record of all conditions</td><td>Diagnoses addressed at THIS visit</td></tr>
+            <tr><td><strong>Persists?</strong></td><td>Yes — carries forward to all encounters</td><td>No — specific to this encounter only</td></tr>
+            <tr><td><strong>Used for billing?</strong></td><td>Not directly</td><td>Yes — drives the claim for this visit</td></tr>
+            <tr><td><strong>Updated by</strong></td><td>Any provider; should be kept current</td><td>Ordering/attending provider for this visit</td></tr>
+            <tr><td><strong>Where to find</strong></td><td>Chart → Problem List; visible in header</td><td>Chart → Diagnoses; Billing section</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Adding Visit Diagnoses (for Billing)</h3>
+        <p>At the end of each visit, the provider (or MA under supervision) must enter the <strong>Visit Diagnoses</strong> in the Diagnosis section of the encounter. These flow to the claim.</p>
+        <ul>
+          <li>Navigate to <strong>Chart → Diagnoses</strong> or the <em>Diagnosis</em> section in the navigator</li>
+          <li>Click <strong>Add from Problem List</strong> to pull in existing problems addressed today — this is the fastest method</li>
+          <li>Or <strong>Search and Add</strong> a new diagnosis not yet on the problem list</li>
+          <li>Mark each diagnosis as: <em>Primary</em> (main reason for visit), <em>Secondary</em>, or <em>Additional</em></li>
+          <li>The <strong>Primary Diagnosis</strong> must align with the Chief Complaint and the majority of the visit — this drives E/M coding level and claim adjudication</li>
+        </ul>
+
+        <div class="info-box warn">
+          <strong>⚠️ Coding Tip:</strong> The primary diagnosis on the claim must be specific enough to support medical necessity for any orders placed. If you order an A1c, the primary diagnosis should be a diabetes code — not "fatigue" or "wellness visit." Mismatched diagnoses cause claim denials and may trigger compliance reviews.
+        </div>
+
+        <h3>Resolving and Managing Problems</h3>
+        <ul>
+          <li>When a condition is no longer active: click the problem → <em>Edit</em> → change Status to <strong>Resolved</strong>. It moves to the Resolved Problems section but remains in the chart history.</li>
+          <li>If a problem was added in error: Status → <strong>Deleted</strong>. Never delete a real problem — use Resolved instead.</li>
+          <li>Review and clean up the problem list at every visit. An accurate, current problem list is a key patient safety tool.</li>
+        </ul>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s4',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s5');showSection('s6',null)">Next: Signing &amp; Cosigning →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         3.6 SIGNING & COSIGNING
+    ═══════════════════════════════ -->
+    <div class="section-content" id="sec-s6">
+      <div class="card">
+        <h2><span class="ch-icon">🔏</span> 3.6 Signing Notes &amp; Cosigning in Ochin Epic</h2>
+        <p>Every clinical note, order, and documentation entry in Epic must be <strong>signed</strong> to become part of the legal medical record. Ochin Epic enforces signature rules based on your role and licensure — and has a built-in <strong>cosignature workflow</strong> for supervised providers, which is especially important in FQHC settings.</p>
+
+        <h3>Signing Your Own Note (Providers)</h3>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>Review the complete note</strong> — read through every section, confirm SmartLink data populated correctly, ensure no wildcard placeholders (***) remain.</div></li>
+          <li><div class="step-text"><strong>Click "Sign" at the bottom of the note editor</strong> or use the keyboard shortcut <strong>Ctrl+Shift+S</strong>. A confirmation dialog may appear.</div></li>
+          <li><div class="step-text"><strong>The note is now locked and signed</strong>. It appears in the chart with your name, credentials, and the date/time of signing. It becomes part of the permanent medical record.</div></li>
+          <li><div class="step-text"><strong>Addendum if corrections are needed:</strong> You cannot edit a signed note — you must add an <em>Addendum</em>. Click the note → <em>Addendum</em> → type your correction → sign the addendum. The original note and addendum both remain in the chart.</div></li>
+        </ol>
+
+        <div class="info-box warn">
+          <strong>⚠️ Never sign a note you didn't write or review.</strong> Your signature is your legal attestation that the content is accurate and reflects your clinical judgment. Signing another provider's note without reviewing it is a compliance and liability risk.
+        </div>
+
+        <h3>Cosignature Workflows in Ochin (FQHC-Specific)</h3>
+        <p>FQHCs have specific supervision requirements. Ochin Epic enforces these through cosignature rules:</p>
+
+        <table class="compare-table">
+          <thead><tr><th>Provider Type</th><th>Cosign Required By</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Medical Student</strong></td><td>Attending Physician (MD/DO)</td><td>Student signs first; attending reviews and cosigns. Attending's cosignature makes it billable.</td></tr>
+            <tr><td><strong>Resident / Fellow</strong></td><td>Attending Physician</td><td>Depends on program supervision requirements. Often required for all notes.</td></tr>
+            <tr><td><strong>Nurse Practitioner (NP)</strong></td><td>Collaborating MD (if required by state)</td><td>Varies by state. Many states allow independent NP practice. Check your state and clinic policy.</td></tr>
+            <tr><td><strong>Physician Assistant (PA)</strong></td><td>Supervising Physician</td><td>PA signs first; supervising MD cosigns within the required timeframe (often 24–72 hrs).</td></tr>
+            <tr><td><strong>Registered Nurse (RN)</strong></td><td>Ordering Physician (for telephone orders)</td><td>Verbal/telephone orders must be cosigned by the ordering provider within 24 hours.</td></tr>
+            <tr><td><strong>Medical Assistant (MA)</strong></td><td>Supervising RN or Provider</td><td>MAs document vitals and rooming flowsheets; these are typically accepted rather than signed with cosign workflow.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>How Cosigning Works in Epic</h3>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>The supervised provider writes and signs the note first</strong>. Upon signing, Epic automatically routes the note to the supervising provider's <strong>In Basket</strong> for cosignature.</div></li>
+          <li><div class="step-text"><strong>The supervisor opens In Basket → Cosign Messages.</strong> They see a list of notes awaiting their cosignature.</div></li>
+          <li><div class="step-text"><strong>The supervisor opens each note, reviews it thoroughly,</strong> and either: <em>Cosign</em> (approve as written) or <em>Edit &amp; Cosign</em> (make corrections, then cosign). If there are errors, the supervisor can route the note back to the writer with comments.</div></li>
+          <li><div class="step-text"><strong>After cosignature, the note is complete</strong> and reflects both signatures. The note shows: "Signed by: J. Resident, MD — Cosigned by: A. Attending, MD."</div></li>
+        </ol>
+
+        <h3>Cosign Deadlines and Escalation</h3>
+        <ul>
+          <li>FQHC cosignature timeframes vary — commonly <strong>24 hours</strong> for routine notes, <strong>immediate</strong> for verbal/telephone orders</li>
+          <li>Epic has built-in escalation: if a cosignature is not completed within the configured timeframe, a reminder appears in the supervisor's In Basket and may escalate to a department administrator</li>
+          <li>Unsigned notes and pending cosignatures are tracked in quality and compliance reports — your clinic's compliance team monitors these</li>
+        </ul>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — Signing Multiple Notes at Once:</strong> In your In Basket, you can sign or cosign multiple notes without opening each one individually. From the In Basket message list, select multiple messages → right-click → <em>Sign All</em>. Use this cautiously — you should still review each note before signing.
+        </div>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s5',null)">← Back</button>
+        <button class="btn btn-primary" onclick="markSection('s6');showSection('s7',null)">Next: AVS &amp; Visit Wrap-Up →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         3.7 AVS & VISIT WRAP-UP
+    ═══════════════════════════════ -->
+    <div class="section-content" id="sec-s7">
+      <div class="card">
+        <h2><span class="ch-icon">📤</span> 3.7 After Visit Summary (AVS) &amp; Visit Wrap-Up</h2>
+        <p>The <strong>After Visit Summary (AVS)</strong> is a patient-facing document generated at the end of every clinic visit. It is a <strong>Meaningful Use / Promoting Interoperability requirement</strong> — patients must be offered the AVS at every visit. Ochin Epic generates it automatically from the visit documentation.</p>
+
+        <h3>What the AVS Contains</h3>
+        <ul>
+          <li>Visit date, provider, and clinic contact information</li>
+          <li>Today's diagnoses and chief complaint</li>
+          <li>Instructions and follow-up plan from the Assessment &amp; Plan</li>
+          <li>Medications — current list with any new prescriptions or changes highlighted</li>
+          <li>Orders placed today — labs, imaging, referrals</li>
+          <li>Upcoming appointments</li>
+          <li>Health education handouts specific to the patient's conditions</li>
+          <li>Immunizations given today</li>
+          <li>Vitals from today's visit</li>
+          <li>MyChart sign-up information (if patient not already enrolled)</li>
+        </ul>
+
+        <h3>Generating and Printing the AVS</h3>
+        <ol class="step-list">
+          <li><div class="step-text"><strong>At the end of the visit</strong>, from the navigator or the Check-Out workflow, click <em>After Visit Summary</em>.</div></li>
+          <li><div class="step-text"><strong>Preview the AVS</strong> to confirm it is complete and accurate. Check that instructions are patient-friendly and understandable.</div></li>
+          <li><div class="step-text"><strong>Add or modify patient instructions</strong> directly in the AVS if needed. Some Ochin templates have a free-text "Provider Notes to Patient" field.</div></li>
+          <li><div class="step-text"><strong>Select the patient's preferred language.</strong> Ochin Epic can generate the AVS in multiple languages — Spanish, Vietnamese, Somali, Russian, and others depending on your clinic's configuration. Always use the patient's preferred language.</div></li>
+          <li><div class="step-text"><strong>Print or send electronically.</strong> Print for walk-out, or send to patient's MyChart account. Document that AVS was provided in the flowsheet (check "AVS Given" in the visit wrap-up section).</div></li>
+        </ol>
+
+        <div class="info-box key">
+          <strong>🔑 Regulatory Requirement:</strong> Providing the AVS at the time of the visit is a Promoting Interoperability (PI) measure. Clinics that fail to meet the PI threshold for AVS provision can lose Medicaid and Medicare incentive payments. Document "AVS Given: Yes" in the flowsheet for every visit — even if the patient declines to take it.
+        </div>
+
+        <h3>Visit Wrap-Up Checklist (Provider)</h3>
+        <table class="compare-table">
+          <thead><tr><th>Task</th><th>Where in Epic</th><th>Who</th></tr></thead>
+          <tbody>
+            <tr><td>All orders signed and sent</td><td>Orders tab — confirm no pending orders</td><td>Provider</td></tr>
+            <tr><td>Visit diagnoses entered</td><td>Diagnoses section of encounter</td><td>Provider</td></tr>
+            <tr><td>Note complete and signed (or pending cosign)</td><td>Chart → Notes</td><td>Provider</td></tr>
+            <tr><td>New prescriptions sent to pharmacy</td><td>Medications — confirm "Sent" status</td><td>Provider</td></tr>
+            <tr><td>Referrals placed and patient notified</td><td>Orders → Referrals</td><td>Provider / MA</td></tr>
+            <tr><td>Follow-up appointment scheduled</td><td>Scheduling</td><td>Front Desk / MA</td></tr>
+            <tr><td>AVS generated and given to patient</td><td>AVS → Print / MyChart</td><td>MA / Nurse / Front Desk</td></tr>
+            <tr><td>Encounter status updated to Check-Out</td><td>Schedule — right-click → Check Out</td><td>Front Desk</td></tr>
+            <tr><td>Payment collected (if applicable)</td><td>Patient → Payments</td><td>Front Desk</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Check-Out</h3>
+        <p>When the visit is completely finished, the front desk marks the encounter as <strong>Check-Out</strong>:</p>
+        <ul>
+          <li>Right-click the appointment on the schedule → <em>Check Out</em></li>
+          <li>This updates the appointment status and triggers any remaining billing workflow steps</li>
+          <li>The encounter moves to the billing queue for charge capture and claim submission</li>
+          <li>Epic may prompt for any outstanding items: missing diagnoses, unsigned orders, or missing AVS documentation</li>
+        </ul>
+
+        <div class="info-box tip">
+          <strong>💡 Tip — MyChart Enrollment at Check-Out:</strong> Check-out is a great opportunity to enroll patients in MyChart if they aren't already. From the patient's chart: <em>Patient → MyChart → Send Activation Code</em>. The patient receives a text or email to set up their account. MyChart-enrolled patients can view their AVS, lab results, and message their care team — improving engagement and reducing phone call volume for your clinic.
+        </div>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s6',null)">← Back</button>
+        <button class="btn btn-gold" onclick="markSection('s7');showSection('quiz',null)">Take the Module 3 Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         QUIZ
+    ═══════════════════════════════ -->
+    <div class="section-content" id="sec-quiz">
+      <div class="quiz-card">
+        <h2>📝 Module 3 Knowledge Check</h2>
+        <div class="quiz-subtitle">Answer all 8 questions. Score 7/8 or higher to complete this module.</div>
+
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">1.</span> A provider signs a note and later realizes the HPI contains an error. What is the correct action in Epic?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> Delete the note and create a new one</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> Add an Addendum to the signed note with the correction</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> Unsign the note, edit it, and re-sign</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="d"> Ask another provider to edit and sign it</label>
+          </div>
+          <div class="quiz-feedback" id="fb1"></div>
+        </div>
+
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">2.</span> What does typing <code>.normalpe</code> in the Epic note editor do?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> Opens the physical exam scheduling tool</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> Searches for patients with normal physical exams</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> Expands a SmartPhrase template with a pre-filled normal physical exam text</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="d"> Prints the physical exam section of the note</label>
+          </div>
+          <div class="quiz-feedback" id="fb2"></div>
+        </div>
+
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">3.</span> Which of the following correctly describes the difference between the Problem List and Visit Diagnoses?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> They are the same thing — both are used for billing</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> The Problem List is a longitudinal record of all conditions; Visit Diagnoses are specific to one encounter and drive billing</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> The Problem List is only used by nurses; Visit Diagnoses are only used by providers</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="d"> Visit Diagnoses persist across all encounters; the Problem List resets each visit</label>
+          </div>
+          <div class="quiz-feedback" id="fb3"></div>
+        </div>
+
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">4.</span> A PHQ-9 score of 12 is entered in the flowsheet. What may Ochin Epic automatically do?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q4" value="a"> Nothing — scores are informational only</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="b"> Trigger a Best Practice Advisory (BPA) and prompt for a safety assessment</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="c"> Automatically schedule a psychiatric referral</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="d"> Send a message to the patient's emergency contact</label>
+          </div>
+          <div class="quiz-feedback" id="fb4"></div>
+        </div>
+
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">5.</span> A PA writes a visit note and signs it. Where does it go next in Ochin Epic?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q5" value="a"> It is immediately finalized with no further steps</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="b"> It routes to the supervising physician's In Basket for cosignature</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="c"> It is sent to the billing department for coding</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="d"> It goes to the patient's MyChart account automatically</label>
+          </div>
+          <div class="quiz-feedback" id="fb5"></div>
+        </div>
+
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">6.</span> Which of the following is TRUE about the After Visit Summary (AVS)?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q6" value="a"> It is optional and only printed if the patient asks</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="b"> It must be offered at every visit; it is a Promoting Interoperability requirement tied to incentive payments</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="c"> It replaces the clinical note as the legal medical record</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="d"> It is only generated for patients with Medicare</label>
+          </div>
+          <div class="quiz-feedback" id="fb6"></div>
+        </div>
+
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">7.</span> You enter a patient's weight as 164 lbs and BMI calculates as 27.3, which appears in red. What does this indicate?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q7" value="a"> The value was entered incorrectly and must be deleted</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="b"> The value falls outside the normal reference range for that field</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="c"> The flowsheet has a system error and IT must be contacted</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="d"> The patient has a critical vital sign requiring immediate intervention</label>
+          </div>
+          <div class="quiz-feedback" id="fb7"></div>
+        </div>
+
+        <div class="quiz-q">
+          <div class="qtext"><span class="qnum">8.</span> What is the correct way to document a phone call with a patient in Ochin Epic?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q8" value="a"> Write a brief note in the margins of the schedule</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="b"> Create a Telephone Encounter note in the patient's chart</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="c"> Send an In Basket message to yourself as a reminder</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="d"> Document it in the next visit's note as a history item</label>
+          </div>
+          <div class="quiz-feedback" id="fb8"></div>
+        </div>
+
+        <div class="quiz-submit-row">
+          <button class="btn btn-primary" onclick="gradeQuiz()">Submit Answers</button>
+          <span class="quiz-score" id="quiz-score"></span>
+        </div>
+      </div>
+
+      <div id="quiz-result" style="display:none">
+        <div class="card" id="quiz-pass" style="display:none;border-left:5px solid var(--green)">
+          <h2><span class="ch-icon">🎉</span> Module 3 Complete!</h2>
+          <p>Excellent work. You've mastered Clinical Documentation in Ochin Epic — navigating the chart, writing SOAP notes, using SmartPhrases, entering flowsheet data, managing the problem list, signing and cosigning notes, and generating the AVS.</p>
+          <div class="info-box green"><strong>✓ Next:</strong> Load <strong>ochin-epic-part4.html</strong> to continue with <strong>Module 4: Medications &amp; Prescriptions</strong> — ordering meds, e-prescribing, 340B, controlled substances, and refill management.</div>
+          <div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap">
+            <span class="chip">✓ Chart Navigation</span><span class="chip">✓ SOAP Notes</span><span class="chip">✓ SmartPhrases</span>
+            <span class="chip">✓ Flowsheets & Vitals</span><span class="chip">✓ Problem List</span><span class="chip">✓ Signing & Cosigning</span><span class="chip">✓ AVS</span>
+          </div>
+        </div>
+        <div class="card" id="quiz-fail" style="display:none;border-left:5px solid var(--red)">
+          <h2><span class="ch-icon">📖</span> Review and Try Again</h2>
+          <p>Review the sections for any questions you missed, then retake the quiz. No penalty — take your time.</p>
+          <button class="btn btn-outline" onclick="resetQuiz()" style="margin-top:10px">↺ Retake Quiz</button>
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showSection('s7',null)">← Back</button>
+        <button class="btn btn-gold" id="btn-part4" style="opacity:.5;pointer-events:none">Part 4: Medications &amp; Rx → <span style="font-size:11px">(unlock by passing quiz)</span></button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const sectionIds = ['s1','s2','s3','s4','s5','s6','s7','quiz'];
+
+function showSection(id, navEl) {
+  sectionIds.forEach(s => {
+    const el = document.getElementById('sec-'+s);
+    if(el) el.classList.remove('active');
+  });
+  const t = document.getElementById('sec-'+id);
+  if(t) t.classList.add('active');
+
+  document.querySelectorAll('#sidebar .nav-item').forEach(n => n.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+
+  document.querySelectorAll('.sec-tab').forEach((tab,i) => {
+    tab.classList.toggle('active', sectionIds[i] === id);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function markSection(id) {
+  const c = document.getElementById('chk-'+id);
+  if(c) c.style.display='inline';
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = document.querySelectorAll('.nav-check[style*="inline"]').length;
+  const pct = Math.round((done/7)*100);
+  document.getElementById('overall-progress').style.width = pct+'%';
+  document.getElementById('overall-pct').textContent = pct+'%';
+}
+
+const answers = {q1:'b',q2:'c',q3:'b',q4:'b',q5:'b',q6:'b',q7:'b',q8:'b'};
+const expl = {
+  q1:{ok:"Correct! Signed notes cannot be edited. You must add an Addendum. The original note and addendum both remain permanently in the chart.",bad:"Incorrect. Once signed, a note becomes part of the permanent medical record and cannot be deleted or edited. You must add an Addendum."},
+  q2:{ok:"Correct! Dot phrases (SmartPhrases) expand into full templates when typed and triggered with F2 in the note editor.",bad:"Incorrect. .normalpe is a SmartPhrase (dot phrase) that expands into a pre-filled normal physical exam template in the note editor."},
+  q3:{ok:"Correct! The Problem List is a longitudinal, persistent record of all conditions. Visit Diagnoses are encounter-specific and drive billing claims.",bad:"Incorrect. The Problem List persists across all encounters; Visit Diagnoses are specific to one encounter and drive the billing claim."},
+  q4:{ok:"Correct! A PHQ-9 score of 10 or higher triggers a Best Practice Advisory in Ochin Epic and prompts for safety assessment — especially if question 9 (suicidal ideation) is positive.",bad:"Incorrect. Scores ≥10 on the PHQ-9 trigger a BPA in Ochin Epic and may prompt a safety assessment. This is why discrete flowsheet entry matters."},
+  q5:{ok:"Correct! When a PA signs a note, Epic automatically routes it to the supervising physician's In Basket for cosignature per FQHC supervision requirements.",bad:"Incorrect. A PA's note routes to the supervising physician's In Basket for cosignature — it is not finalized until the supervising physician reviews and cosigns."},
+  q6:{ok:"Correct! The AVS must be offered at every visit. It is a Promoting Interoperability requirement and affects Medicaid/Medicare incentive payments.",bad:"Incorrect. The AVS must be offered at every visit. It is a Promoting Interoperability regulatory requirement, not optional."},
+  q7:{ok:"Correct! Red highlighting in Epic flowsheets indicates the value is outside the normal reference range for that measurement — not an error, but a clinical flag.",bad:"Incorrect. Red text in flowsheets means the value is outside the reference range — a clinical alert, not a data entry error or critical emergency by itself."},
+  q8:{ok:"Correct! Every patient phone call should be documented as a Telephone Encounter note in their chart — it creates a medico-legal record and is potentially billable.",bad:"Incorrect. Phone calls must be documented as Telephone Encounter notes in the patient's chart to create a medico-legal record and support potential billing."}
+};
+
+let done = false;
+
+function gradeQuiz() {
+  if(done) return;
+  let score = 0, allAns = true;
+  Object.keys(answers).forEach((q,i) => {
+    const sel = document.querySelector(`input[name="${q}"]:checked`);
+    const fb = document.getElementById(`fb${i+1}`);
+    if(!sel){allAns=false;return;}
+    document.querySelectorAll(`input[name="${q}"]`).forEach(l => l.closest('.quiz-option').classList.remove('selected','correct','wrong'));
+    const chosen = sel.closest('.quiz-option');
+    if(sel.value === answers[q]){
+      chosen.classList.add('correct');
+      fb.className='quiz-feedback ok show';
+      fb.textContent='✓ '+expl[q].ok;
+      score++;
+    } else {
+      chosen.classList.add('wrong');
+      fb.className='quiz-feedback bad show';
+      fb.textContent='✗ '+expl[q].bad;
+      document.querySelectorAll(`input[name="${q}"]`).forEach(l=>{if(l.value===answers[q])l.closest('.quiz-option').classList.add('correct');});
+    }
+  });
+  if(!allAns){alert('Please answer all 8 questions.');return;}
+  done=true;
+  const sc=document.getElementById('quiz-score');
+  sc.textContent=`Score: ${score}/8`;
+  sc.style.color=score>=7?'var(--green)':'var(--red)';
+  document.getElementById('quiz-result').style.display='block';
+  if(score>=7){
+    document.getElementById('quiz-pass').style.display='block';
+    document.getElementById('quiz-fail').style.display='none';
+    document.getElementById('overall-progress').style.width='100%';
+    document.getElementById('overall-pct').textContent='100%';
+    const btn=document.getElementById('btn-part4');
+    btn.style.opacity='1';btn.style.pointerEvents='auto';
+  } else {
+    document.getElementById('quiz-fail').style.display='block';
+    document.getElementById('quiz-pass').style.display='none';
+  }
+}
+
+function resetQuiz() {
+  done=false;
+  document.querySelectorAll('#sec-quiz input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('#sec-quiz .quiz-option').forEach(o=>o.className='quiz-option');
+  document.querySelectorAll('#sec-quiz .quiz-feedback').forEach(f=>f.className='quiz-feedback');
+  document.getElementById('quiz-score').textContent='';
+  document.getElementById('quiz-result').style.display='none';
+}
+
+document.addEventListener('change', e => {
+  if(e.target.type==='radio'){
+    const n=e.target.name;
+    document.querySelectorAll(`input[name="${n}"]`).forEach(r=>r.closest('.quiz-option').classList.remove('selected'));
+    e.target.closest('.quiz-option').classList.add('selected');
+  }
+});
+
+window.addEventListener('scroll',()=>{
+  const pct=window.scrollY/(document.body.scrollHeight-window.innerHeight);
+  document.getElementById('scroll-indicator').style.transform=`scaleX(${Math.min(pct,1)})`;
+},{passive:true});
+</script>
+</body>
+</html>

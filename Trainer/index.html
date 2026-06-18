@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training Portal</title>
+<style>
+/* ══════════════════════════════════════════
+   ROOT & RESET
+══════════════════════════════════════════ */
+:root {
+  --navy:    #0D2B4E;
+  --navy-dk: #071A30;
+  --teal:    #006D75;
+  --teal-lt: #00A3AD;
+  --teal-glow: rgba(0,163,173,.35);
+  --gold:    #E8A020;
+  --gold-lt: #F5C842;
+  --gold-glow: rgba(232,160,32,.3);
+  --cream:   #F4F8FA;
+  --white:   #FFFFFF;
+  --gray1:   #1A2B3C;
+  --gray2:   #3D5166;
+  --gray3:   #7A93A8;
+  --gray4:   #C5D5E0;
+  --gray5:   #EDF2F5;
+  --red:     #C0392B;
+  --green:   #1E7E4C;
+  --font:    'Segoe UI', 'Arial', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--navy-dk);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════════
+   ANIMATED BACKGROUND
+══════════════════════════════════════════ */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0,109,117,.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 80%, rgba(13,43,78,.4) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(7,26,48,.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════
+   SCROLL PROGRESS
+══════════════════════════════════════════ */
+#scroll-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--teal-lt), var(--gold));
+  transform-origin: left; transform: scaleX(0);
+  z-index: 1000; transition: transform .1s;
+}
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 66px;
+  background: rgba(7,26,48,.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,163,173,.2);
+  transition: background .3s;
+}
+#nav .nav-brand {
+  display: flex; align-items: center; gap: 12px;
+}
+#nav .nav-logo {
+  background: linear-gradient(135deg, var(--teal), var(--teal-lt));
+  color: #fff; font-weight: 900; font-size: 14px;
+  padding: 6px 12px; border-radius: 8px;
+  letter-spacing: 1px;
+  box-shadow: 0 0 20px var(--teal-glow);
+}
+#nav .nav-title {
+  font-size: 16px; font-weight: 700;
+  background: linear-gradient(90deg, #fff, var(--teal-lt));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+#nav .nav-links {
+  display: flex; gap: 6px;
+}
+#nav .nav-link {
+  padding: 7px 16px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,.7);
+  cursor: pointer; text-decoration: none;
+  transition: color .2s, background .2s;
+  border: 1px solid transparent;
+}
+#nav .nav-link:hover {
+  color: #fff;
+  background: rgba(0,163,173,.15);
+  border-color: rgba(0,163,173,.3);
+}
+#nav .nav-cta {
+  background: linear-gradient(135deg, var(--teal), var(--teal-lt));
+  color: #fff; padding: 8px 20px; border-radius: 20px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 0 20px var(--teal-glow);
+  transition: opacity .2s, box-shadow .2s;
+}
+#nav .nav-cta:hover { opacity: .9; box-shadow: 0 0 32px var(--teal-glow); }
+
+/* ══════════════════════════════════════════
+   HERO
+══════════════════════════════════════════ */
+#hero {
+  position: relative; z-index: 10;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 100px 40px 60px;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,163,173,.12);
+  border: 1px solid rgba(0,163,173,.4);
+  color: var(--teal-lt);
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 6px 18px; border-radius: 20px;
+  margin-bottom: 28px;
+  animation: fadeUp .6s ease both;
+}
+.hero-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--teal-lt);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.7); }
+}
+
+.hero-title {
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 900; line-height: 1.08;
+  margin-bottom: 12px;
+  animation: fadeUp .7s ease .1s both;
+}
+.hero-title .line1 {
+  display: block;
+  background: linear-gradient(135deg, #fff 30%, var(--gray4));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-title .line2 {
+  display: block;
+  background: linear-gradient(90deg, var(--teal-lt), var(--gold-lt));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.hero-sub {
+  font-size: clamp(15px, 2vw, 19px);
+  color: rgba(255,255,255,.6);
+  max-width: 600px;
+  line-height: 1.7;
+  margin: 0 auto 40px;
+  animation: fadeUp .7s ease .2s both;
+}
+
+.hero-badges {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 48px;
+  animation: fadeUp .7s ease .3s both;
+}
+.hero-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 13px; color: rgba(255,255,255,.8);
+}
+.hero-badge .hb-icon { font-size: 15px; }
+
+.hero-btns {
+  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  animation: fadeUp .7s ease .4s both;
+}
+.btn-hero-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-lt));
+  color: #fff; font-size: 15px; font-weight: 700;
+  padding: 16px 36px; border-radius: 50px; border: none; cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 30px var(--teal-glow), 0 0 0 0 var(--teal-glow);
+  transition: transform .2s, box-shadow .2s;
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%,100% { box-shadow: 0 4px 30px var(--teal-glow); }
+  50% { box-shadow: 0 4px 50px var(--teal-glow), 0 0 60px rgba(0,163,173,.15); }
+}
+.btn-hero-primary:hover { transform: translateY(-3px); }
+
+.btn-hero-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.9); font-size: 15px; font-weight: 700;
+  padding: 16px 36px; border-radius: 50px;
+  border: 1.5px solid rgba(255,255,255,.2); cursor: pointer;
+  text-decoration: none;
+  transition: background .2s, border-color .2s, transform .2s;
+}
+.btn-hero-secondary:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.4);
+  transform: translateY(-3px);
+}
+
+.hero-scroll-hint {
+  position: absolute; bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: rgba(255,255,255,.35); font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: fadeUp .7s ease .8s both;
+}
+.scroll-chevron {
+  width: 20px; height: 20px;
+  border-right: 2px solid rgba(255,255,255,.3);
+  border-bottom: 2px solid rgba(255,255,255,.3);
+  transform: rotate(45deg);
+  animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce { 0%,100%{transform:rotate(45deg) translateY(0)} 50%{transform:rotate(45deg) translateY(4px)} }
+
+/* ══════════════════════════════════════════
+   STATS BAND
+══════════════════════════════════════════ */
+#stats {
+  position: relative; z-index: 10;
+  background: rgba(0,163,173,.08);
+  border-top: 1px solid rgba(0,163,173,.2);
+  border-bottom: 1px solid rgba(0,163,173,.2);
+  padding: 40px 48px;
+  display: flex; justify-content: center; gap: 0;
+  flex-wrap: wrap;
+}
+.stat-item {
+  flex: 1; min-width: 140px; max-width: 220px;
+  text-align: center; padding: 16px 20px;
+  border-right: 1px solid rgba(255,255,255,.07);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-size: 40px; font-weight: 900; line-height: 1;
+  background: linear-gradient(135deg, var(--teal-lt), var(--gold-lt));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.stat-label { font-size: 13px; color: rgba(255,255,255,.5); font-weight: 500; }
+
+/* ══════════════════════════════════════════
+   SECTION HEADERS
+══════════════════════════════════════════ */
+.section-wrap {
+  position: relative; z-index: 10;
+  padding: 80px 48px;
+  max-width: 1200px; margin: 0 auto;
+}
+.section-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--teal-lt);
+  margin-bottom: 10px;
+}
+.section-title {
+  font-size: clamp(26px, 4vw, 42px); font-weight: 800;
+  line-height: 1.15; margin-bottom: 14px;
+  background: linear-gradient(135deg, #fff, rgba(255,255,255,.7));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.section-sub {
+  font-size: 16px; color: rgba(255,255,255,.5);
+  max-width: 540px; line-height: 1.7; margin-bottom: 50px;
+}
+
+/* ══════════════════════════════════════════
+   MODULE CARDS
+══════════════════════════════════════════ */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.mod-card {
+  position: relative;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  padding: 28px 26px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  overflow: hidden;
+  transition: transform .25s, border-color .25s, background .25s, box-shadow .25s;
+  animation: fadeUp .5s ease both;
+}
+.mod-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--card-color-a, rgba(0,163,173,.1)), var(--card-color-b, rgba(0,0,0,0)));
+  opacity: 0; transition: opacity .3s;
+  border-radius: 16px;
+}
+.mod-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(0,163,173,.4);
+  box-shadow: 0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(0,163,173,.2);
+}
+.mod-card:hover::before { opacity: 1; }
+
+.mod-card.coming {
+  opacity: .5; cursor: not-allowed;
+}
+.mod-card.coming:hover {
+  transform: none;
+  border-color: rgba(255,255,255,.08);
+  box-shadow: none;
+}
+.mod-card.coming:hover::before { opacity: 0; }
+
+/* Card accent line */
+.mod-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--card-accent, var(--teal)), transparent);
+  border-radius: 16px 16px 0 0;
+  opacity: 0; transition: opacity .3s;
+}
+.mod-card:hover::after { opacity: 1; }
+
+.card-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 16px;
+}
+.card-icon-wrap {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  flex-shrink: 0;
+  transition: background .3s, box-shadow .3s;
+}
+.mod-card:hover .card-icon-wrap {
+  background: rgba(0,163,173,.15);
+  box-shadow: 0 0 20px var(--teal-glow);
+}
+
+.card-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  padding: 4px 12px; border-radius: 20px;
+}
+.card-status.available {
+  background: rgba(30,126,76,.2);
+  color: #4ade80;
+  border: 1px solid rgba(30,126,76,.4);
+}
+.card-status.coming {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.4);
+  border: 1px solid rgba(255,255,255,.1);
+}
+.card-status.capstone {
+  background: rgba(232,160,32,.2);
+  color: var(--gold-lt);
+  border: 1px solid rgba(232,160,32,.4);
+}
+.card-status .sdot {
+  width: 5px; height: 5px; border-radius: 50%;
+}
+.card-status.available .sdot { background: #4ade80; animation: pulse 2s ease-in-out infinite; }
+.card-status.coming .sdot { background: rgba(255,255,255,.3); }
+.card-status.capstone .sdot { background: var(--gold-lt); animation: pulse 2s ease-in-out infinite; }
+
+.card-part {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: rgba(255,255,255,.35);
+  margin-bottom: 6px;
+}
+.card-title {
+  font-size: 18px; font-weight: 800; color: #fff;
+  margin-bottom: 8px; line-height: 1.25;
+}
+.card-desc {
+  font-size: 13px; color: rgba(255,255,255,.5);
+  line-height: 1.65; margin-bottom: 18px;
+}
+.card-topics {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
+}
+.card-topic {
+  font-size: 11px; font-weight: 600;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6);
+  padding: 3px 10px; border-radius: 20px;
+  transition: background .2s, color .2s;
+}
+.mod-card:hover .card-topic {
+  background: rgba(0,163,173,.1);
+  border-color: rgba(0,163,173,.3);
+  color: rgba(255,255,255,.85);
+}
+
+.card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding-top: 16px; margin-top: 4px;
+}
+.card-meta { display: flex; gap: 14px; }
+.card-meta-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: rgba(255,255,255,.4);
+}
+.card-arrow {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,163,173,.15);
+  border: 1px solid rgba(0,163,173,.3);
+  font-size: 14px;
+  transition: background .2s, transform .2s;
+}
+.mod-card:hover .card-arrow {
+  background: var(--teal);
+  transform: translateX(3px);
+}
+
+/* Animation delays */
+.mod-card:nth-child(1){animation-delay:.05s}
+.mod-card:nth-child(2){animation-delay:.1s}
+.mod-card:nth-child(3){animation-delay:.15s}
+.mod-card:nth-child(4){animation-delay:.2s}
+.mod-card:nth-child(5){animation-delay:.25s}
+.mod-card:nth-child(6){animation-delay:.3s}
+.mod-card:nth-child(7){animation-delay:.35s}
+.mod-card:nth-child(8){animation-delay:.4s}
+
+/* ══════════════════════════════════════════
+   LEARNING PATH
+══════════════════════════════════════════ */
+#path {
+  position: relative; z-index: 10;
+  background: rgba(0,163,173,.05);
+  border-top: 1px solid rgba(0,163,173,.15);
+  border-bottom: 1px solid rgba(0,163,173,.15);
+  padding: 80px 48px;
+}
+.path-inner { max-width: 1100px; margin: 0 auto; }
+
+.path-steps {
+  display: flex; align-items: flex-start; gap: 0;
+  margin-top: 50px; flex-wrap: wrap;
+  position: relative;
+}
+.path-steps::before {
+  content: '';
+  position: absolute; top: 26px; left: 26px; right: 26px; height: 2px;
+  background: linear-gradient(90deg, var(--teal), var(--gold));
+  z-index: 0;
+}
+.path-step {
+  flex: 1; min-width: 120px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 0 10px;
+  position: relative; z-index: 1;
+}
+.path-num {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900;
+  margin-bottom: 12px; flex-shrink: 0;
+  transition: transform .2s;
+  border: 2px solid rgba(255,255,255,.15);
+}
+.path-num.done {
+  background: linear-gradient(135deg, var(--teal), var(--teal-lt));
+  border-color: var(--teal-lt);
+  box-shadow: 0 0 20px var(--teal-glow);
+}
+.path-num.gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+  border-color: var(--gold-lt);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+.path-num.muted {
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.3);
+}
+.path-step:hover .path-num { transform: scale(1.1); }
+.path-label {
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,.7);
+  line-height: 1.4;
+}
+.path-sublabel {
+  font-size: 11px; color: rgba(255,255,255,.35); margin-top: 3px;
+}
+
+/* ══════════════════════════════════════════
+   FEATURES
+══════════════════════════════════════════ */
+#features {
+  position: relative; z-index: 10;
+  padding: 80px 48px;
+  max-width: 1200px; margin: 0 auto;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.feat-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 22px 20px;
+  transition: border-color .2s, background .2s;
+}
+.feat-card:hover {
+  border-color: rgba(0,163,173,.3);
+  background: rgba(0,163,173,.06);
+}
+.feat-icon { font-size: 26px; margin-bottom: 10px; }
+.feat-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.feat-desc { font-size: 12.5px; color: rgba(255,255,255,.45); line-height: 1.6; }
+
+/* ══════════════════════════════════════════
+   CTA BANNER
+══════════════════════════════════════════ */
+#cta {
+  position: relative; z-index: 10;
+  padding: 0 48px 100px;
+}
+.cta-inner {
+  max-width: 1100px; margin: 0 auto;
+  background: linear-gradient(135deg, rgba(0,109,117,.3) 0%, rgba(13,43,78,.6) 100%);
+  border: 1px solid rgba(0,163,173,.25);
+  border-radius: 24px;
+  padding: 60px 60px;
+  text-align: center;
+  position: relative; overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+.cta-inner::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 250px; height: 250px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,163,173,.15), transparent 70%);
+}
+.cta-inner::after {
+  content: '';
+  position: absolute; bottom: -60px; left: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,160,32,.1), transparent 70%);
+}
+.cta-title {
+  font-size: clamp(22px, 4vw, 36px); font-weight: 800;
+  margin-bottom: 14px;
+  background: linear-gradient(90deg, #fff, var(--teal-lt));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.cta-sub {
+  font-size: 16px; color: rgba(255,255,255,.55);
+  max-width: 500px; margin: 0 auto 36px; line-height: 1.7;
+}
+.cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+footer {
+  position: relative; z-index: 10;
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding: 30px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+}
+.footer-brand { display: flex; align-items: center; gap: 10px; }
+.footer-logo {
+  background: rgba(0,163,173,.2); color: var(--teal-lt);
+  font-weight: 900; font-size: 13px; padding: 4px 10px;
+  border-radius: 6px; letter-spacing: 1px;
+}
+.footer-text { font-size: 13px; color: rgba(255,255,255,.35); }
+.footer-links { display: flex; gap: 20px; }
+.footer-link { font-size: 13px; color: rgba(255,255,255,.35); text-decoration: none; }
+.footer-link:hover { color: var(--teal-lt); }
+
+/* ══════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Intersection observer targets */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible {
+  opacity: 1; transform: translateY(0);
+}
+
+/* ══════════════════════════════════════════
+   TOOLTIP for coming-soon
+══════════════════════════════════════════ */
+.coming-tooltip {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.5);
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 20px;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media(max-width:768px){
+  #nav .nav-links { display: none; }
+  .section-wrap, #path, #features, #cta, footer { padding-left: 24px; padding-right: 24px; }
+  #stats { padding: 30px 24px; }
+  .path-steps::before { display: none; }
+  .path-step { min-width: 80px; }
+  .cta-inner { padding: 40px 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Animated particle canvas -->
+<canvas id="bg-canvas"></canvas>
+<div class="bg-overlay"></div>
+
+<!-- Scroll progress -->
+<div id="scroll-bar"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav id="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">OCHIN</div>
+    <div class="nav-title">Epic Training Portal</div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="#modules">Modules</a>
+    <a class="nav-link" href="#path">Learning Path</a>
+    <a class="nav-link" href="#features">Features</a>
+  </div>
+  <a class="nav-cta" href="ochin-epic-part1.html">Start Training →</a>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="hero-eyebrow">
+    <div class="dot"></div>
+    Ochin Community Health · Epic EHR Training
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line1">Become Epic Confident.</span>
+    <span class="line2">From Day One.</span>
+  </h1>
+
+  <p class="hero-sub">
+    A comprehensive, self-paced training portal built specifically for Ochin Epic —
+    the shared EHR platform powering community health centers, FQHCs, and safety-net
+    providers across the country.
+  </p>
+
+  <div class="hero-badges">
+    <div class="hero-badge"><span class="hb-icon">🏥</span> FQHC-Specific Workflows</div>
+    <div class="hero-badge"><span class="hb-icon">📋</span> 8 Complete Modules</div>
+    <div class="hero-badge"><span class="hb-icon">🎓</span> Certificate of Completion</div>
+    <div class="hero-badge"><span class="hb-icon">⚡</span> No Account Required</div>
+  </div>
+
+  <div class="hero-btns">
+    <a class="btn-hero-primary" href="ochin-epic-part1.html">
+      🚀 Start From the Beginning
+    </a>
+    <a class="btn-hero-secondary" href="#modules">
+      📋 Browse All Modules
+    </a>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <span>Explore</span>
+    <div class="scroll-chevron"></div>
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section id="stats">
+  <div class="stat-item">
+    <div class="stat-num" id="stat-modules">0</div>
+    <div class="stat-label">Training Modules</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="stat-questions">0</div>
+    <div class="stat-label">Practice Questions</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="stat-topics">0</div>
+    <div class="stat-label">Clinical Topics</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="stat-hours">0</div>
+    <div class="stat-label">Hours of Content</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">FQHC-Focused</div>
+  </div>
+</section>
+
+<!-- ═══ MODULES ═══ -->
+<section id="modules">
+  <div class="section-wrap">
+    <div class="reveal">
+      <div class="section-eyebrow">Training Curriculum</div>
+      <div class="section-title">Eight Modules.<br>Everything You Need.</div>
+      <div class="section-sub">Each module builds on the last — from first login to final certification. Work through them in order or jump to what you need most.</div>
+    </div>
+
+    <div class="modules-grid">
+
+      <!-- PART 1 -->
+      <a class="mod-card" href="ochin-epic-part1.html"
+         style="--card-accent:var(--teal-lt); --card-color-a:rgba(0,163,173,.12); --card-color-b:transparent">
+        <div class="card-header">
+          <div class="card-icon-wrap">🏥</div>
+          <div class="card-status available"><div class="sdot"></div> Available</div>
+        </div>
+        <div class="card-part">Part 1 · Foundation</div>
+        <div class="card-title">Ochin Overview &amp; Login</div>
+        <div class="card-desc">Understand how Ochin differs from standard Epic, navigate environments, log in with 2FA, and master Hyperspace navigation.</div>
+        <div class="card-topics">
+          <span class="card-topic">What is Ochin?</span>
+          <span class="card-topic">PRD vs TRN</span>
+          <span class="card-topic">Login &amp; 2FA</span>
+          <span class="card-topic">Hyperspace Layout</span>
+          <span class="card-topic">Shortcuts</span>
+          <span class="card-topic">Glossary</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-meta">
+            <div class="card-meta-item">⏱ 20 min</div>
+            <div class="card-meta-item">📝 5 questions</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+
+      <!-- PART 2 -->
+      <a class="mod-card" href="ochin-epic-part2.html"
+         style="--card-accent:#4ade80; --card-color-a:rgba(30,126,76,.12); --card-color-b:transparent">
+        <div class="card-header">
+          <div class="card-icon-wrap">🪪</div>
+          <div class="card-status available"><div class="sdot"></div> Available</div>
+        </div>
+        <div class="card-part">Part 2 · Front Desk</div>
+        <div class="card-title">Patient Check-In &amp; Registration</div>
+        <div class="card-desc">Search for patients, register new ones, verify insurance, apply sliding fee scales, and complete the full check-in workflow.</div>
+        <div class="card-topics">
+          <span class="card-topic">Patient Search</span>
+          <span class="card-topic">New Registration</span>
+          <span class="card-topic">Insurance Verification</span>
+          <span class="card-topic">Sliding Fee Scale</span>
+          <span class="card-topic">Check-In Steps</span>
+          <span class="card-topic">Walk-Ins &amp; No-Shows</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-meta">
+            <div class="card-meta-item">⏱ 35 min</div>
+            <div class="card-meta-item">📝 8 questions</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+
+      <!-- PART 3 -->
+      <a class="mod-card" href="ochin-epic-part3.html"
+         style="--card-accent:#60a5fa; --card-color-a:rgba(37,99,235,.12); --card-color-b:transparent">
+        <div class="card-header">
+          <div class="card-icon-wrap">📝</div>
+          <div class="card-status available"><div class="sdot"></div> Available</div>
+        </div>
+        <div class="card-part">Part 3 · Clinical</div>
+        <div class="card-title">Clinical Documentation</div>
+        <div class="card-desc">Navigate the patient chart, write SOAP notes, use SmartPhrases and dot phrases, enter flowsheet data, and sign or cosign notes.</div>
+        <div class="card-topics">
+          <span class="card-topic">Chart Navigation</span>
+          <span class="card-topic">SOAP Notes</span>
+          <span class="card-topic">SmartPhrases</span>
+          <span class="card-topic">Vitals &amp; Flowsheets</span>
+          <span class="card-topic">Problem List</span>
+          <span class="card-topic">Cosigning</span>
+          <span class="card-topic">AVS</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-meta">
+            <div class="card-meta-item">⏱ 40 min</div>
+            <div class="card-meta-item">📝 8 questions</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+
+      <!-- PART 4 -->
+      <a class="mod-card" href="ochin-epic-part4.html"
+         style="--card-accent:#f472b6; --card-color-a:rgba(219,39,119,.1); --card-color-b:transparent">
+        <div class="card-header">
+          <div class="card-icon-wrap">💊</div>
+          <div class="card-status available"><div class="sdot"></div> Available</div>
+        </div>
+        <div class="card-part">Part 4 · Prescribing</div>
+        <div class="card-title">Medications &amp; Prescriptions</div>
+        <div class="card-desc">Manage the medication list, order and e-prescribe, handle drug safety alerts, prescribe controlled substances with PDMP, and process refills.</div>
+        <div class="card-topics">
+          <span class="card-topic">Med Reconciliation</span>
+          <span class="card-topic">Ordering Meds</span>
+          <span class="card-topic">e-Prescribing</span>
+          <span class="card-topic">Drug Alerts</span>
+          <span class="card-topic">Controlled Substances</span>
+          <span class="card-topic">PDMP</span>
+          <span class="card-topic">340B Program</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-meta">
+            <div class="card-meta-item">⏱ 40 min</div>
+            <div class="card-meta-item">📝 8 questions</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+
+      <!-- PART 5 -->
+      <a class="mod-card" href="ochin-epic-part5.html"
+         style="--card-accent:#a78bfa; --card-color-a:rgba(107,63,160,.12); --card-color-b:transparent">
+        <div class="card-header">
+          <div class="card-icon-wrap">🔬</div>
+          <div class="card-status available"><div class="sdot"></div> Available</div>
+        </div>
+        <div class="card-part">Part 5 · Orders</div>
+        <div class="card-title">Orders, Results &amp; Referrals</div>
+        <div class="card-desc">Place lab and imaging orders, review results, manage critical values, tame your In Basket, coordinate referrals, and close care gaps.</div>
+        <div class="card-topics">
+          <span class="card-topic">Lab Orders</span>
+          <span class="card-topic">Imaging</span>
+          <span class="card-topic">Result Review</span>
+          <span class="card-topic">Critical Values</span>
+          <span class="card-topic">In Basket</span>
+          <span class="card-topic">Referrals</span>
+          <span class="card-topic">Prior Auth</span>
+          <span class="card-topic">Care Gaps</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-meta">
+            <div class="card-meta-item">⏱ 40 min</div>
+            <div class="card-meta-item">📝 8 questions</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+
+      <!-- PART 6 — COMING -->
+      <div class="mod-card coming"
+           style="--card-accent:var(--gold-lt)">
+        <div class="coming-tooltip">Coming Soon</div>
+        <div class="card-header">
+          <div class="card-icon-wrap">📅</div>
+          <div class="card-status coming"><div class="sdot"></div> In Progress</div>
+        </div>
+        <div class="card-part">Part 6 · Revenue</div>
+        <div class="card-title">Scheduling &amp; Billing</div>
+        <div class="card-desc">Master appointment scheduling, FQHC PPS billing, charge capture, ICD-10 coding, UDS data documentation, and quality reporting.</div>
+        <div class="card-topics">
+          <span class="card-topic">Scheduling</span>
+          <span class="card-topic">FQHC PPS Billing</span>
+          <span class="card-topic">Charge Capture</span>
+          <span class="card-topic">UDS Reporting</span>
+          <span class="card-topic">Quality Measures</span>
+          <span class="card-topic">HEDIS</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-meta">
+            <div class="card-meta-item">⏱ ~40 min</div>
+            <div class="card-meta-item">📝 8 questions</div>
+          </div>
+          <div class="card-arrow" style="opacity:.3">→</div>
+        </div>
+      </div>
+
+      <!-- PART 7 — COMING -->
+      <div class="mod-card coming"
+           style="--card-accent:var(--gold)">
+        <div class="coming-tooltip">Coming Soon</div>
+        <div class="card-header">
+          <div class="card-icon-wrap">📖</div>
+          <div class="card-status coming"><div class="sdot"></div> In Progress</div>
+        </div>
+        <div class="card-part">Part 7 · Reference</div>
+        <div class="card-title">Top 100 Go-Live Q&amp;A</div>
+        <div class="card-desc">The searchable reference guide to the 100 most common questions on Go-Live Day — Scheduling, Billing, Telehealth, Ochin-specific workflows, and crisis troubleshooting.</div>
+        <div class="card-topics">
+          <span class="card-topic">Q1–50 Core Workflows</span>
+          <span class="card-topic">Q51–60 Scheduling</span>
+          <span class="card-topic">Q61–70 Billing</span>
+          <span class="card-topic">Q71–80 Telehealth</span>
+          <span class="card-topic">Q81–90 Ochin-Specific</span>
+          <span class="card-topic">Q91–100 Go-Live Day</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-meta">
+            <div class="card-meta-item">⏱ Reference</div>
+            <div class="card-meta-item">📋 100 Q&amp;As</div>
+          </div>
+          <div class="card-arrow" style="opacity:.3">→</div>
+        </div>
+      </div>
+
+      <!-- PART 8 — CAPSTONE -->
+      <a class="mod-card" href="ochin-epic-part8.html"
+         style="--card-accent:var(--gold-lt); --card-color-a:rgba(232,160,32,.12); --card-color-b:transparent">
+        <div class="card-header">
+          <div class="card-icon-wrap">🎓</div>
+          <div class="card-status capstone"><div class="sdot"></div> Capstone</div>
+        </div>
+        <div class="card-part">Part 8 · Certification</div>
+        <div class="card-title">Final Assessment &amp; Certificate</div>
+        <div class="card-desc">40-question timed exam covering all six modules. Score 80% or higher to earn your Ochin Epic Certificate of Completion — printable and shareable.</div>
+        <div class="card-topics">
+          <span class="card-topic">40 Questions</span>
+          <span class="card-topic">45-Minute Timer</span>
+          <span class="card-topic">All Modules Covered</span>
+          <span class="card-topic">Instant Feedback</span>
+          <span class="card-topic">Score Breakdown</span>
+          <span class="card-topic">🏅 Certificate</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-meta">
+            <div class="card-meta-item">⏱ 45 min</div>
+            <div class="card-meta-item">🎯 Pass: 80%</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+
+    </div><!-- /modules-grid -->
+  </div>
+</section>
+
+<!-- ═══ LEARNING PATH ═══ -->
+<section id="path">
+  <div class="path-inner">
+    <div class="reveal">
+      <div class="section-eyebrow">Your Journey</div>
+      <div class="section-title">The Learning Path</div>
+      <div class="section-sub">Follow this sequence for the best learning experience — each module builds on the last.</div>
+    </div>
+    <div class="path-steps">
+      <div class="path-step">
+        <div class="path-num done">🏥</div>
+        <div class="path-label">Overview<br>&amp; Login</div>
+        <div class="path-sublabel">Part 1</div>
+      </div>
+      <div class="path-step">
+        <div class="path-num done">🪪</div>
+        <div class="path-label">Check-In &amp;<br>Registration</div>
+        <div class="path-sublabel">Part 2</div>
+      </div>
+      <div class="path-step">
+        <div class="path-num done">📝</div>
+        <div class="path-label">Clinical<br>Documentation</div>
+        <div class="path-sublabel">Part 3</div>
+      </div>
+      <div class="path-step">
+        <div class="path-num done">💊</div>
+        <div class="path-label">Medications<br>&amp; Rx</div>
+        <div class="path-sublabel">Part 4</div>
+      </div>
+      <div class="path-step">
+        <div class="path-num done">🔬</div>
+        <div class="path-label">Orders &amp;<br>Results</div>
+        <div class="path-sublabel">Part 5</div>
+      </div>
+      <div class="path-step">
+        <div class="path-num muted">📅</div>
+        <div class="path-label">Scheduling<br>&amp; Billing</div>
+        <div class="path-sublabel">Part 6</div>
+      </div>
+      <div class="path-step">
+        <div class="path-num muted">📖</div>
+        <div class="path-label">Top 100<br>Q&amp;A</div>
+        <div class="path-sublabel">Part 7</div>
+      </div>
+      <div class="path-step">
+        <div class="path-num gold">🎓</div>
+        <div class="path-label">Final Exam<br>&amp; Certificate</div>
+        <div class="path-sublabel">Part 8</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features">
+  <div class="reveal">
+    <div class="section-eyebrow">Why This Portal</div>
+    <div class="section-title">Built for Real<br>Community Health Work</div>
+    <div class="section-sub">Not generic Epic training. This is built specifically for Ochin's shared environment, FQHC workflows, and the realities of community health.</div>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card reveal">
+      <div class="feat-icon">🏥</div>
+      <div class="feat-title">FQHC-Specific</div>
+      <div class="feat-desc">Covers sliding fee scale, UDS reporting, HRSA compliance, 340B, and all the workflows unique to community health centers.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">No Install Needed</div>
+      <div class="feat-desc">Pure HTML — open in any browser, on any device, without accounts, plugins, or internet after download.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">📝</div>
+      <div class="feat-title">Graded Quizzes</div>
+      <div class="feat-desc">Every module ends with a knowledge check. Detailed explanations reveal why each answer is right or wrong.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">🖥️</div>
+      <div class="feat-title">Screen Mockups</div>
+      <div class="feat-desc">Realistic Epic screen simulations show exactly what you'll see in Hyperspace — not just text descriptions.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">🔒</div>
+      <div class="feat-title">Patient Safety Focus</div>
+      <div class="feat-desc">Critical value protocols, allergy alerts, controlled substance rules, and HIPAA requirements woven throughout.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">🎓</div>
+      <div class="feat-title">Printable Certificate</div>
+      <div class="feat-desc">Pass the final exam and instantly generate a personalized, print-ready Certificate of Completion.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">👥</div>
+      <div class="feat-title">All Roles Covered</div>
+      <div class="feat-desc">Providers, nurses, MAs, front desk, billing staff, care coordinators — every role's workflows are included.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">Progress Tracking</div>
+      <div class="feat-desc">Module progress bars, section completion indicators, and final exam score breakdown by category.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section id="cta">
+  <div class="cta-inner reveal">
+    <div class="cta-title">Ready to become<br>Epic confident?</div>
+    <div class="cta-sub">Start with Module 1 and work through at your own pace. Most learners complete the full portal in 4–5 hours.</div>
+    <div class="cta-btns">
+      <a class="btn-hero-primary" href="ochin-epic-part1.html">
+        🚀 Start Training Now
+      </a>
+      <a class="btn-hero-secondary" href="ochin-epic-part8.html">
+        🎓 Go to Final Exam
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-brand">
+    <div class="footer-logo">OCHIN</div>
+    <div class="footer-text">Epic Training Portal · Community Health Focused</div>
+  </div>
+  <div class="footer-links">
+    <a class="footer-link" href="ochin-epic-part1.html">Part 1</a>
+    <a class="footer-link" href="ochin-epic-part2.html">Part 2</a>
+    <a class="footer-link" href="ochin-epic-part3.html">Part 3</a>
+    <a class="footer-link" href="ochin-epic-part4.html">Part 4</a>
+    <a class="footer-link" href="ochin-epic-part5.html">Part 5</a>
+    <a class="footer-link" href="ochin-epic-part8.html">Final Exam</a>
+  </div>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════
+   PARTICLE CANVAS
+══════════════════════════════════════════ */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function Particle() {
+  this.reset = function() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.size = Math.random() * 1.8 + 0.3;
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.speedY = (Math.random() - 0.5) * 0.3;
+    this.opacity = Math.random() * 0.5 + 0.1;
+    this.color = Math.random() > 0.6
+      ? `rgba(0,163,173,${this.opacity})`
+      : Math.random() > 0.5
+        ? `rgba(245,200,66,${this.opacity * 0.6})`
+        : `rgba(255,255,255,${this.opacity * 0.5})`;
+  };
+  this.reset();
+}
+
+for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+function drawParticles() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Draw connecting lines
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 100) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(0,163,173,${0.06 * (1 - dist/100)})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw particles
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+
+    p.x += p.speedX;
+    p.y += p.speedY;
+
+    if (p.x < -10) p.x = W + 10;
+    if (p.x > W + 10) p.x = -10;
+    if (p.y < -10) p.y = H + 10;
+    if (p.y > H + 10) p.y = -10;
+  });
+
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+/* ══════════════════════════════════════════
+   SCROLL PROGRESS
+══════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('scroll-bar').style.transform = `scaleX(${Math.min(pct,1)})`;
+}, {passive:true});
+
+/* ══════════════════════════════════════════
+   INTERSECTION OBSERVER — REVEAL
+══════════════════════════════════════════ */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ══════════════════════════════════════════
+   ANIMATED COUNTERS
+══════════════════════════════════════════ */
+function animateCounter(el, target, suffix = '', duration = 1600) {
+  const start = performance.now();
+  function update(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(ease * target) + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    animateCounter(document.getElementById('stat-modules'), 8);
+    animateCounter(document.getElementById('stat-questions'), 100, '+');
+    animateCounter(document.getElementById('stat-topics'), 60, '+');
+    animateCounter(document.getElementById('stat-hours'), 5, '+');
+    statsObserver.disconnect();
+  }
+}, {threshold: 0.5});
+
+statsObserver.observe(document.getElementById('stats'));
+
+/* ══════════════════════════════════════════
+   SMOOTH NAV LINKS
+══════════════════════════════════════════ */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  });
+});
+</script>
+</body>
+</html>

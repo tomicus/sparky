@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 1</title>
+<style>
+  :root {
+    --navy:    #0D2B4E;
+    --teal:    #006D75;
+    --teal-lt: #00A3AD;
+    --gold:    #E8A020;
+    --gold-lt: #F5C842;
+    --cream:   #F4F8FA;
+    --white:   #FFFFFF;
+    --gray1:   #1A2B3C;
+    --gray2:   #3D5166;
+    --gray3:   #7A93A8;
+    --gray4:   #C5D5E0;
+    --gray5:   #EDF2F5;
+    --red:     #C0392B;
+    --green:   #1E7E4C;
+    --shadow:  0 2px 12px rgba(13,43,78,.13);
+    --radius:  10px;
+    --font-head: 'Segoe UI', 'Arial', sans-serif;
+    --font-body: 'Segoe UI', 'Arial', sans-serif;
+    --font-mono: 'Consolas', 'Courier New', monospace;
+  }
+
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family: var(--font-body); background: var(--cream); color: var(--gray1); min-height:100vh; }
+
+  /* ── TOP BAR ── */
+  #topbar {
+    background: var(--navy);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 60px;
+    position: sticky; top:0; z-index:100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.35);
+  }
+  #topbar .brand { display:flex; align-items:center; gap:12px; }
+  #topbar .brand .logo-box {
+    background: var(--teal-lt);
+    color:#fff;
+    font-weight:800;
+    font-size:15px;
+    padding:5px 10px;
+    border-radius:6px;
+    letter-spacing:.5px;
+  }
+  #topbar .brand .title { font-size:17px; font-weight:600; letter-spacing:.2px; }
+  #topbar .brand .subtitle { font-size:11px; color:var(--gray4); margin-top:1px; }
+  #topbar .progress-bar-wrap {
+    display:flex; align-items:center; gap:10px;
+    font-size:12px; color:var(--gray4);
+  }
+  #topbar .progress-bar-track {
+    width:160px; height:7px;
+    background:rgba(255,255,255,.18);
+    border-radius:4px; overflow:hidden;
+  }
+  #topbar .progress-bar-fill {
+    height:100%; background: var(--gold); border-radius:4px;
+    transition:width .4s ease;
+  }
+  #topbar .user-badge {
+    background: rgba(255,255,255,.12);
+    border-radius:20px; padding:4px 14px;
+    font-size:12px; cursor:pointer;
+  }
+
+  /* ── LAYOUT ── */
+  #layout { display:flex; min-height:calc(100vh - 60px); }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width:260px; flex-shrink:0;
+    background: var(--navy);
+    color:#fff;
+    display:flex; flex-direction:column;
+    padding-bottom:20px;
+    position: sticky; top:60px;
+    height: calc(100vh - 60px);
+    overflow-y:auto;
+    border-right:1px solid rgba(255,255,255,.07);
+  }
+  #sidebar::-webkit-scrollbar { width:4px; }
+  #sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2); border-radius:4px; }
+
+  .sidebar-section { padding:18px 20px 6px; }
+  .sidebar-section-label {
+    font-size:10px; font-weight:700; letter-spacing:1.5px;
+    color:var(--teal-lt); text-transform:uppercase; margin-bottom:8px;
+  }
+
+  .nav-item {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius:7px;
+    cursor:pointer; font-size:13px; color:rgba(255,255,255,.78);
+    transition:background .15s, color .15s;
+    margin-bottom:2px; position:relative;
+  }
+  .nav-item:hover { background:rgba(255,255,255,.08); color:#fff; }
+  .nav-item.active { background: var(--teal); color:#fff; }
+  .nav-item.locked { opacity:.45; cursor:not-allowed; }
+  .nav-item .nav-icon { font-size:16px; width:22px; text-align:center; flex-shrink:0; }
+  .nav-item .nav-label { flex:1; }
+  .nav-item .nav-badge {
+    font-size:10px; background:var(--gold); color:var(--navy);
+    border-radius:10px; padding:1px 7px; font-weight:700;
+  }
+  .nav-item .nav-check {
+    font-size:13px; color:#4cd964;
+  }
+  .nav-divider { height:1px; background:rgba(255,255,255,.08); margin:10px 20px; }
+
+  /* ── MAIN CONTENT ── */
+  #main {
+    flex:1; padding:36px 44px;
+    max-width:900px;
+    overflow-y:auto;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: linear-gradient(120deg, var(--navy) 0%, var(--teal) 100%);
+    color:#fff; border-radius:var(--radius);
+    padding:28px 32px 24px;
+    margin-bottom:28px;
+    position:relative; overflow:hidden;
+  }
+  .page-header::after {
+    content:''; position:absolute; right:-30px; top:-30px;
+    width:180px; height:180px; border-radius:50%;
+    background:rgba(255,255,255,.06);
+  }
+  .page-header .mod-tag {
+    font-size:10px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; color:var(--gold-lt); margin-bottom:6px;
+  }
+  .page-header h1 { font-size:26px; font-weight:700; margin-bottom:6px; }
+  .page-header p { font-size:14px; color:rgba(255,255,255,.8); max-width:560px; line-height:1.6; }
+  .page-header .meta {
+    display:flex; gap:20px; margin-top:14px;
+    font-size:12px; color:rgba(255,255,255,.65);
+  }
+  .page-header .meta span { display:flex; align-items:center; gap:5px; }
+
+  /* ── CARDS ── */
+  .card {
+    background:#fff; border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:24px 28px; margin-bottom:22px;
+  }
+  .card h2 { font-size:17px; font-weight:700; color:var(--navy); margin-bottom:14px;
+    display:flex; align-items:center; gap:8px; }
+  .card h2 .ch-icon { font-size:20px; }
+  .card h3 { font-size:14px; font-weight:700; color:var(--teal); margin:16px 0 8px; }
+  .card p { font-size:13.5px; line-height:1.7; color:var(--gray2); margin-bottom:10px; }
+  .card ul, .card ol { padding-left:20px; }
+  .card li { font-size:13.5px; line-height:1.7; color:var(--gray2); margin-bottom:4px; }
+
+  /* ── INFO BOXES ── */
+  .info-box {
+    border-left:4px solid var(--teal);
+    background:var(--gray5); border-radius:0 8px 8px 0;
+    padding:14px 18px; margin:14px 0; font-size:13px;
+    line-height:1.6; color:var(--gray2);
+  }
+  .info-box.tip  { border-color:var(--gold); background:#FFFBF0; }
+  .info-box.warn { border-color:var(--red);  background:#FFF5F5; }
+  .info-box.key  { border-color:var(--navy); background:#F0F4FF; }
+  .info-box strong { color:var(--gray1); }
+
+  /* ── STEP LIST ── */
+  .step-list { counter-reset:step; list-style:none; padding:0; }
+  .step-list li {
+    counter-increment:step;
+    display:flex; gap:14px; align-items:flex-start;
+    padding:12px 0; border-bottom:1px solid var(--gray5);
+  }
+  .step-list li:last-child { border-bottom:none; }
+  .step-list li::before {
+    content:counter(step);
+    background:var(--teal); color:#fff;
+    border-radius:50%; width:26px; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; flex-shrink:0; margin-top:1px;
+  }
+  .step-list li .step-text { flex:1; font-size:13.5px; line-height:1.6; color:var(--gray2); }
+  .step-list li .step-text strong { color:var(--gray1); display:block; margin-bottom:2px; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table { width:100%; border-collapse:collapse; font-size:13px; margin:10px 0; }
+  .compare-table th {
+    background:var(--navy); color:#fff;
+    padding:10px 14px; text-align:left; font-weight:600; font-size:12px;
+  }
+  .compare-table td { padding:9px 14px; border-bottom:1px solid var(--gray4); color:var(--gray2); vertical-align:top; }
+  .compare-table tr:nth-child(even) td { background:var(--gray5); }
+  .compare-table .yes { color:var(--green); font-weight:700; }
+  .compare-table .no  { color:var(--red);   font-weight:700; }
+  .compare-table .par { color:var(--gold);  font-weight:700; }
+
+  /* ── SCREEN MOCK ── */
+  .screen-mock {
+    background:var(--gray1); border-radius:10px;
+    padding:0; overflow:hidden; margin:16px 0;
+    box-shadow:0 4px 18px rgba(0,0,0,.2);
+    font-family: var(--font-mono);
+  }
+  .screen-mock .mock-bar {
+    background:var(--navy); padding:8px 14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .screen-mock .mock-dot {
+    width:10px; height:10px; border-radius:50%;
+  }
+  .screen-mock .mock-body {
+    padding:18px 20px; font-size:12.5px;
+    color:#B8D4E8; line-height:1.7;
+    white-space:pre;
+  }
+  .screen-mock .hl-gold  { color:var(--gold-lt); font-weight:700; }
+  .screen-mock .hl-teal  { color:var(--teal-lt); }
+  .screen-mock .hl-white { color:#fff; font-weight:700; }
+  .screen-mock .hl-gray  { color:#607D8B; }
+
+  /* ── QUIZ SECTION ── */
+  .quiz-card { background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:24px 28px; margin-bottom:22px; }
+  .quiz-card h2 { font-size:17px; font-weight:700; color:var(--navy); margin-bottom:4px; }
+  .quiz-card .quiz-subtitle { font-size:13px; color:var(--gray3); margin-bottom:18px; }
+  .quiz-q { margin-bottom:20px; }
+  .quiz-q .qtext { font-size:13.5px; font-weight:600; color:var(--gray1); margin-bottom:10px; }
+  .quiz-q .qtext .qnum { color:var(--teal); margin-right:6px; }
+  .quiz-options { display:flex; flex-direction:column; gap:7px; }
+  .quiz-option {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px; border:1.5px solid var(--gray4);
+    border-radius:8px; cursor:pointer; font-size:13px;
+    transition:border-color .15s, background .15s;
+  }
+  .quiz-option:hover { border-color:var(--teal); background:var(--gray5); }
+  .quiz-option.selected { border-color:var(--teal); background:#E8F6F8; }
+  .quiz-option.correct  { border-color:var(--green); background:#E8F5EE; color:var(--green); font-weight:600; }
+  .quiz-option.wrong    { border-color:var(--red);   background:#FFF0EF; color:var(--red); }
+  .quiz-option input[type=radio] { accent-color:var(--teal); }
+  .quiz-feedback { font-size:12.5px; margin-top:8px; padding:8px 12px; border-radius:6px; display:none; }
+  .quiz-feedback.show { display:block; }
+  .quiz-feedback.ok  { background:#E8F5EE; color:var(--green); }
+  .quiz-feedback.bad { background:#FFF0EF; color:var(--red); }
+
+  .btn {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:10px 22px; border-radius:8px; border:none;
+    font-size:13px; font-weight:600; cursor:pointer;
+    transition:opacity .15s, transform .1s;
+  }
+  .btn:hover { opacity:.88; transform:translateY(-1px); }
+  .btn:active { transform:translateY(0); }
+  .btn-primary { background:var(--teal); color:#fff; }
+  .btn-gold    { background:var(--gold); color:var(--navy); }
+  .btn-outline { background:transparent; border:1.5px solid var(--teal); color:var(--teal); }
+
+  .quiz-submit-row { display:flex; align-items:center; gap:14px; margin-top:6px; }
+  .quiz-score { font-size:14px; font-weight:700; color:var(--navy); }
+
+  /* ── MODULE NAV BUTTONS ── */
+  .mod-nav { display:flex; gap:12px; margin-top:30px; padding-top:20px; border-top:1px solid var(--gray4); }
+
+  /* ── GLOSSARY CHIP ── */
+  .chip {
+    display:inline-block; background:var(--teal); color:#fff;
+    font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px;
+    margin:2px; letter-spacing:.3px;
+  }
+  .chip.gold { background:var(--gold); color:var(--navy); }
+
+  /* ── HIDDEN PAGES ── */
+  .page { display:none; }
+  .page.active { display:block; }
+
+  /* ── SCROLL INDICATOR ── */
+  #scroll-indicator {
+    position:fixed; top:60px; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--teal-lt),var(--gold));
+    transform-origin:left; transform:scaleX(0);
+    z-index:200; transition:transform .1s;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:780px){
+    #sidebar { display:none; }
+    #main { padding:20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroll-indicator"></div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="brand">
+    <div class="logo-box">OCHIN</div>
+    <div>
+      <div class="title">Epic Training Portal</div>
+      <div class="subtitle">Community Health Focused</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <span>Overall Progress</span>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="overall-progress" style="width:0%"></div>
+    </div>
+    <span id="overall-pct">0%</span>
+  </div>
+  <div class="user-badge" onclick="alert('Learner profile coming in Part 8!')">👤 Learner</div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Foundation</div>
+      <div class="nav-item active" data-page="mod1" onclick="showPage('mod1',this)">
+        <span class="nav-icon">🏥</span>
+        <span class="nav-label">1 · Ochin Overview & Login</span>
+        <span class="nav-check" id="check-mod1" style="display:none">✓</span>
+      </div>
+      <div class="nav-item locked" data-page="mod2" onclick="showPage('mod2',this)">
+        <span class="nav-icon">🪪</span>
+        <span class="nav-label">2 · Patient Check-In</span>
+        <span class="nav-badge">Pt 2</span>
+      </div>
+      <div class="nav-item locked" data-page="mod3" onclick="showPage('mod3',this)">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">3 · Clinical Documentation</span>
+        <span class="nav-badge">Pt 3</span>
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Clinical Workflows</div>
+      <div class="nav-item locked" data-page="mod4">
+        <span class="nav-icon">💊</span>
+        <span class="nav-label">4 · Medications & Rx</span>
+        <span class="nav-badge">Pt 4</span>
+      </div>
+      <div class="nav-item locked" data-page="mod5">
+        <span class="nav-icon">🔬</span>
+        <span class="nav-label">5 · Orders & Results</span>
+        <span class="nav-badge">Pt 5</span>
+      </div>
+      <div class="nav-item locked" data-page="mod6">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">6 · Scheduling & Billing</span>
+        <span class="nav-badge">Pt 6</span>
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Reference & Assessment</div>
+      <div class="nav-item locked" data-page="ref100">
+        <span class="nav-icon">📖</span>
+        <span class="nav-label">Top 100 Go-Live Q&A</span>
+        <span class="nav-badge">Pt 7</span>
+      </div>
+      <div class="nav-item locked" data-page="quiz-final">
+        <span class="nav-icon">🎓</span>
+        <span class="nav-label">Final Assessment</span>
+        <span class="nav-badge">Pt 8</span>
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Quick Reference</div>
+      <div class="nav-item" onclick="showPage('shortcuts',this)">
+        <span class="nav-icon">⌨️</span>
+        <span class="nav-label">Keyboard Shortcuts</span>
+      </div>
+      <div class="nav-item" onclick="showPage('glossary',this)">
+        <span class="nav-icon">📚</span>
+        <span class="nav-label">Glossary</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- ════════════════════════════════════════════════
+         MODULE 1 — OCHIN OVERVIEW & LOGIN
+    ════════════════════════════════════════════════ -->
+    <div class="page active" id="page-mod1">
+
+      <div class="page-header">
+        <div class="mod-tag">Module 1 of 6</div>
+        <h1>Ochin Overview &amp; Logging In</h1>
+        <p>Understand how Ochin Epic differs from standard Epic, navigate the environment, and log in securely using your credentials and two-factor authentication.</p>
+        <div class="meta">
+          <span>⏱ ~20 min</span>
+          <span>🎯 Clinicians · Providers · All Staff</span>
+          <span>📋 5 sections · Quiz at end</span>
+        </div>
+      </div>
+
+      <!-- SECTION 1.1 -->
+      <div class="card">
+        <h2><span class="ch-icon">🌐</span> What Is Ochin?</h2>
+        <p>
+          <strong>Ochin</strong> (formerly known as Oregon Community Health Information Network) is a nonprofit health IT organization that serves <em>Federally Qualified Health Centers (FQHCs), Rural Health Clinics (RHCs), and safety-net providers</em> across the United States. Ochin operates a <strong>shared Epic instance</strong> — meaning hundreds of community health organizations share a single Epic environment managed centrally by Ochin.
+        </p>
+        <p>
+          This is fundamentally different from a hospital system that purchases and self-hosts Epic. When you work at an Ochin member clinic, your Epic is configured, updated, and supported by <strong>Ochin's central team</strong>, not your local IT department.
+        </p>
+
+        <div class="info-box key">
+          <strong>🔑 Key Concept:</strong> Because Ochin manages a shared Epic platform, your clinic shares database infrastructure with other community health centers. Patient records are segmented by organization — patients at Clinic A cannot be seen by staff at Clinic B — but the system, build, and workflows are standardized across the network.
+        </div>
+
+        <h3>Why Ochin Exists</h3>
+        <ul>
+          <li>FQHCs and small safety-net clinics cannot typically afford to license and operate their own Epic instance</li>
+          <li>Ochin negotiates group pricing and provides Epic expertise that individual clinics lack</li>
+          <li>Centralized management means consistent upgrades, security patches, and regulatory compliance (UDS reporting, HRSA requirements)</li>
+          <li>Ochin maintains specialized content for FQHC workflows: sliding fee scales, grant reporting, UDS data capture</li>
+        </ul>
+      </div>
+
+      <!-- SECTION 1.2 -->
+      <div class="card">
+        <h2><span class="ch-icon">⚖️</span> Ochin Epic vs. Standard Epic: Key Differences</h2>
+        <p>Understanding these differences prevents confusion if you have prior Epic experience from a hospital or large health system.</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Standard (Self-Hosted) Epic</th>
+              <th>Ochin Shared Epic</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Environment Ownership</strong></td>
+              <td>Health system owns &amp; manages</td>
+              <td>Ochin owns &amp; manages centrally</td>
+            </tr>
+            <tr>
+              <td><strong>Epic Version Updates</strong></td>
+              <td>Health system schedules upgrades</td>
+              <td>Ochin schedules upgrades for all members</td>
+            </tr>
+            <tr>
+              <td><strong>Configuration/Build</strong></td>
+              <td>Internal Epic analysts build workflows</td>
+              <td>Ochin analysts build; clinic has limited customization</td>
+            </tr>
+            <tr>
+              <td><strong>Sliding Fee Scale</strong></td>
+              <td class="no">Not built-in (FQHC-specific)</td>
+              <td class="yes">✓ Built into Ochin registration &amp; billing</td>
+            </tr>
+            <tr>
+              <td><strong>UDS Reporting</strong></td>
+              <td class="no">Not standard</td>
+              <td class="yes">✓ Pre-built UDS data collection and reports</td>
+            </tr>
+            <tr>
+              <td><strong>Cosign Workflows</strong></td>
+              <td>Varies by org</td>
+              <td>Standardized for FQHC supervision rules</td>
+            </tr>
+            <tr>
+              <td><strong>Support Desk</strong></td>
+              <td>Internal Epic team + Epic support</td>
+              <td>Ochin Help Desk (your first call)</td>
+            </tr>
+            <tr>
+              <td><strong>Training</strong></td>
+              <td>Epic MyLearning</td>
+              <td>Ochin LMS + local super-user training</td>
+            </tr>
+            <tr>
+              <td><strong>MyChart Access</strong></td>
+              <td class="yes">✓ Full MyChart</td>
+              <td class="yes">✓ MyChart available (Ochin-branded)</td>
+            </tr>
+            <tr>
+              <td><strong>Telehealth Integration</strong></td>
+              <td>Varies</td>
+              <td class="yes">✓ Integrated (Epic Telehealth or third-party)</td>
+            </tr>
+            <tr>
+              <td><strong>340B Drug Program</strong></td>
+              <td class="par">Add-on module</td>
+              <td class="yes">✓ Supported for qualifying FQHCs</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="info-box tip">
+          <strong>💡 Tip:</strong> If you call Ochin's Help Desk with a request to change a workflow or add a field, be prepared that some requests may take weeks — changes must go through Ochin's governance process and affect all member organizations.
+        </div>
+      </div>
+
+      <!-- SECTION 1.3 -->
+      <div class="card">
+        <h2><span class="ch-icon">🖥️</span> Epic Environments: Production, Training &amp; Playground</h2>
+
+        <p>Ochin maintains separate Epic environments. Knowing which one you're in is critical — mistakes in Production affect real patients.</p>
+
+        <h3>The Three Environments</h3>
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>Production (PRD / PROD)</strong>
+              This is the LIVE environment with real patient data. All clinical care happens here. Never practice or test in Production.
+              <br><br>
+              <span class="chip">🔴 LIVE DATA</span> <span class="chip gold">Real Patients</span>
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Training (TRN)</strong>
+              A copy of the Production environment with fictional training patients. Used for onboarding and practice. Refreshed periodically by Ochin. Accessible via a separate URL or Citrix application labeled "Training."
+              <br><br>
+              <span class="chip">🟡 FAKE DATA</span> <span class="chip">Safe to Practice</span>
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Playground / Sandbox (PLY)</strong>
+              Used by Ochin analysts for build and testing. Clinic staff generally do not have access to this environment.
+            </div>
+          </li>
+        </ol>
+
+        <div class="info-box warn">
+          <strong>⚠️ Warning:</strong> The Training environment banner is usually labeled at the top of the screen with an orange or yellow bar. Always verify you are in the correct environment before documenting on a patient chart.
+        </div>
+
+        <div class="screen-mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f57"></div>
+            <div class="mock-dot" style="background:#febc2e"></div>
+            <div class="mock-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.5);font-size:11px;margin-left:8px;font-family:sans-serif">Epic — Training Environment</span>
+          </div>
+          <div class="mock-body"><span class="hl-gold">┌─────────────────────────────────────────────────────────────────┐
+│  ⚠  TRAINING ENVIRONMENT — NOT FOR REAL PATIENT CARE  ⚠        │
+└─────────────────────────────────────────────────────────────────┘</span>
+<span class="hl-teal">Epic</span>  <span class="hl-white">Hyperspace</span>          <span class="hl-gray">Organization: Green Valley Community Health</span>
+<span class="hl-gray">───────────────────────────────────────────────────────────────────</span>
+  Patient List  |  Schedule  |  In Basket  |  Reporting  |  Admin
+<span class="hl-gray">───────────────────────────────────────────────────────────────────</span>
+  Welcome, <span class="hl-white">J. Smith, MD</span>                    <span class="hl-gray">Last Login: 06/14/2026 08:22</span></div>
+        </div>
+      </div>
+
+      <!-- SECTION 1.4 -->
+      <div class="card">
+        <h2><span class="ch-icon">🔐</span> Logging In to Ochin Epic</h2>
+        <p>Ochin Epic is typically accessed via <strong>Citrix Virtual Desktop</strong> or a direct web browser connection depending on your organization's setup. Your login credentials are assigned by your clinic's Epic Security Coordinator or Ochin directly.</p>
+
+        <h3>Step-by-Step Login Process</h3>
+        <ol class="step-list">
+          <li>
+            <div class="step-text">
+              <strong>Launch Citrix Workspace or Browser</strong>
+              Open Citrix Workspace app on your workstation, or navigate to your clinic's Epic web URL (e.g., <code>https://hyperspace.ochin.org</code>). Your IT coordinator will provide the exact URL.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Enter Your EMP ID and Password</strong>
+              Your <strong>EMP ID</strong> (Employee ID) is your Epic username. This is NOT your email address. Format is typically your clinic's prefix followed by your assigned number. Example: <code>GVCH0042</code>
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Two-Factor Authentication (2FA)</strong>
+              Ochin requires 2FA for all production access. You will be prompted to approve via the Duo Security mobile app, or enter a one-time code. Approve the push notification on your phone within 60 seconds.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Select Your Role / Context</strong>
+              If you hold multiple roles (e.g., you are both a provider and a department coordinator), Epic may prompt you to select which context to open. Choose your primary role for this session.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Review and Dismiss HIPAA Attestation</strong>
+              A compliance message may appear requiring you to click <strong>Accept</strong> acknowledging you understand your HIPAA responsibilities before proceeding.
+            </div>
+          </li>
+          <li>
+            <div class="step-text">
+              <strong>Your Epic Desktop (Hyperspace) Opens</strong>
+              You will land on your personalized Epic Hyperspace homepage showing your schedule, In Basket, and patient list depending on your role.
+            </div>
+          </li>
+        </ol>
+
+        <div class="info-box tip">
+          <strong>💡 Pro Tip — Windows Authentication:</strong> If your clinic uses Single Sign-On (SSO) through Windows Active Directory, your Windows desktop login may automatically pass your credentials into Epic. You may only see the 2FA prompt rather than a username/password screen.
+        </div>
+
+        <h3>Password Policy</h3>
+        <ul>
+          <li>Minimum 12 characters, mix of uppercase, lowercase, number, and special character</li>
+          <li>Password expires every <strong>90 days</strong> — you'll receive warnings at 14 days and 7 days</li>
+          <li>Do not share your password — every action in Epic is logged with your EMP ID</li>
+          <li>Forgotten password: contact your <strong>Security Coordinator</strong> or call the Ochin Help Desk at the number posted at your workstation</li>
+        </ul>
+
+        <div class="info-box warn">
+          <strong>⚠️ Never share your Epic login.</strong> Every order, documentation entry, and chart access is permanently associated with your credentials. Shared logins are an HIPAA violation and grounds for termination.
+        </div>
+      </div>
+
+      <!-- SECTION 1.5 -->
+      <div class="card">
+        <h2><span class="ch-icon">🗺️</span> Navigating Epic Hyperspace</h2>
+        <p>Epic's main interface is called <strong>Hyperspace</strong>. Understanding the layout saves time every day.</p>
+
+        <div class="screen-mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ff5f57"></div>
+            <div class="mock-dot" style="background:#febc2e"></div>
+            <div class="mock-dot" style="background:#28c840"></div>
+            <span style="color:rgba(255,255,255,.5);font-size:11px;margin-left:8px;font-family:sans-serif">Epic Hyperspace — Production</span>
+          </div>
+          <div class="mock-body"><span class="hl-gray">┌── EPIC BUTTON ──┬── TOOLBAR ───────────────────────────────────────┐</span>
+│  <span class="hl-gold">⚡ EPIC</span>         │ <span class="hl-teal">Pt Search</span>  <span class="hl-teal">Schedule</span>  <span class="hl-teal">In Basket</span>  <span class="hl-teal">Reporting</span>     │
+<span class="hl-gray">├─────────────────┴──────────────────────────────────────────────────┤</span>
+│  <span class="hl-white">ACTIVITY TABS</span>  (change based on chart context)                   │
+│  [ Chart ] [ Orders ] [ Results ] [ Medications ] [ Summary ]     │
+<span class="hl-gray">├────────────────────────────────────────────────────────────────────┤</span>
+│                                                                    │
+│   <span class="hl-white">WORKSPACE</span>  ← Main content area changes based on activity       │
+│                                                                    │
+│   Patient: <span class="hl-gold">DOE, JANE</span>   DOB: 01/15/1985   MRN: 00123456            │
+│   PCP: Smith, John MD   Insurance: Medicaid CA                    │
+│                                                                    │
+<span class="hl-gray">├────────────────────────────────────────────────────────────────────┤</span>
+│  <span class="hl-gray">PATIENT HEADER TOOLBAR</span>  [ Allergies ] [ Problem List ] [ Meds ]   │
+└────────────────────────────────────────────────────────────────────┘</div>
+        </div>
+
+        <h3>Key Navigation Areas</h3>
+        <ul>
+          <li><strong>Epic Button (⚡)</strong> — Top-left. Opens the main menu with access to all Epic modules, recent patients, and settings.</li>
+          <li><strong>Toolbar</strong> — Top row. Contains global navigation: Patient Search, Schedule, In Basket (your messages), Reporting.</li>
+          <li><strong>Activity Tabs</strong> — Appear when you open a patient chart. Each tab is a section of the chart (Chart, Orders, Results, etc.).</li>
+          <li><strong>Workspace</strong> — The large center area showing current content.</li>
+          <li><strong>Patient Header</strong> — When in a chart, shows key patient info at the top: name, DOB, MRN, allergies, insurance.</li>
+        </ul>
+
+        <h3>Most-Used Keyboard Shortcuts</h3>
+        <table class="compare-table">
+          <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><code>Ctrl + E</code></td><td>Open Patient Search</td></tr>
+            <tr><td><code>Ctrl + Space</code></td><td>SmartPhrase / Dot Phrase lookup</td></tr>
+            <tr><td><code>Ctrl + Shift + N</code></td><td>New note</td></tr>
+            <tr><td><code>Ctrl + D</code></td><td>Open In Basket</td></tr>
+            <tr><td><code>F2</code></td><td>Next field / accept suggestion</td></tr>
+            <tr><td><code>Ctrl + W</code></td><td>Close current activity tab</td></tr>
+            <tr><td><code>Alt + Left Arrow</code></td><td>Navigate back</td></tr>
+          </tbody>
+        </table>
+
+        <div class="info-box">
+          <strong>In Basket</strong> is Epic's internal messaging system — equivalent to a clinical inbox. You will receive messages here from nurses, lab results, refill requests, patient MyChart messages, and administrative tasks. Check In Basket at the start and end of every shift.
+        </div>
+      </div>
+
+      <!-- MODULE 1 QUIZ -->
+      <div class="quiz-card" id="quiz-mod1">
+        <h2>📝 Module 1 Knowledge Check</h2>
+        <div class="quiz-subtitle">Answer all 5 questions to complete this module and unlock Module 2.</div>
+
+        <!-- Q1 -->
+        <div class="quiz-q" id="qq1">
+          <div class="qtext"><span class="qnum">1.</span> What type of organizations primarily use Ochin Epic?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> Large academic medical centers</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> Federally Qualified Health Centers and safety-net clinics</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> For-profit urgent care chains</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="d"> Independent specialty practices</label>
+          </div>
+          <div class="quiz-feedback" id="fb1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-q" id="qq2">
+          <div class="qtext"><span class="qnum">2.</span> Which environment should you NEVER use for practicing or testing Epic?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> Training (TRN)</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> Playground (PLY)</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> Production (PRD)</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="d"> Sandbox</label>
+          </div>
+          <div class="quiz-feedback" id="fb2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-q" id="qq3">
+          <div class="qtext"><span class="qnum">3.</span> A colleague asks to use your Epic login because they forgot their password. What should you do?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> Share it once just for this emergency</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> Refuse and direct them to the Security Coordinator or Ochin Help Desk</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> Log in for them and let them use your session</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="d"> Email them your password encrypted</label>
+          </div>
+          <div class="quiz-feedback" id="fb3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-q" id="qq4">
+          <div class="qtext"><span class="qnum">4.</span> Which of these is a feature built specifically into Ochin Epic but NOT typically in a standard hospital Epic?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q4" value="a"> In Basket messaging</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="b"> Sliding fee scale for uninsured patients</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="c"> Electronic prescribing</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="d"> Lab order entry</label>
+          </div>
+          <div class="quiz-feedback" id="fb4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-q" id="qq5">
+          <div class="qtext"><span class="qnum">5.</span> What keyboard shortcut opens Epic's Patient Search?</div>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="q5" value="a"> Ctrl + F</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="b"> Ctrl + P</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="c"> Ctrl + E</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="d"> Ctrl + S</label>
+          </div>
+          <div class="quiz-feedback" id="fb5"></div>
+        </div>
+
+        <div class="quiz-submit-row">
+          <button class="btn btn-primary" onclick="gradeQuiz1()">Submit Answers</button>
+          <span class="quiz-score" id="quiz1-score"></span>
+        </div>
+      </div>
+
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="alert('This is the first module!')">← Previous</button>
+        <button class="btn btn-gold" id="btn-mod2" onclick="alert('Complete the quiz above to unlock Module 2! (Part 2 coming soon)')" style="margin-left:auto">
+          Module 2: Patient Check-In → <span style="font-size:11px;margin-left:4px">(Part 2)</span>
+        </button>
+      </div>
+    </div><!-- /page-mod1 -->
+
+
+    <!-- ═══════════════════════════════
+         KEYBOARD SHORTCUTS PAGE
+    ═══════════════════════════════ -->
+    <div class="page" id="page-shortcuts">
+      <div class="page-header">
+        <div class="mod-tag">Quick Reference</div>
+        <h1>Epic Keyboard Shortcuts</h1>
+        <p>Common shortcuts used in Ochin Epic Hyperspace to speed up your daily workflow.</p>
+      </div>
+      <div class="card">
+        <h2>🌐 Global Shortcuts</h2>
+        <table class="compare-table">
+          <thead><tr><th>Shortcut</th><th>Action</th><th>Works In</th></tr></thead>
+          <tbody>
+            <tr><td><code>Ctrl + E</code></td><td>Patient Search</td><td>Anywhere</td></tr>
+            <tr><td><code>Ctrl + D</code></td><td>Open In Basket</td><td>Anywhere</td></tr>
+            <tr><td><code>Ctrl + M</code></td><td>Open Schedule</td><td>Anywhere</td></tr>
+            <tr><td><code>Ctrl + W</code></td><td>Close current tab</td><td>Chart</td></tr>
+            <tr><td><code>Ctrl + Q</code></td><td>Quick Actions menu</td><td>Chart</td></tr>
+            <tr><td><code>Alt + Left</code></td><td>Navigate back</td><td>Anywhere</td></tr>
+            <tr><td><code>F2</code></td><td>Accept suggestion / next field</td><td>Documentation</td></tr>
+            <tr><td><code>Ctrl + Space</code></td><td>SmartPhrase / Dot Phrase trigger</td><td>Note editor</td></tr>
+            <tr><td><code>Ctrl + Shift + N</code></td><td>New note</td><td>Chart</td></tr>
+            <tr><td><code>Ctrl + R</code></td><td>Refresh activity</td><td>Most activities</td></tr>
+            <tr><td><code>Ctrl + P</code></td><td>Print current view</td><td>Chart</td></tr>
+          </tbody>
+        </table>
+        <h2 style="margin-top:20px">📋 In Basket Shortcuts</h2>
+        <table class="compare-table">
+          <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><code>Ctrl + R</code></td><td>Reply to message</td></tr>
+            <tr><td><code>Ctrl + F</code></td><td>Forward message</td></tr>
+            <tr><td><code>Delete</code></td><td>Done / file message</td></tr>
+            <tr><td><code>Ctrl + Shift + F</code></td><td>Flag message</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showPage('mod1', document.querySelector('[data-page=mod1]'))">← Back to Module 1</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         GLOSSARY PAGE
+    ═══════════════════════════════ -->
+    <div class="page" id="page-glossary">
+      <div class="page-header">
+        <div class="mod-tag">Quick Reference</div>
+        <h1>Ochin Epic Glossary</h1>
+        <p>Terms you'll hear every day in Ochin Epic. More terms added in each Part.</p>
+      </div>
+      <div class="card">
+        <h2>A–F</h2>
+        <dl style="display:grid;gap:12px;">
+          <div><dt style="font-weight:700;color:var(--navy)">AVS (After Visit Summary)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Patient education printout generated at the end of a visit. Required for Meaningful Use.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">BPA (Best Practice Advisory)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Pop-up alerts in Epic reminding providers of clinical guidelines (e.g., "Due for flu shot").</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">CDS (Clinical Decision Support)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Automated alerts and suggestions built into Epic to guide clinical decisions.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">EHR (Electronic Health Record)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">The digital patient chart. Epic is the EHR Ochin uses.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">EMP ID (Employee ID)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Your unique Epic username assigned by your Security Coordinator.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">FQHC (Federally Qualified Health Center)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Community health centers receiving federal funding under Section 330 of the Public Health Service Act. Most Ochin members are FQHCs.</dd></div>
+        </dl>
+        <h2 style="margin-top:20px">H–M</h2>
+        <dl style="display:grid;gap:12px;">
+          <div><dt style="font-weight:700;color:var(--navy)">Hyperspace</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Epic's main desktop application interface — the main window you use every day.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">In Basket</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Epic's internal inbox for messages, results notifications, refill requests, and tasks.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">MAR (Medication Administration Record)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">The section of Epic tracking medications ordered and administered during a visit or inpatient stay.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">MRN (Medical Record Number)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Unique patient identifier in Epic. Used to pull up a patient's chart.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">MyChart</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Epic's patient portal. Patients can view results, message providers, and request appointments.</dd></div>
+        </dl>
+        <h2 style="margin-top:20px">N–Z</h2>
+        <dl style="display:grid;gap:12px;">
+          <div><dt style="font-weight:700;color:var(--navy)">PRD / PROD</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Production environment — the live system with real patient data.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">RHC (Rural Health Clinic)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Federally designated rural clinic eligible for enhanced Medicare/Medicaid reimbursement. Many Ochin members are RHCs.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">SmartPhrase / Dot Phrase</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Shortcuts in Epic's note editor. Type a period followed by a keyword to auto-expand to a full text template. E.g., ".hpi" expands to a History of Present Illness template.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">TRN</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Training environment — safe to practice with fictional patient data.</dd></div>
+          <div><dt style="font-weight:700;color:var(--navy)">UDS (Uniform Data System)</dt><dd style="font-size:13px;color:var(--gray2);margin-left:14px">Annual federal reporting requirement for FQHCs to HRSA. Ochin Epic is built to capture and report UDS data automatically.</dd></div>
+        </dl>
+      </div>
+      <div class="mod-nav">
+        <button class="btn btn-outline" onclick="showPage('mod1', document.querySelector('[data-page=mod1]'))">← Back to Module 1</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── PAGE NAVIGATION ──
+function showPage(id, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id)?.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (navEl && !navEl.classList.contains('locked')) navEl.classList.add('active');
+}
+
+// ── SCROLL PROGRESS ──
+window.addEventListener('scroll', () => {
+  const el = document.getElementById('scroll-indicator');
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  el.style.transform = `scaleX(${Math.min(pct,1)})`;
+}, {passive:true});
+
+// ── QUIZ 1 ──
+const answers1 = { q1:'b', q2:'c', q3:'b', q4:'b', q5:'c' };
+const explanations = {
+  q1: { ok: "Correct! Ochin serves FQHCs, RHCs, and other safety-net providers — not large hospital systems.", bad: "Incorrect. Ochin's network is built for FQHCs and safety-net community health organizations." },
+  q2: { ok: "Correct! Production (PRD) has real patient data. Never practice here — always use Training (TRN).", bad: "Incorrect. The Production environment contains real patient data and must never be used for practice or testing." },
+  q3: { ok: "Correct! Never share your credentials. Direct colleagues to their Security Coordinator or the Ochin Help Desk to reset their password.", bad: "Incorrect. Sharing your login is an HIPAA violation and could result in termination. Always direct them to the Security Coordinator." },
+  q4: { ok: "Correct! Ochin Epic has a built-in sliding fee scale — a specialized FQHC feature not found in standard hospital Epic.", bad: "Incorrect. The sliding fee scale for uninsured/underinsured patients is a specialized Ochin FQHC feature not typically found in hospital Epic." },
+  q5: { ok: "Correct! Ctrl + E opens the Patient Search from anywhere in Epic Hyperspace.", bad: "Incorrect. The correct shortcut is Ctrl + E for Patient Search." }
+};
+
+let quiz1Done = false;
+
+function gradeQuiz1() {
+  if (quiz1Done) return;
+  let score = 0;
+  let allAnswered = true;
+
+  ['q1','q2','q3','q4','q5'].forEach((q, i) => {
+    const sel = document.querySelector(`input[name="${q}"]:checked`);
+    const fb = document.getElementById(`fb${i+1}`);
+    if (!sel) { allAnswered = false; return; }
+
+    const labels = document.querySelectorAll(`input[name="${q}"]`);
+    labels.forEach(l => l.closest('.quiz-option').classList.remove('selected','correct','wrong'));
+
+    const chosen = sel.closest('.quiz-option');
+    if (sel.value === answers1[q]) {
+      chosen.classList.add('correct');
+      fb.className = 'quiz-feedback ok show';
+      fb.textContent = '✓ ' + explanations[q].ok;
+      score++;
+    } else {
+      chosen.classList.add('wrong');
+      fb.className = 'quiz-feedback bad show';
+      fb.textContent = '✗ ' + explanations[q].bad;
+      // Show correct
+      labels.forEach(l => { if(l.value === answers1[q]) l.closest('.quiz-option').classList.add('correct'); });
+    }
+  });
+
+  if (!allAnswered) { alert('Please answer all 5 questions before submitting.'); return; }
+
+  quiz1Done = true;
+  const scoreEl = document.getElementById('quiz1-score');
+  scoreEl.textContent = `Score: ${score}/5`;
+  scoreEl.style.color = score >= 4 ? 'var(--green)' : 'var(--red)';
+
+  if (score >= 4) {
+    document.getElementById('check-mod1').style.display = 'inline';
+    setProgress(14);
+    setTimeout(()=>{
+      document.getElementById('btn-mod2').style.background='var(--gold)';
+      document.getElementById('btn-mod2').onclick = () => alert('Module 2: Patient Check-In is covered in Part 2 of this training series. Load the Part 2 HTML file to continue.');
+    }, 500);
+  }
+}
+
+function setProgress(pct) {
+  document.getElementById('overall-progress').style.width = pct + '%';
+  document.getElementById('overall-pct').textContent = pct + '%';
+}
+
+// ── QUIZ OPTION INTERACTION ──
+document.addEventListener('change', e => {
+  if (e.target.type === 'radio') {
+    const name = e.target.name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+      r.closest('.quiz-option').classList.remove('selected');
+    });
+    e.target.closest('.quiz-option').classList.add('selected');
+  }
+});
+</script>
+
+</body>
+</html>

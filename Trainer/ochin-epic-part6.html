@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ochin Epic Training — Part 6: Scheduling &amp; Billing</title>
+<style>
+  :root {
+    --navy:#0D2B4E; --teal:#006D75; --teal-lt:#00A3AD;
+    --gold:#E8A020; --gold-lt:#F5C842;
+    --cream:#F4F8FA; --white:#FFFFFF;
+    --gray1:#1A2B3C; --gray2:#3D5166; --gray3:#7A93A8;
+    --gray4:#C5D5E0; --gray5:#EDF2F5;
+    --red:#C0392B; --green:#1E7E4C; --purple:#6B3FA0;
+    --orange:#C05C00;
+    --shadow:0 2px 12px rgba(13,43,78,.13);
+    --radius:10px;
+    --font-body:'Segoe UI','Arial',sans-serif;
+    --font-mono:'Consolas','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);background:var(--cream);color:var(--gray1);min-height:100vh;}
+
+  /* TOP BAR */
+  #topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo-box{background:var(--teal-lt);color:#fff;font-weight:800;font-size:15px;padding:5px 10px;border-radius:6px;}
+  .bar-title{font-size:17px;font-weight:600;}
+  .bar-sub{font-size:11px;color:var(--gray4);margin-top:1px;}
+  .pbwrap{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gray4);}
+  .pbtrack{width:160px;height:7px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;}
+  .pbfill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s;}
+  .ubadge{background:rgba(255,255,255,.12);border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;}
+
+  /* LAYOUT */
+  #layout{display:flex;min-height:calc(100vh - 60px);}
+
+  /* SIDEBAR */
+  #sidebar{width:260px;flex-shrink:0;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding-bottom:20px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;border-right:1px solid rgba(255,255,255,.07);}
+  #sidebar::-webkit-scrollbar{width:4px;}
+  #sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+  .sb-sec{padding:18px 20px 6px;}
+  .sb-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal-lt);text-transform:uppercase;margin-bottom:8px;}
+  .ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.78);transition:background .15s;margin-bottom:2px;}
+  .ni:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .ni.active{background:var(--teal);color:#fff;}
+  .ni.locked{opacity:.4;cursor:not-allowed;}
+  .ni .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+  .ni .lbl{flex:1;}
+  .ni .badge{font-size:10px;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 7px;font-weight:700;}
+  .ni .chk{font-size:13px;color:#4cd964;}
+  .ndiv{height:1px;background:rgba(255,255,255,.08);margin:10px 20px;}
+
+  /* MAIN */
+  #main{flex:1;padding:36px 44px;max-width:900px;}
+
+  /* SECTION TABS */
+  .stabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px;}
+  .stab{padding:7px 16px;border-radius:20px;border:1.5px solid var(--gray4);font-size:12px;font-weight:600;cursor:pointer;color:var(--gray2);background:#fff;transition:all .15s;}
+  .stab:hover{border-color:var(--teal);color:var(--teal);}
+  .stab.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .sc{display:none;}
+  .sc.active{display:block;}
+
+  /* PAGE HEADER */
+  .ph{background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 100%);color:#fff;border-radius:var(--radius);padding:28px 32px 24px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .ph::after{content:'';position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .ph .mt{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px;}
+  .ph h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+  .ph p{font-size:14px;color:rgba(255,255,255,.8);max-width:560px;line-height:1.6;}
+  .ph .meta{display:flex;gap:20px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.65);}
+
+  /* CARDS */
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card h3{font-size:14px;font-weight:700;color:var(--teal);margin:18px 0 8px;}
+  .card p{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:10px;}
+  .card ul,.card ol{padding-left:20px;}
+  .card li{font-size:13.5px;line-height:1.7;color:var(--gray2);margin-bottom:5px;}
+
+  /* INFO BOXES */
+  .ib{border-left:4px solid var(--teal);background:var(--gray5);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.6;color:var(--gray2);}
+  .ib.tip{border-color:var(--gold);background:#FFFBF0;}
+  .ib.warn{border-color:var(--red);background:#FFF5F5;}
+  .ib.key{border-color:var(--navy);background:#F0F4FF;}
+  .ib.green{border-color:var(--green);background:#EEF9F3;}
+  .ib.purple{border-color:var(--purple);background:#F5F0FF;}
+  .ib.orange{border-color:var(--orange);background:#FFF4EA;}
+  .ib strong{color:var(--gray1);}
+
+  /* STEP LIST */
+  .sl{counter-reset:s;list-style:none;padding:0;}
+  .sl li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--gray5);}
+  .sl li:last-child{border-bottom:none;}
+  .sl li::before{content:counter(s);background:var(--teal);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .sl li .st{flex:1;font-size:13.5px;line-height:1.6;color:var(--gray2);}
+  .sl li .st strong{color:var(--gray1);display:block;margin-bottom:3px;}
+  .sl li .st code{background:var(--gray5);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12px;color:var(--navy);}
+
+  /* TABLES */
+  .ct{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+  .ct th{background:var(--navy);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px;}
+  .ct td{padding:9px 14px;border-bottom:1px solid var(--gray4);color:var(--gray2);vertical-align:top;}
+  .ct tr:nth-child(even) td{background:var(--gray5);}
+  .ct .yes{color:var(--green);font-weight:700;}
+  .ct .no{color:var(--red);font-weight:700;}
+  .ct .warn-cell{color:var(--orange);font-weight:700;}
+
+  /* SCREEN MOCK */
+  .sm{background:#1A2B3C;border-radius:10px;overflow:hidden;margin:16px 0;box-shadow:0 4px 18px rgba(0,0,0,.22);font-family:var(--font-mono);}
+  .sm-bar{background:var(--navy);padding:8px 14px;display:flex;align-items:center;gap:8px;}
+  .sm-dot{width:10px;height:10px;border-radius:50%;}
+  .sm-body{padding:16px 20px;font-size:12px;color:#B8D4E8;line-height:1.9;white-space:pre;overflow-x:auto;}
+  .rg{color:#F5C842;font-weight:700;}
+  .rt{color:#00C9D4;}
+  .rw{color:#fff;font-weight:700;}
+  .rd{color:#546E7A;}
+  .rr{color:#EF9A9A;}
+  .rgn{color:#A5D6A7;}
+  .ro{color:#FFCC80;}
+  .rp{color:#CE93D8;}
+
+  /* CHIPS */
+  .chip{display:inline-block;background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;margin:2px;}
+  .chip.gold{background:var(--gold);color:var(--navy);}
+  .chip.red{background:var(--red);}
+  .chip.gray{background:var(--gray3);}
+  .chip.purple{background:var(--purple);}
+  .chip.orange{background:var(--orange);}
+  .chip.green{background:var(--green);}
+  .chip.navy{background:var(--navy);}
+
+  /* ALERT BOX */
+  .alert-box{border:2px solid var(--red);border-radius:8px;background:#FFF0EF;padding:14px 18px;margin:14px 0;display:flex;gap:12px;align-items:flex-start;}
+  .alert-box .ai{font-size:22px;flex-shrink:0;margin-top:1px;}
+  .alert-box .ab{flex:1;}
+  .alert-box .at{font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px;}
+  .alert-box .ax{font-size:12.5px;color:var(--gray2);line-height:1.6;}
+  .alert-box.gold-box{border-color:var(--gold);background:#FFFBF0;}
+  .alert-box.gold-box .at{color:#9a6c00;}
+  .alert-box.green-box{border-color:var(--green);background:#EEF9F3;}
+  .alert-box.green-box .at{color:var(--green);}
+
+  /* APPT TYPE GRID */
+  .appt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+  .appt-box{background:#fff;border:1.5px solid var(--gray4);border-radius:8px;padding:14px;transition:border-color .15s;}
+  .appt-box:hover{border-color:var(--teal);}
+  .appt-box .ab-type{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+  .appt-box .ab-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .appt-box .ab-dur{font-size:11px;color:var(--gray3);}
+  .appt-box .ab-desc{font-size:12px;color:var(--gray2);margin-top:6px;line-height:1.5;}
+
+  /* PPS METER */
+  .pps-box{background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);border-radius:10px;padding:22px 26px;color:#fff;margin:14px 0;}
+  .pps-box .pps-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:8px;}
+  .pps-box .pps-rate{font-size:36px;font-weight:800;margin-bottom:4px;}
+  .pps-box .pps-sub{font-size:13px;color:rgba(255,255,255,.75);}
+  .pps-row{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0;}
+  .pps-item{flex:1;min-width:160px;background:rgba(255,255,255,.1);border-radius:8px;padding:14px;border:1px solid rgba(255,255,255,.15);}
+  .pps-item .pi-label{font-size:11px;color:rgba(255,255,255,.65);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .pps-item .pi-val{font-size:15px;font-weight:700;color:#fff;}
+
+  /* MODIFIER BADGE */
+  .mod-badge{display:inline-block;background:var(--gray5);border:1.5px solid var(--gray4);color:var(--navy);font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;font-family:var(--font-mono);margin:2px;}
+
+  /* QUIZ */
+  .qc{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px;}
+  .qc h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .qsub{font-size:13px;color:var(--gray3);margin-bottom:18px;}
+  .qq{margin-bottom:20px;}
+  .qt{font-size:13.5px;font-weight:600;color:var(--gray1);margin-bottom:10px;}
+  .qn{color:var(--teal);margin-right:6px;}
+  .qopts{display:flex;flex-direction:column;gap:7px;}
+  .qo{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--gray4);border-radius:8px;cursor:pointer;font-size:13px;transition:border-color .15s,background .15s;}
+  .qo:hover{border-color:var(--teal);background:var(--gray5);}
+  .qo.sel{border-color:var(--teal);background:#E8F6F8;}
+  .qo.correct{border-color:var(--green);background:#E8F5EE;color:var(--green);font-weight:600;}
+  .qo.wrong{border-color:var(--red);background:#FFF0EF;color:var(--red);}
+  .qo input{accent-color:var(--teal);}
+  .qfb{font-size:12.5px;margin-top:8px;padding:8px 12px;border-radius:6px;display:none;}
+  .qfb.show{display:block;}
+  .qfb.ok{background:#E8F5EE;color:var(--green);}
+  .qfb.bad{background:#FFF0EF;color:var(--red);}
+  .qrow{display:flex;align-items:center;gap:14px;margin-top:6px;}
+  .qsc{font-size:14px;font-weight:700;color:var(--navy);}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .bp{background:var(--teal);color:#fff;}
+  .bg{background:var(--gold);color:var(--navy);}
+  .bo{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+
+  .mnav{display:flex;gap:12px;margin-top:30px;padding-top:20px;border-top:1px solid var(--gray4);flex-wrap:wrap;}
+  #si{position:fixed;top:60px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal-lt),var(--gold));transform-origin:left;transform:scaleX(0);z-index:200;transition:transform .1s;}
+
+  @media(max-width:780px){#sidebar{display:none;}#main{padding:20px 16px;}}
+</style>
+</head>
+<body>
+<div id="si"></div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="brand">
+    <div class="logo-box">OCHIN</div>
+    <div>
+      <div class="bar-title">Epic Training Portal</div>
+      <div class="bar-sub">Part 6 of 8 · Scheduling &amp; Billing</div>
+    </div>
+  </div>
+  <div class="pbwrap">
+    <span>Module Progress</span>
+    <div class="pbtrack"><div class="pbfill" id="pbf" style="width:0%"></div></div>
+    <span id="ppct">0%</span>
+  </div>
+  <div class="ubadge">👤 Learner</div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Part 6 Sections</div>
+      <div class="ni active" onclick="show('s1',this)"><span class="ico">📅</span><span class="lbl">6.1 · Scheduling Fundamentals</span><span class="chk" id="c1" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s2',this)"><span class="ico">🗓️</span><span class="lbl">6.2 · Appointment Types &amp; Templates</span><span class="chk" id="c2" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s3',this)"><span class="ico">🚶</span><span class="lbl">6.3 · No-Shows, Cancellations &amp; Waitlists</span><span class="chk" id="c3" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s4',this)"><span class="ico">💻</span><span class="lbl">6.4 · Telehealth Scheduling</span><span class="chk" id="c4" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s5',this)"><span class="ico">🏥</span><span class="lbl">6.5 · FQHC Billing &amp; PPS</span><span class="chk" id="c5" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s6',this)"><span class="ico">🧾</span><span class="lbl">6.6 · Encounter Coding &amp; ICD-10</span><span class="chk" id="c6" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('s7',this)"><span class="ico">💰</span><span class="lbl">6.7 · Copays, Collections &amp; Charge Review</span><span class="chk" id="c7" style="display:none">✓</span></div>
+      <div class="ni" onclick="show('quiz',this)"><span class="ico">📝</span><span class="lbl">Module Quiz</span></div>
+    </div>
+    <div class="ndiv"></div>
+    <div class="sb-sec">
+      <div class="sb-lbl">All Parts</div>
+      <div class="ni" onclick="alert('Load ochin-epic-part1.html to review.')"><span class="ico">🏥</span><span class="lbl">Part 1 · Overview &amp; Login</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part2.html to review.')"><span class="ico">🪪</span><span class="lbl">Part 2 · Check-In</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part3.html to review.')"><span class="ico">📝</span><span class="lbl">Part 3 · Documentation</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part4.html to review.')"><span class="ico">💊</span><span class="lbl">Part 4 · Medications &amp; Rx</span><span class="chk">✓</span></div>
+      <div class="ni" onclick="alert('Load ochin-epic-part5.html to review.')"><span class="ico">🔬</span><span class="lbl">Part 5 · Orders &amp; Results</span><span class="chk">✓</span></div>
+      <div class="ni active"><span class="ico">📅</span><span class="lbl">Part 6 · Scheduling &amp; Billing (HERE)</span></div>
+      <div class="ni locked"><span class="ico">📖</span><span class="lbl">Part 7 · Top 100 Q&amp;A</span><span class="badge">Coming</span></div>
+      <div class="ni locked"><span class="ico">🎓</span><span class="lbl">Part 8 · Final Assessment</span><span class="badge">Coming</span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- PAGE HEADER -->
+    <div class="ph">
+      <div class="mt">Module 6 of 6 · Part 6 of 8</div>
+      <h1>Scheduling &amp; Billing</h1>
+      <p>Master Ochin Epic's scheduling system and the financial workflows unique to FQHCs — appointment templates, no-show management, telehealth visits, the Prospective Payment System (PPS), encounter coding, ICD-10 documentation, and the charge review process that drives your clinic's revenue.</p>
+      <div class="meta">
+        <span>🕐 Est. 60–75 min</span>
+        <span>👥 Front Desk · Billing · Providers · MAs</span>
+        <span>📝 8-question quiz to advance</span>
+      </div>
+    </div>
+
+    <!-- SECTION TABS -->
+    <div class="stabs">
+      <div class="stab active" onclick="show('s1',this)">6.1 Scheduling</div>
+      <div class="stab" onclick="show('s2',this)">6.2 Appt Types</div>
+      <div class="stab" onclick="show('s3',this)">6.3 No-Shows</div>
+      <div class="stab" onclick="show('s4',this)">6.4 Telehealth</div>
+      <div class="stab" onclick="show('s5',this)">6.5 FQHC Billing</div>
+      <div class="stab" onclick="show('s6',this)">6.6 Coding</div>
+      <div class="stab" onclick="show('s7',this)">6.7 Copays</div>
+      <div class="stab" onclick="show('quiz',this)">📝 Quiz</div>
+    </div>
+
+    <!-- ═══ SECTION 6.1: SCHEDULING FUNDAMENTALS ═══ -->
+    <div class="sc active" id="sec-s1">
+      <div class="card">
+        <h2><span>📅</span> 6.1 Scheduling Fundamentals in Ochin Epic</h2>
+        <p>Scheduling is the front door of your clinic. Every patient interaction begins with an appointment, and how that appointment is created, tracked, and closed directly affects clinical care, quality metrics, and revenue. In Ochin's shared Epic instance, scheduling is standardized across all member sites — but configured per clinic.</p>
+
+        <div class="ib key"><strong>Ochin Scheduling Model:</strong> Ochin manages the Epic scheduling build — appointment types, slot durations, and template structures are configured by Ochin analysts in partnership with each clinic. You schedule <em>within</em> these pre-built templates. If your templates don't match your clinic's needs, submit a request through <strong>my.ochin.org</strong> — don't try to work around the template.</div>
+
+        <h3>Navigating to the Schedule in Epic</h3>
+        <div class="sm">
+          <div class="sm-bar">
+            <div class="sm-dot" style="background:#FF5F57"></div>
+            <div class="sm-dot" style="background:#FEBC2E"></div>
+            <div class="sm-dot" style="background:#28C840"></div>
+            <span style="color:#8899AA;font-size:11px;margin-left:8px;">Epic Hyperspace — Scheduling</span>
+          </div>
+          <div class="sm-body"><span class="rg">EPIC SCHEDULING — ACCESS PATHS</span>
+<span class="rd">─────────────────────────────────────────────────────</span>
+<span class="rw">Option 1 — Epic Toolbar:</span>
+  <span class="rt">Scheduling</span> tab → <span class="rgn">Schedule Appointment</span>
+
+<span class="rw">Option 2 — From Patient Chart:</span>
+  Open patient → <span class="rt">Schedule</span> in left navigator → <span class="rgn">New Appointment</span>
+
+<span class="rw">Option 3 — Keyboard Shortcut:</span>
+  <span class="rg">Ctrl + Shift + S</span>  <span class="rd">← Opens Schedule Appointment from anywhere</span>
+
+<span class="rw">Option 4 — Find Opening:</span>
+  <span class="rt">Scheduling</span> → <span class="rgn">Find Opening</span>  <span class="rd">← Best for finding next available slot</span>
+
+<span class="rg">PROVIDER SCHEDULE VIEW:</span>
+  <span class="rt">Scheduling</span> → <span class="rgn">Provider Schedule</span>  <span class="rd">← Day/week view of full schedule</span>
+  <span class="rd">Click any slot → Opens appointment details or scheduling dialog</span></div>
+        </div>
+
+        <h3>Scheduling a New Appointment — Step by Step</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Search for the patient first</strong><br>Always search before scheduling — confirm the patient exists in Ochin's shared database. Never create a new patient record without thoroughly searching. Use name + DOB, or MRN.</div></li>
+          <li><div class="st"><strong>Select "Schedule Appointment" from the patient chart</strong><br>This pre-populates the patient's name and demographic information into the scheduling dialog.</div></li>
+          <li><div class="st"><strong>Select the Appointment Type</strong><br>Choose from your clinic's configured appointment types (e.g., "New Patient — Primary Care," "Established Patient — 30 min," "Well Child — 2 Year"). The type determines the slot duration and provider template it can fill.</div></li>
+          <li><div class="st"><strong>Select the Provider and Department</strong><br>Choose the provider the patient wants to see and your clinic department. Epic will only show time slots that match the appointment type's template configuration for that provider.</div></li>
+          <li><div class="st"><strong>Use "Find Opening" to locate available slots</strong><br>Click Find Opening to search for the next available appointment that matches your criteria. Filter by date range, provider, and appointment type. Results show available slots in chronological order.</div></li>
+          <li><div class="st"><strong>Select the slot and confirm details</strong><br>Click the desired slot. Confirm the date, time, provider, and department. Add any visit reason, interpreter need, or special instructions.</div></li>
+          <li><div class="st"><strong>Document the Visit Reason</strong><br>Enter a brief reason for the visit in the "Chief Complaint" or "Visit Reason" field. This helps the clinical team prepare and is used for UDS documentation.</div></li>
+          <li><div class="st"><strong>Accept and confirm the appointment</strong><br>Click Accept. Epic saves the appointment, updates the provider schedule, and — if configured — triggers a MyChart notification or automated reminder to the patient.</div></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Appointment Reminders &amp; Patient Communication</h3>
+        <p>Ochin's Epic is configured to send automated appointment reminders via the patient's preferred communication channel. This is a key tool for reducing no-show rates — which directly impacts FQHC productivity and UDS access measures.</p>
+        <table class="ct">
+          <thead><tr><th>Reminder Method</th><th>How Configured</th><th>Patient Action Required</th></tr></thead>
+          <tbody>
+            <tr><td><strong>MyChart Push Notification</strong></td><td>Automatic for patients with MyChart accounts — sent 3 days and 1 day before</td><td>Patient confirms or requests reschedule via MyChart</td></tr>
+            <tr><td><strong>Automated Phone Call</strong></td><td>Ochin's automated calling system uses the phone number on file</td><td>Patient presses 1 to confirm, 2 to cancel</td></tr>
+            <tr><td><strong>Text Message (SMS)</strong></td><td>Requires patient consent to text — captured during registration</td><td>Patient replies Y to confirm</td></tr>
+            <tr><td><strong>Email Reminder</strong></td><td>Sent if patient email is on file and preference is set</td><td>Click link to confirm in MyChart</td></tr>
+            <tr><td><strong>Manual Call by Staff</strong></td><td>Staff calls manually for high-risk no-show patients or complex visits</td><td>Document outcome of call in Epic scheduling notes</td></tr>
+          </tbody>
+        </table>
+        <div class="ib tip"><strong>💡 No-Show Reduction:</strong> Clinics that use all three automated channels (call + text + MyChart) see 15–25% lower no-show rates. Make sure patient contact preferences and consent are captured accurately during registration — this feeds the reminder system.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bp" onclick="show('s2',null);mark('s1')">Next: 6.2 Appointment Types →</button>
+      </div>
+    </div><!-- end s1 -->
+
+    <!-- ═══ SECTION 6.2: APPOINTMENT TYPES & TEMPLATES ═══ -->
+    <div class="sc" id="sec-s2">
+      <div class="card">
+        <h2><span>🗓️</span> 6.2 Appointment Types &amp; Schedule Templates</h2>
+        <p>Every appointment in Epic is assigned an <strong>Appointment Type</strong> that defines its duration, purpose, and which provider template slots it can fill. Understanding appointment types is essential for schedulers — using the wrong type creates billing errors, template mismatches, and gaps in quality reporting.</p>
+
+        <h3>Common Appointment Types at Ochin FQHCs</h3>
+        <div class="appt-grid">
+          <div class="appt-box">
+            <div class="ab-type">Primary Care</div>
+            <div class="ab-name">New Patient Visit</div>
+            <div class="ab-dur">⏱ 60 min</div>
+            <div class="ab-desc">First-ever visit to the clinic. Full history, registration, social determinants screening. Generates a new patient encounter for UDS.</div>
+          </div>
+          <div class="appt-box">
+            <div class="ab-type">Primary Care</div>
+            <div class="ab-name">Established Patient — Follow-Up</div>
+            <div class="ab-dur">⏱ 20–30 min</div>
+            <div class="ab-desc">Return visit for ongoing care, chronic disease management, or follow-up on a prior problem. Most common appointment type at FQHCs.</div>
+          </div>
+          <div class="appt-box">
+            <div class="ab-type">Preventive</div>
+            <div class="ab-name">Annual Wellness Visit (AWV)</div>
+            <div class="ab-dur">⏱ 45 min</div>
+            <div class="ab-desc">Medicare preventive benefit — cognitive screening, advance directive, fall risk. Different from Annual Physical — must be coded correctly for billing.</div>
+          </div>
+          <div class="appt-box">
+            <div class="ab-type">Pediatrics</div>
+            <div class="ab-name">Well Child Visit</div>
+            <div class="ab-dur">⏱ 30–45 min (age-based)</div>
+            <div class="ab-desc">Age-specific preventive visit — development screening, vaccines, growth monitoring. UDS quality measure. Appointment type should match age (2-year, 9-year, etc.).</div>
+          </div>
+          <div class="appt-box">
+            <div class="ab-type">Acute</div>
+            <div class="ab-name">Sick Visit / Acute Problem</div>
+            <div class="ab-dur">⏱ 15–20 min</div>
+            <div class="ab-desc">Same-day or urgent acute complaint. Shorter duration. Should not be used for complex chronic disease management — use follow-up type instead.</div>
+          </div>
+          <div class="appt-box">
+            <div class="ab-type">Behavioral Health</div>
+            <div class="ab-name">BH Initial Assessment</div>
+            <div class="ab-dur">⏱ 60 min</div>
+            <div class="ab-desc">First behavioral health visit — full assessment, PHQ-9, GAD-7, safety screening. Separate template from primary care. Generates BH encounter for UDS Table 6.</div>
+          </div>
+          <div class="appt-box">
+            <div class="ab-type">Telehealth</div>
+            <div class="ab-name">Video Visit — Established Patient</div>
+            <div class="ab-dur">⏱ 20–30 min</div>
+            <div class="ab-desc">Video-based visit via Epic's integrated telehealth or MyChart. Must be scheduled on the Telehealth template. Billed with GT modifier (see Section 6.6).</div>
+          </div>
+          <div class="appt-box">
+            <div class="ab-type">OB/Prenatal</div>
+            <div class="ab-name">OB New Patient / Initial Prenatal</div>
+            <div class="ab-dur">⏱ 60 min</div>
+            <div class="ab-desc">First prenatal visit — full OB history, dating, prenatal panel labs ordered. Separate OB template. Ochin has FQHC-specific OB workflows built in.</div>
+          </div>
+          <div class="appt-box">
+            <div class="ab-type">Dental / Enabling</div>
+            <div class="ab-name">Care Coordination / Case Mgmt</div>
+            <div class="ab-dur">⏱ 30–60 min</div>
+            <div class="ab-desc">Non-physician enabling services — care coordination, health education, case management. Generates enabling services visit for UDS Table 6B.</div>
+          </div>
+        </div>
+
+        <div class="ib warn"><strong>⚠️ Appointment Type Matters for Billing:</strong> The appointment type feeds into the billing workflow. Using the wrong type — for example, scheduling a Medicare Annual Wellness Visit as a "Follow-Up" — can result in incorrect claim submission and denied payment. When in doubt, ask your billing team which appointment type to use.</div>
+      </div>
+
+      <div class="card">
+        <h3>Understanding Schedule Templates</h3>
+        <p>A <strong>schedule template</strong> is the pre-built pattern of appointment slots for each provider and day — it defines which appointment types can be scheduled in which slots, how many slots exist per day, and what the hold or block rules are.</p>
+        <table class="ct">
+          <thead><tr><th>Template Concept</th><th>What It Means</th><th>Who Manages It</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Slot</strong></td><td>A single bookable time block on the provider's schedule (e.g., 9:00 AM – 9:20 AM)</td><td>Defined by Ochin build team per provider</td></tr>
+            <tr><td><strong>Hold Slot</strong></td><td>A slot reserved for a specific purpose — e.g., "Same-Day Sick Only" or "New Patient Only"</td><td>Ochin + clinic medical director</td></tr>
+            <tr><td><strong>Block</strong></td><td>A period of time where no appointments can be scheduled — e.g., lunch, administrative time, leave</td><td>Schedulers can add single-day blocks; template blocks set by Ochin</td></tr>
+            <tr><td><strong>Overbooking</strong></td><td>Scheduling more patients than the template allows — requires supervisor override in most Ochin configurations</td><td>Clinic leadership discretion</td></tr>
+            <tr><td><strong>Template Modification</strong></td><td>Changing the standing pattern of slots (adding new patient slots, changing durations)</td><td>Submit request via my.ochin.org — cannot be done by clinic staff directly</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ib tip"><strong>💡 Adding a Same-Day Block:</strong> If a provider is out unexpectedly, schedulers can add a block to their schedule for that day to prevent new bookings. Navigate to the provider's schedule → click the time period → select "Add Block." This does NOT cancel existing appointments — those must be rescheduled manually or via mass reschedule (contact Ochin support for mass reschedule tools).</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s1',null)">← Back to 6.1</button>
+        <button class="btn bp" onclick="show('s3',null);mark('s2')">Next: 6.3 No-Shows &amp; Cancellations →</button>
+      </div>
+    </div><!-- end s2 -->
+
+    <!-- ═══ SECTION 6.3: NO-SHOWS, CANCELLATIONS, WAITLISTS ═══ -->
+    <div class="sc" id="sec-s3">
+      <div class="card">
+        <h2><span>🚶</span> 6.3 No-Shows, Cancellations &amp; the Waitlist</h2>
+        <p>Accurately documenting appointment outcomes — whether a patient showed up, cancelled, or didn't come at all — is essential for UDS reporting, access metrics, and identifying patients who need outreach. Using the wrong appointment disposition is a data quality problem that affects your clinic's performance measures.</p>
+
+        <h3>Appointment Disposition — Use the Right Code</h3>
+        <table class="ct">
+          <thead><tr><th>Disposition</th><th>When to Use It</th><th>UDS Impact</th></tr></thead>
+          <tbody>
+            <tr><td><span class="chip green">Completed</span></td><td>Patient arrived, was seen by provider, encounter is complete and signed</td><td>Counts as a patient visit for UDS Table 5</td></tr>
+            <tr><td><span class="chip navy">Arrived</span></td><td>Patient has checked in but has not yet been seen — interim status during visit</td><td>Not counted until completed</td></tr>
+            <tr><td><span class="chip gold">Cancelled — Patient</span></td><td>Patient called ahead of time to cancel their appointment</td><td>Does NOT count as a visit; does not penalize UDS access metric</td></tr>
+            <tr><td><span class="chip orange">Cancelled — Clinic</span></td><td>Clinic cancelled the appointment (provider out, emergency closure)</td><td>Does NOT count as a visit; tracked for access metric review</td></tr>
+            <tr><td><span class="chip red">No-Show</span></td><td>Patient did not arrive AND did not call to cancel in advance</td><td>Counted in no-show rate — a key access quality measure</td></tr>
+            <tr><td><span class="chip gray">Left Without Being Seen</span></td><td>Patient arrived and checked in but left before being seen by a provider</td><td>Tracked separately — signals wait time or access issues</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ib warn"><strong>⚠️ Never mark a No-Show as Cancelled:</strong> This distorts your clinic's no-show rate and access metrics, which affect UDS reporting and can impact HRSA grant assessments. If the patient didn't call, didn't come — it's a No-Show.</div>
+
+        <h3>Processing a No-Show in Epic</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>At the end of the appointment time (or end of day)</strong>, review the schedule for patients who are still in "Scheduled" or "Arrived" status but were never seen</div></li>
+          <li><div class="st"><strong>Click the appointment</strong> in the schedule view → select <code>No Show</code> from the disposition options</div></li>
+          <li><div class="st"><strong>Add a note if relevant</strong> — did you attempt to contact the patient? Document it: "Called patient at 2:14 PM — no answer, left voicemail."</div></li>
+          <li><div class="st"><strong>Consider same-day outreach</strong> — for high-risk patients (diabetics with poor control, prenatal patients, patients due for cancer screening), a same-day no-show call can recover the visit or prompt immediate rescheduling</div></li>
+          <li><div class="st"><strong>Flag for follow-up</strong> if the patient has had multiple no-shows — a pattern of no-shows may indicate transportation barriers, work schedule conflicts, or care disengagement that your care team should address proactively</div></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Managing Cancellations</h3>
+        <p>When a patient calls to cancel, document it correctly and offer to reschedule immediately — do not just cancel and end the interaction.</p>
+        <ol class="sl">
+          <li><div class="st"><strong>Pull up the patient's appointment</strong> → click <code>Cancel Appointment</code></div></li>
+          <li><div class="st"><strong>Select the cancellation reason</strong> — Epic prompts for a reason: "Patient request," "Transportation," "Work conflict," "Feeling better," etc. These reasons are tracked and help identify systemic barriers.</div></li>
+          <li><div class="st"><strong>Offer to reschedule immediately</strong> — ask the patient when they'd like to come back and book the next appointment before ending the call. A cancelled appointment with an immediate reschedule is a retained patient.</div></li>
+          <li><div class="st"><strong>For provider-initiated cancellations</strong> — contact all affected patients promptly. Epic's mass messaging tools can help notify multiple patients at once. Document all contact attempts.</div></li>
+        </ol>
+
+        <h3>The Waitlist — Managing Demand for Scarce Slots</h3>
+        <p>When no appointments are available in a provider's schedule, patients should be added to the <strong>Waitlist</strong> rather than told to "call back later."</p>
+        <ol class="sl">
+          <li><div class="st"><strong>From the scheduling dialog</strong>, when no slots are available, click <code>Add to Waitlist</code></div></li>
+          <li><div class="st"><strong>Document the patient's preferences:</strong> preferred provider, appointment type, urgency, date range availability, and best contact number</div></li>
+          <li><div class="st"><strong>When a slot opens</strong> (due to a cancellation or new template capacity), schedulers review the waitlist and contact patients in priority order</div></li>
+          <li><div class="st"><strong>Schedule the patient</strong> from the waitlist — use the "Schedule from Waitlist" function to book them directly without re-entering their information</div></li>
+          <li><div class="st"><strong>Remove resolved entries</strong> — once a patient is scheduled or has found care elsewhere, remove them from the waitlist to keep it accurate</div></li>
+        </ol>
+        <div class="ib tip"><strong>💡 Waitlist Best Practice:</strong> Review your clinic's waitlist every morning. Yesterday's cancellations = today's open slots. A proactive scheduler can fill most cancellation gaps from the waitlist before the open slot is even noticed.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s2',null)">← Back to 6.2</button>
+        <button class="btn bp" onclick="show('s4',null);mark('s3')">Next: 6.4 Telehealth Scheduling →</button>
+      </div>
+    </div><!-- end s3 -->
+
+    <!-- ═══ SECTION 6.4: TELEHEALTH ═══ -->
+    <div class="sc" id="sec-s4">
+      <div class="card">
+        <h2><span>💻</span> 6.4 Telehealth Scheduling &amp; Visit Workflow in Ochin Epic</h2>
+        <p>Telehealth has become a permanent part of FQHC care delivery. Ochin's Epic supports video visits through <strong>MyChart Video Visits</strong> and integrated telehealth platforms. The scheduling workflow is similar to in-person visits, but there are critical differences in how the visit is prepared, conducted, and billed.</p>
+
+        <div class="ib key"><strong>Ochin Telehealth Platform:</strong> Ochin member clinics typically use <strong>MyChart Video Visits</strong> (built into Epic/MyChart) or a third-party platform integrated with Epic (such as Doximity or Zoom for Healthcare). Your clinic's Ochin analyst will tell you which platform is active and how it connects to the encounter. The billing and documentation workflow is the same regardless of platform.</div>
+
+        <h3>Scheduling a Telehealth Appointment</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Select the Telehealth appointment type</strong><br>Use the specific telehealth appointment type — e.g., "Video Visit — Established Patient." Do NOT use a standard in-person type and add a note — the appointment type determines billing configuration.</div></li>
+          <li><div class="st"><strong>Confirm the patient has a MyChart account</strong><br>MyChart Video Visits require an active MyChart account. If the patient doesn't have one, help them enroll or use an alternative telehealth method.</div></li>
+          <li><div class="st"><strong>Confirm technology access</strong><br>Ask: "Do you have a smartphone, tablet, or computer with a camera?" Document if patient has technology barriers — your clinic may have an alternate audio-only visit option.</div></li>
+          <li><div class="st"><strong>Send patient instructions</strong><br>Epic can send automated MyChart instructions for the video visit — test link, join instructions, and what to have ready (medication list, blood pressure cuff if available).</div></li>
+          <li><div class="st"><strong>Collect consent for telehealth</strong><br>Telehealth consent must be documented at or before the visit. Ochin's Epic has a configured telehealth consent that can be sent via MyChart or collected verbally and documented at check-in.</div></li>
+        </ol>
+
+        <h3>Day-of-Visit: Telehealth Check-In Workflow</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Check the patient into the encounter</strong> — same as in-person. Use the Appointment Desk or check-in workflow. The encounter must be open to bill.</div></li>
+          <li><div class="st"><strong>Confirm patient location at time of visit</strong><br>This is legally required for telehealth billing. Ask: "Where are you located right now?" Document the patient's state — they must be in a state where your provider is licensed. This is a compliance requirement, not a formality.</div></li>
+          <li><div class="st"><strong>Confirm and document telehealth consent</strong> if not already done via MyChart</div></li>
+          <li><div class="st"><strong>Document the visit modality</strong><br>In the encounter, document that the visit was conducted via telehealth and whether it was video (audio + visual) or audio-only. This determines which billing codes apply.</div></li>
+          <li><div class="st"><strong>Provider joins the video visit</strong> through Epic/MyChart or the integrated platform</div></li>
+          <li><div class="st"><strong>Complete the visit note normally</strong> — same SOAP note structure, same order entry, same sign-off process as in-person</div></li>
+          <li><div class="st"><strong>Disposition the appointment as "Completed"</strong> just like in-person — the telehealth visit generates a billable encounter</div></li>
+        </ol>
+
+        <h3>Audio-Only Visits — When Video Isn't Possible</h3>
+        <p>Some patients cannot access video technology. Audio-only (telephone) visits may be permitted for certain visit types under CMS and state Medicaid rules — but they have different billing codes and restrictions.</p>
+        <table class="ct">
+          <thead><tr><th>Visit Type</th><th>CPT/HCPCS Code</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Telehealth — Video (synchronous, audio + video)</td><td>Standard E&amp;M codes (99213, 99214, etc.) with GT modifier</td><td>Fully reimbursed by Medicare and most Medicaid programs</td></tr>
+            <tr><td>Audio-Only Telephone Visit</td><td>99441–99443 (by complexity/time)</td><td>Lower reimbursement; some insurers don't cover; document reason patient couldn't use video</td></tr>
+            <tr><td>FQHC Telehealth Encounter</td><td>G0071 (Medicare FQHC telehealth)</td><td>Specific FQHC code for Medicare telehealth at Prospective Payment System rate</td></tr>
+          </tbody>
+        </table>
+        <div class="ib warn"><strong>⚠️ Telehealth Billing Rules Change Frequently:</strong> CMS telehealth waivers and state Medicaid telehealth policies have changed significantly since COVID. Always confirm current billing rules with your Ochin billing team before assuming a telehealth visit type is covered. What was covered last year may not be covered today.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s3',null)">← Back to 6.3</button>
+        <button class="btn bp" onclick="show('s5',null);mark('s4')">Next: 6.5 FQHC Billing &amp; PPS →</button>
+      </div>
+    </div><!-- end s4 -->
+
+    <!-- ═══ SECTION 6.5: FQHC BILLING & PPS ═══ -->
+    <div class="sc" id="sec-s5">
+      <div class="card">
+        <h2><span>🏥</span> 6.5 FQHC Billing &amp; the Prospective Payment System (PPS)</h2>
+        <p>FQHC billing is fundamentally different from standard fee-for-service billing. Understanding how Federally Qualified Health Centers are reimbursed — and how Epic captures the data needed to generate that reimbursement — is critical for anyone involved in clinical documentation or billing at an Ochin site.</p>
+
+        <div class="pps-box">
+          <div class="pps-label">FQHC Medicare Prospective Payment System</div>
+          <div class="pps-rate">All-Inclusive Per-Visit Rate</div>
+          <div class="pps-sub">One flat payment per qualifying encounter — regardless of how many services are provided in that visit.</div>
+          <div class="pps-row">
+            <div class="pps-item">
+              <div class="pi-label">Medicare PPS Rate</div>
+              <div class="pi-val">~$185–$220/visit</div>
+            </div>
+            <div class="pps-item">
+              <div class="pi-label">Rate Set By</div>
+              <div class="pi-val">CMS (annually updated)</div>
+            </div>
+            <div class="pps-item">
+              <div class="pi-label">Covers</div>
+              <div class="pi-val">All services in one visit</div>
+            </div>
+            <div class="pps-item">
+              <div class="pi-label">Ochin Role</div>
+              <div class="pi-val">Wraps charges in Epic automatically</div>
+            </div>
+          </div>
+        </div>
+
+        <h3>What Makes a "Qualifying FQHC Visit"?</h3>
+        <p>Not every encounter generates a PPS payment. A qualifying FQHC visit requires ALL of the following:</p>
+        <ul>
+          <li>The patient must be seen <strong>face-to-face</strong> (or via qualifying telehealth) by a <strong>billable FQHC provider</strong> — physician, NP, PA, CNM, or behavioral health clinician</li>
+          <li>The visit must occur at an <strong>HRSA-designated FQHC service site</strong> — not off-site unless the site has special designation</li>
+          <li>A <strong>signed encounter note</strong> must be in Epic documenting the visit</li>
+          <li>At least <strong>one diagnosis (ICD-10)</strong> must be assigned</li>
+          <li>The visit must be billed with the appropriate <strong>FQHC encounter code</strong> (T1015 for Medicaid; PPS-qualifying visit code for Medicare)</li>
+        </ul>
+
+        <div class="ib warn"><strong>⚠️ Unsigned Notes = No Bill:</strong> If a provider sees a patient but never signs the note in Epic, the encounter cannot be billed. Unsigned notes are the single most common reason for lost FQHC revenue. Ochin billing teams run daily reports on unsigned notes and escalate to providers — but the best solution is signing the note before you leave.</div>
+
+        <h3>Medicare vs. Medicaid FQHC Billing</h3>
+        <table class="ct">
+          <thead><tr><th>Payer</th><th>Payment Model</th><th>Ochin Epic Configuration</th><th>Key Codes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Medicare Part B</strong></td><td>All-inclusive PPS rate per qualifying visit</td><td>Epic wraps qualifying charges into FQHC encounter — billed on UB-04 or CMS-1500</td><td>G0466–G0470 (FQHC visit type codes)</td></tr>
+            <tr><td><strong>Medicaid</strong></td><td>Encounter rate (varies by state) OR fee-for-service — depends on state Medicaid plan</td><td>Configured per state; Ochin manages state-specific Medicaid build</td><td>T1015 (most states); state-specific codes vary</td></tr>
+            <tr><td><strong>Commercial Insurance</strong></td><td>Standard fee-for-service — FQHCs bill like any other provider</td><td>Standard E&amp;M CPT codes (99202–99215); Epic generates standard CMS-1500</td><td>Standard E&amp;M CPT codes</td></tr>
+            <tr><td><strong>Uninsured / Self-Pay</strong></td><td>Sliding fee discount applied; patient billed at adjusted rate</td><td>SFS tier applied in Epic at check-in; adjusted balance posted to patient account</td><td>No insurance claim; internal billing only</td></tr>
+            <tr><td><strong>CHIP</strong></td><td>Typically follows state Medicaid rules for FQHCs</td><td>State-specific; Ochin configures per member clinic's state</td><td>State-specific</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Same-Day Visits — FQHC Rules</h3>
+        <p>FQHCs can bill for more than one visit on the same day in limited circumstances. This is important at integrated clinics where a patient sees both a primary care provider AND a behavioral health clinician on the same day.</p>
+        <ul>
+          <li><strong>Primary Care + Behavioral Health on same day:</strong> Two qualifying encounters CAN be billed — one for each provider, each with their own signed note and diagnosis codes</li>
+          <li><strong>Two primary care visits same day:</strong> Generally only one is billable unless the second is for a distinctly different presenting problem and is documented separately</li>
+          <li><strong>Dental + Medical on same day:</strong> If your FQHC has dental services, dental and medical visits on the same day are separate qualifying encounters</li>
+        </ul>
+        <div class="ib green"><strong>✓ Ochin Integration Advantage:</strong> When a primary care provider and behavioral health clinician both see a patient on the same day, Ochin's Epic is configured to create two separate encounters — each with their own note and billing. The billing team reviews these daily. Make sure both providers sign their notes before end of day to capture both encounter payments.</div>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s4',null)">← Back to 6.4</button>
+        <button class="btn bp" onclick="show('s6',null);mark('s5')">Next: 6.6 Encounter Coding →</button>
+      </div>
+    </div><!-- end s5 -->
+
+    <!-- ═══ SECTION 6.6: ENCOUNTER CODING & ICD-10 ═══ -->
+    <div class="sc" id="sec-s6">
+      <div class="card">
+        <h2><span>🧾</span> 6.6 Encounter Coding, ICD-10, &amp; E&amp;M Levels in Ochin Epic</h2>
+        <p>Clinical documentation drives billing codes. In Ochin's Epic, the coding workflow is semi-automated — the system proposes codes based on your documentation, but providers and coders must review and confirm accuracy. Accurate coding protects your clinic from audits and ensures maximum appropriate reimbursement.</p>
+
+        <h3>The Coding Workflow in Epic — Charge Capture</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>Provider completes the visit note</strong><br>The note's content — History, Exam, Medical Decision Making or time — determines the E&amp;M level. Document thoroughly and specifically.</div></li>
+          <li><div class="st"><strong>Navigate to the Diagnoses &amp; Orders section</strong> (or the Coding tab, depending on your clinic's Epic build)<br>Epic displays the diagnosis list associated with the encounter. Every diagnosis should have an ICD-10 code.</div></li>
+          <li><div class="st"><strong>Assign visit diagnoses</strong><br>Add all diagnoses addressed at this visit — not just the primary complaint. If you managed diabetes AND hypertension AND ordered a lipid panel, all three should appear in the encounter diagnoses.</div></li>
+          <li><div class="st"><strong>Review the proposed E&amp;M level</strong><br>Epic's coding engine proposes an E&amp;M level based on your documentation (99213, 99214, etc.). Review and confirm — if your documentation supports a higher level but the system proposes lower, check whether your note is complete enough to justify the higher code.</div></li>
+          <li><div class="st"><strong>Sign the note</strong><br>Signing releases the encounter for billing review. Unsigned = unbilled. The billing team cannot touch an unsigned encounter.</div></li>
+          <li><div class="st"><strong>Billing team reviews and submits</strong><br>Ochin billing staff review the encounter, confirm codes, apply any necessary modifiers, and submit the claim to the payer.</div></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>ICD-10 Documentation Best Practices</h3>
+        <p>ICD-10 codes are the diagnostic foundation of every claim. Vague or incomplete diagnosis coding leads to claim denials, audit risk, and inaccurate UDS quality reporting.</p>
+        <table class="ct">
+          <thead><tr><th>Instead of This (Vague)</th><th>Use This (Specific ICD-10)</th><th>Why It Matters</th></tr></thead>
+          <tbody>
+            <tr><td>Diabetes</td><td>E11.9 — Type 2 DM without complications<br>E11.65 — T2DM with hyperglycemia<br>E11.40 — T2DM with diabetic neuropathy</td><td>Specificity affects risk adjustment, UDS tracking, and quality measure attribution</td></tr>
+            <tr><td>High blood pressure</td><td>I10 — Essential (primary) hypertension</td><td>I10 is correct for primary HTN; secondary causes have different codes</td></tr>
+            <tr><td>Depression</td><td>F32.1 — Major depressive disorder, single episode, moderate<br>F33.0 — MDD, recurrent, mild</td><td>PHQ-9 score drives specificity; document severity in note to support code</td></tr>
+            <tr><td>Obesity</td><td>E66.01 — Morbid (severe) obesity due to excess calories<br>E66.9 — Obesity, unspecified</td><td>BMI documentation in flowsheet ties to BMI screening UDS measure</td></tr>
+            <tr><td>Back pain</td><td>M54.50 — Low back pain, unspecified<br>M51.16 — Intervertebral disc degeneration, lumbar</td><td>Specificity required for imaging orders and referral justification</td></tr>
+            <tr><td>Homeless</td><td>Z59.00 — Homelessness, unspecified<br>Z59.01 — Sheltered homelessness</td><td>Z-codes for SDOH are tracked for UDS Table 3B and grant reporting</td></tr>
+            <tr><td>Preventive visit (no acute problem)</td><td>Z00.00 — Encounter for general adult medical examination without abnormal findings<br>Z00.01 — with abnormal findings</td><td>Z00 codes are required for preventive visits — don't use a symptom code for a wellness visit</td></tr>
+          </tbody>
+        </table>
+
+        <h3>E&amp;M Coding Levels — What Supports Each Level</h3>
+        <table class="ct">
+          <thead><tr><th>Code</th><th>Complexity</th><th>Typical Visit</th><th>Key Documentation Requirements</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mod-badge">99202</span><br><span class="mod-badge">99212</span></td><td>Straightforward</td><td>Single minor acute problem; minimal complexity</td><td>1 self-limited problem; minimal data review; OTC or no prescription management</td></tr>
+            <tr><td><span class="mod-badge">99203</span><br><span class="mod-badge">99213</span></td><td>Low</td><td>2 self-limited problems or 1 stable chronic condition</td><td>2+ problems OR 1 stable chronic condition; limited data; low-risk management</td></tr>
+            <tr><td><span class="mod-badge">99204</span><br><span class="mod-badge">99214</span></td><td>Moderate</td><td>1 or more chronic conditions with exacerbation, or new problem with uncertain prognosis</td><td>Multiple chronic conditions; review of external records or independent interpretation of a test; prescription drug management</td></tr>
+            <tr><td><span class="mod-badge">99205</span><br><span class="mod-badge">99215</span></td><td>High</td><td>Severe exacerbation, drug therapy requiring intensive monitoring, diagnosis or treatment significantly limited by social determinants</td><td>High complexity MDM or 60+ minutes total time; extensive data review; high-risk decisions</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ib tip"><strong>💡 Time-Based Coding:</strong> Since 2021 CMS rules, providers can code E&amp;M visits based on <strong>total time</strong> (including documentation time on the date of service) rather than History/Exam/MDM. If you spent 40 minutes total on a 99214, document: "Total time spent on this encounter including documentation: 40 minutes." Epic has a time documentation field — use it.</div>
+
+        <h3>Key Modifiers Used at Ochin FQHCs</h3>
+        <table class="ct">
+          <thead><tr><th>Modifier</th><th>When to Use</th><th>Applied By</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mod-badge">25</span></td><td>Significant, separately identifiable E&amp;M service on the same day as a procedure (e.g., patient seen for chronic disease management AND received flu shot)</td><td>Billing team</td></tr>
+            <tr><td><span class="mod-badge">GT</span></td><td>Telehealth service via synchronous audio/video telecommunications</td><td>Billing team; provider selects telehealth in encounter type</td></tr>
+            <tr><td><span class="mod-badge">95</span></td><td>Alternative telehealth modifier used by some payers (same function as GT)</td><td>Billing team</td></tr>
+            <tr><td><span class="mod-badge">FQ</span></td><td>Audio-only telehealth service (no video)</td><td>Billing team; provider documents audio-only modality</td></tr>
+            <tr><td><span class="mod-badge">SB</span></td><td>Nurse midwife services (used for CNM billing at FQHCs)</td><td>Billing team</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s5',null)">← Back to 6.5</button>
+        <button class="btn bp" onclick="show('s7',null);mark('s6')">Next: 6.7 Copays &amp; Charge Review →</button>
+      </div>
+    </div><!-- end s6 -->
+
+    <!-- ═══ SECTION 6.7: COPAYS, COLLECTIONS & CHARGE REVIEW ═══ -->
+    <div class="sc" id="sec-s7">
+      <div class="card">
+        <h2><span>💰</span> 6.7 Copays, Collections &amp; the Charge Review Workflow</h2>
+        <p>Revenue cycle management at an FQHC involves collecting copays at the point of service, reviewing charges before they are submitted, and managing patient balances — all while applying the Sliding Fee Scale appropriately for uninsured and underinsured patients.</p>
+
+        <h3>Collecting Copays at Check-In</h3>
+        <ol class="sl">
+          <li><div class="st"><strong>During check-in, review the patient's insurance and expected copay</strong><br>Epic displays the patient's active coverage and the expected copay from the insurance eligibility data. If eligibility was verified, the expected copay should be accurate.</div></li>
+          <li><div class="st"><strong>Inform the patient of their expected copay</strong><br>Tell the patient their copay before the visit — surprises at checkout reduce collections. "Your copay today is $20 — would you like to take care of that now?"</div></li>
+          <li><div class="st"><strong>Use Epic's "Pay" function to post the payment</strong><br>In the check-in screen → click <code>Pay</code> → select Payment Type (Cash, Check, Credit Card) → enter amount → Save. Epic posts the payment to the patient account and generates a receipt.</div></li>
+          <li><div class="st"><strong>Print a receipt</strong> if the patient requests one — click "Print Receipt" after posting</div></li>
+          <li><div class="st"><strong>For patients on the Sliding Fee Scale</strong><br>Their adjusted copay is already reflected in Epic based on their SFS tier. Do not collect more than the SFS-adjusted amount from sliding fee patients.</div></li>
+        </ol>
+
+        <div class="sm">
+          <div class="sm-bar">
+            <div class="sm-dot" style="background:#FF5F57"></div>
+            <div class="sm-dot" style="background:#FEBC2E"></div>
+            <div class="sm-dot" style="background:#28C840"></div>
+            <span style="color:#8899AA;font-size:11px;margin-left:8px;">Epic Check-In — Copay Collection</span>
+          </div>
+          <div class="sm-body"><span class="rg">CHECK-IN — Torres, Ana    DOB: 03/14/1978    MRN: 00291847</span>
+<span class="rd">────────────────────────────────────────────────────────</span>
+<span class="rw">INSURANCE:</span>   <span class="rgn">Oregon Health Plan (Medicaid)</span>
+<span class="rw">COVERAGE:</span>    <span class="rgn">Active — verified 06/15/2026</span>
+<span class="rw">COPAY:</span>       <span class="rgn">$0.00</span>  <span class="rd">(Medicaid — no copay)</span>
+
+<span class="rw">SLIDING FEE:</span> <span class="ro">SFS Tier B — 101–150% FPL</span>
+<span class="rw">SFS COPAY:</span>   <span class="ro">$15.00</span>  <span class="rd">(applies to self-pay services only)</span>
+
+<span class="rd">────────────────────────────────────────────────────────</span>
+<span class="rd">Patient has $12.50 balance from prior visit.</span>
+<span class="rw">Collect today?</span>  <span class="rgn">[ Pay $12.50 ]</span>   <span class="rd">[ Skip ]</span>   <span class="rd">[ Payment Plan ]</span>
+
+<span class="rd">                                  [ Complete Check-In ]</span></div>
+        </div>
+
+        <h3>Patient Balances &amp; Payment Plans</h3>
+        <p>Patients at FQHCs often carry balances that must be managed sensitively. Ochin's Epic has tools for managing balances without creating barriers to care.</p>
+        <ul>
+          <li><strong>Balance review at check-in:</strong> Epic shows any outstanding balance when the patient checks in. Staff should ask if the patient would like to make a payment — but should never deny care based on an unpaid balance (HRSA requirement)</li>
+          <li><strong>Payment plans:</strong> For larger balances, Epic can establish a monthly payment plan. Navigate to the patient account → <code>Payment Plan</code> → set the monthly amount and duration</li>
+          <li><strong>Write-offs:</strong> If a balance is uncollectable or the patient qualifies for additional financial assistance, billing staff can apply a write-off. This requires supervisor authorization per your clinic's policy</li>
+          <li><strong>Never deny care for non-payment:</strong> FQHCs are prohibited by HRSA from refusing care due to inability to pay. If a patient cannot pay, document it and proceed with care — address the balance separately</li>
+        </ul>
+
+        <h3>The Charge Review Process</h3>
+        <p>Before a claim is submitted to a payer, it goes through a <strong>Charge Review</strong> process in Epic. This is where billing staff review the encounter, confirm codes, and ensure the claim is complete and accurate.</p>
+        <ol class="sl">
+          <li><div class="st"><strong>Provider signs the note</strong><br>This triggers the encounter to move to the billing queue for review.</div></li>
+          <li><div class="st"><strong>Billing staff open the encounter in Charge Review</strong><br>Navigate to <code>Billing</code> → <code>Charge Review</code>. The encounter appears with the proposed charges based on the visit documentation.</div></li>
+          <li><div class="st"><strong>Review diagnosis codes</strong><br>Confirm all diagnoses have specific ICD-10 codes and that the primary diagnosis is listed first. The primary diagnosis drives the claim.</div></li>
+          <li><div class="st"><strong>Review the E&amp;M level</strong><br>Confirm the proposed CPT code matches the documentation. If the level seems too low or too high for what was documented, flag for provider clarification.</div></li>
+          <li><div class="st"><strong>Apply FQHC wrapping</strong><br>For Medicare and Medicaid, Ochin's Epic is configured to automatically "wrap" the charges into the FQHC encounter structure. Billing staff confirm the wrap is applied correctly.</div></li>
+          <li><div class="st"><strong>Submit the claim</strong><br>After review, click <code>Accept</code> → the claim is queued for electronic submission to the payer. Ochin's billing engine handles claim transmission.</div></li>
+        </ol>
+
+        <div class="alert-box gold-box">
+          <div class="ai">⏰</div>
+          <div class="ab">
+            <div class="at">Timely Filing Deadlines</div>
+            <div class="ax">Insurance payers have strict deadlines for claim submission — typically 90 days to 12 months from the date of service, depending on the payer. Medicare requires claims within 12 months. Some commercial plans require 90 days. <strong>Unsigned notes delay billing and can cause missed filing deadlines — resulting in denied claims that cannot be appealed.</strong> Sign your notes the same day as the visit.</div>
+          </div>
+        </div>
+
+        <h3>Common Billing Denials &amp; How to Prevent Them</h3>
+        <table class="ct">
+          <thead><tr><th>Denial Reason</th><th>Root Cause</th><th>Prevention in Epic</th></tr></thead>
+          <tbody>
+            <tr><td>Missing or invalid ICD-10</td><td>Vague diagnosis code or no diagnosis linked to the claim</td><td>Always assign specific ICD-10 codes; confirm in Diagnoses section before signing</td></tr>
+            <tr><td>Not medically necessary</td><td>Diagnosis doesn't support the ordered service or E&amp;M level</td><td>Ensure the documented diagnosis justifies the service — lab order ICD-10 must match the lab's indication</td></tr>
+            <tr><td>Duplicate claim</td><td>Same encounter billed twice</td><td>Check Charge Review for existing claims before resubmitting</td></tr>
+            <tr><td>Patient not eligible on date of service</td><td>Insurance lapsed or not verified</td><td>Run eligibility verification at check-in via Epic's real-time eligibility tool</td></tr>
+            <tr><td>Missing modifier</td><td>Telehealth GT modifier not applied; Modifier 25 missing for same-day procedure</td><td>Billing staff add modifiers during Charge Review — providers document telehealth modality in note</td></tr>
+            <tr><td>Timely filing exceeded</td><td>Unsigned note delayed billing past payer deadline</td><td>Sign notes same-day — Ochin billing teams monitor and escalate unsigned notes daily</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mnav">
+        <button class="btn bo" onclick="show('s6',null)">← Back to 6.6</button>
+        <button class="btn bp" onclick="show('quiz',null);mark('s7')">Proceed to Module Quiz →</button>
+      </div>
+    </div><!-- end s7 -->
+
+    <!-- ═══ SECTION: QUIZ ═══ -->
+    <div class="sc" id="sec-quiz">
+      <div class="qc">
+        <h2>📝 Module 6 Knowledge Check</h2>
+        <p class="qsub">Answer all 8 questions. Score 7/8 (88%) to complete this module and unlock Part 7: Top 100 Go-Live Q&amp;A.</p>
+
+        <!-- Q1 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">1.</span> A patient scheduled for a follow-up visit does not arrive and did not call ahead. What is the correct appointment disposition in Epic?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q1" value="a"> <span>a) Cancelled — Patient, because they chose not to come</span></label>
+            <label class="qo"><input type="radio" name="q1" value="b"> <span>b) No-Show, because they failed to arrive without advance notice</span></label>
+            <label class="qo"><input type="radio" name="q1" value="c"> <span>c) Left Without Being Seen, because they never checked in</span></label>
+            <label class="qo"><input type="radio" name="q1" value="d"> <span>d) Completed, so the provider can document a brief no-show note</span></label>
+          </div>
+          <div class="qfb" id="fb1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">2.</span> What is the FQHC Prospective Payment System (PPS)?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q2" value="a"> <span>a) A pay-for-performance program where FQHCs earn bonuses for quality scores</span></label>
+            <label class="qo"><input type="radio" name="q2" value="b"> <span>b) A per-service fee schedule where each individual service is billed separately</span></label>
+            <label class="qo"><input type="radio" name="q2" value="c"> <span>c) A single all-inclusive per-visit payment rate paid by Medicare and Medicaid regardless of how many services are provided in that visit</span></label>
+            <label class="qo"><input type="radio" name="q2" value="d"> <span>d) A monthly capitation payment based on the number of patients enrolled at the FQHC</span></label>
+          </div>
+          <div class="qfb" id="fb2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">3.</span> A provider sees a Medicaid patient for diabetes management AND administers a flu vaccine at the same visit. Which modifier is needed to bill both the E&amp;M service and the vaccine administration separately?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q3" value="a"> <span>a) Modifier GT — for telehealth services</span></label>
+            <label class="qo"><input type="radio" name="q3" value="b"> <span>b) Modifier 25 — significant, separately identifiable E&amp;M service on the same day as a procedure</span></label>
+            <label class="qo"><input type="radio" name="q3" value="c"> <span>c) Modifier 59 — distinct procedural service</span></label>
+            <label class="qo"><input type="radio" name="q3" value="d"> <span>d) No modifier is needed — both services bill automatically</span></label>
+          </div>
+          <div class="qfb" id="fb3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">4.</span> A provider completes a telehealth video visit but does not document the patient's location at the time of the visit. Why is this a compliance problem?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q4" value="a"> <span>a) It's not a problem — patient location is optional documentation for telehealth</span></label>
+            <label class="qo"><input type="radio" name="q4" value="b"> <span>b) The patient's location determines which state's licensing laws apply — the provider must be licensed in the state where the patient is physically located during the visit</span></label>
+            <label class="qo"><input type="radio" name="q4" value="c"> <span>c) It only matters if the patient is in another country</span></label>
+            <label class="qo"><input type="radio" name="q4" value="d"> <span>d) Patient location is only required for controlled substance prescribing during telehealth</span></label>
+          </div>
+          <div class="qfb" id="fb4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">5.</span> A provider documents a visit as treating "diabetes" without further specificity. What is the correct ICD-10 coding approach?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q5" value="a"> <span>a) Use the general "Diabetes" code — ICD-10 doesn't require type specificity</span></label>
+            <label class="qo"><input type="radio" name="q5" value="b"> <span>b) Use E11.9 for Type 2 DM without complications, or a more specific code like E11.65 (with hyperglycemia) if supported by the documentation</span></label>
+            <label class="qo"><input type="radio" name="q5" value="c"> <span>c) Leave the diagnosis blank — ICD-10 is only required for lab orders, not visit notes</span></label>
+            <label class="qo"><input type="radio" name="q5" value="d"> <span>d) Use the highest-specificity code available regardless of what the note says, to maximize reimbursement</span></label>
+          </div>
+          <div class="qfb" id="fb5"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">6.</span> An FQHC patient with Medicaid AND a Sliding Fee Scale discount visits for a primary care appointment. How should the copay be handled at check-in?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q6" value="a"> <span>a) Collect the full Medicaid copay — sliding fee only applies to uninsured patients</span></label>
+            <label class="qo"><input type="radio" name="q6" value="b"> <span>b) Collect whichever is higher — the Medicaid copay or the SFS copay</span></label>
+            <label class="qo"><input type="radio" name="q6" value="c"> <span>c) Most Medicaid plans have $0 copay for FQHC visits — verify in Epic; SFS applies only to self-pay balances or services not covered by Medicaid</span></label>
+            <label class="qo"><input type="radio" name="q6" value="d"> <span>d) Deny care until insurance eligibility is confirmed</span></label>
+          </div>
+          <div class="qfb" id="fb6"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">7.</span> A provider finishes seeing patients at 5 PM and decides to complete their notes tomorrow morning. What is the most significant risk of this practice at an FQHC?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q7" value="a"> <span>a) Notes older than 24 hours cannot be signed in Epic</span></label>
+            <label class="qo"><input type="radio" name="q7" value="b"> <span>b) Unsigned notes delay billing; if claims miss the payer's timely filing deadline, the revenue is permanently lost and cannot be appealed</span></label>
+            <label class="qo"><input type="radio" name="q7" value="c"> <span>c) The billing team can submit claims from unsigned notes to meet filing deadlines</span></label>
+            <label class="qo"><input type="radio" name="q7" value="d"> <span>d) There is no risk — notes can always be back-dated in Epic</span></label>
+          </div>
+          <div class="qfb" id="fb7"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="qq">
+          <div class="qt"><span class="qn">8.</span> An FQHC patient has a $150 outstanding balance. They arrive for their appointment and say they cannot pay anything today. What is the correct action?</div>
+          <div class="qopts">
+            <label class="qo"><input type="radio" name="q8" value="a"> <span>a) Require payment before the patient can be seen — the clinic cannot absorb unpaid balances</span></label>
+            <label class="qo"><input type="radio" name="q8" value="b"> <span>b) Cancel the appointment and reschedule after the balance is resolved</span></label>
+            <label class="qo"><input type="radio" name="q8" value="c"> <span>c) See the patient — FQHCs cannot deny care for inability to pay. Discuss a payment plan, apply sliding fee if eligible, or flag for billing follow-up after the visit</span></label>
+            <label class="qo"><input type="radio" name="q8" value="d"> <span>d) Refer the patient to a different clinic until they can pay their balance</span></label>
+          </div>
+          <div class="qfb" id="fb8"></div>
+        </div>
+
+        <div class="qrow">
+          <button class="btn bp" onclick="grade()">Submit Answers</button>
+          <button class="btn bo" onclick="reset()">Reset</button>
+          <span class="qsc" id="qsc"></span>
+        </div>
+      </div>
+
+      <!-- QUIZ RESULT -->
+      <div id="qresult" style="display:none;">
+
+        <div id="qpass" style="display:none;" class="card" style="border-left:5px solid var(--green);">
+          <h2><span>🎉</span> Module 6 Complete!</h2>
+          <p>Excellent work — you've completed the final clinical workflow module of the Ochin Epic Training series. You now understand scheduling fundamentals, appointment types and templates, no-show and cancellation management, telehealth workflows, FQHC PPS billing, ICD-10 coding, and the charge review process.</p>
+          <div class="ib green"><strong>✓ Key Takeaways from Part 6:</strong><br>
+          • Appointment type matters for both scheduling accuracy and billing — always use the right type<br>
+          • No-Show ≠ Cancelled — using the wrong disposition corrupts UDS access data<br>
+          • FQHCs bill Medicare/Medicaid at an all-inclusive PPS rate — documentation drives that rate<br>
+          • ICD-10 specificity is not optional — vague codes cause denials and UDS underreporting<br>
+          • Unsigned notes = unbilled encounters = lost revenue. Sign the same day.<br>
+          • FQHCs cannot deny care for inability to pay — address financial concerns separately from care delivery</div>
+          <div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="chip">✓ Scheduling</span>
+            <span class="chip">✓ Appt Types</span>
+            <span class="chip">✓ No-Shows</span>
+            <span class="chip">✓ Telehealth</span>
+            <span class="chip">✓ PPS Billing</span>
+            <span class="chip">✓ ICD-10 Coding</span>
+            <span class="chip">✓ Charge Review</span>
+          </div>
+          <div class="mnav">
+            <button class="btn bo" onclick="show('s7',null)">← Review Section 6.7</button>
+            <button class="btn bg" onclick="alert('Load ochin-epic-part7.html to continue with the Top 100 Go-Live Q&amp;A reference guide.')">Part 7: Top 100 Go-Live Q&amp;A → 📖</button>
+          </div>
+        </div>
+
+        <div id="qfail" style="display:none;" class="card" style="border-left:5px solid var(--red);">
+          <h2><span>📖</span> Review and Try Again</h2>
+          <p>Good effort — review the sections where you made errors using the explanations above, then retry. You need 7/8 to complete Part 6 and unlock Part 7.</p>
+          <div class="mnav">
+            <button class="btn bo" onclick="show('s1',null)">← Start from 6.1</button>
+            <button class="btn bp" onclick="reset()">Retry Quiz</button>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- end quiz -->
+
+  </main>
+</div><!-- end layout -->
+
+<script>
+const sids = ['s1','s2','s3','s4','s5','s6','s7','quiz'];
+
+function show(id, nav) {
+  sids.forEach(s => {
+    const e = document.getElementById('sec-' + s);
+    if (e) e.classList.remove('active');
+  });
+  const t = document.getElementById('sec-' + id);
+  if (t) t.classList.add('active');
+  document.querySelectorAll('#sidebar .ni').forEach(n => n.classList.remove('active'));
+  if (nav) nav.classList.add('active');
+  document.querySelectorAll('.stab').forEach((tab, i) => tab.classList.toggle('active', sids[i] === id));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function mark(id) {
+  const num = sids.indexOf(id) + 1;
+  const c = document.getElementById('c' + num);
+  if (c) c.style.display = 'inline';
+  const done = document.querySelectorAll('.chk[style*="inline"]').length;
+  const p = Math.round((done / 7) * 100);
+  document.getElementById('pbf').style.width = p + '%';
+  document.getElementById('ppct').textContent = p + '%';
+}
+
+const ans = { q1:'b', q2:'c', q3:'b', q4:'b', q5:'b', q6:'c', q7:'b', q8:'c' };
+
+const ex = {
+  q1: {
+    ok: "Correct! No-Show is the accurate disposition when a patient fails to arrive for their appointment without calling ahead. This is distinct from 'Cancelled — Patient' (they called in advance) or 'Left Without Being Seen' (they arrived and checked in but left). Accurate disposition is critical for UDS access metrics and no-show outreach tracking.",
+    bad: "Incorrect. When a patient does not arrive and did not give advance notice, the correct disposition is 'No-Show.' 'Cancelled' means the patient called ahead. 'Left Without Being Seen' means they physically arrived. Using the wrong code corrupts no-show rate reporting and UDS access data."
+  },
+  q2: {
+    ok: "Correct! The FQHC Prospective Payment System pays a single all-inclusive per-visit rate for each qualifying encounter with Medicare and Medicaid — regardless of how many services are provided. Whether a provider addresses one problem or five in a visit, the clinic receives the same PPS rate. This is why FQHC documentation and encounter completeness are so important: the rate is fixed, but capturing all qualifying visits maximizes total revenue.",
+    bad: "Incorrect. The PPS is a single all-inclusive per-visit payment rate paid by Medicare and Medicaid for qualifying FQHC encounters. It is NOT pay-for-performance, fee-for-service, or capitation. One qualifying visit = one PPS payment, regardless of how many services are rendered during that visit."
+  },
+  q3: {
+    ok: "Correct! Modifier 25 is used when a provider performs a significant, separately identifiable Evaluation & Management service on the same day as a procedure (in this case, the vaccine administration). Without Modifier 25, the payer may bundle the E&M with the procedure and only pay for one. Modifier 25 tells the payer: 'These are two distinct, separately billable services that happened to occur on the same day.'",
+    bad: "Incorrect. Modifier 25 is required when a significant, separately identifiable E&M service is performed on the same day as a procedure. Without it, many payers will bundle the visit and vaccine into a single payment. GT is for telehealth. Modifier 59 is for distinct procedural services (not E&M + procedure combinations)."
+  },
+  q4: {
+    ok: "Correct! Patient location during a telehealth visit is a legal and licensing requirement — not a formality. Providers must be licensed in the state where the PATIENT is physically located at the time of the visit. If a patient is visiting relatives in another state and has a telehealth visit, the provider must be licensed in that state to legally practice. This is a compliance requirement that has resulted in board actions against providers who ignored it.",
+    bad: "Incorrect. Documenting the patient's location during a telehealth visit is a mandatory licensing compliance requirement. The provider must be licensed in the state where the patient is physically located during the visit — not where the patient lives or where the clinic is. Failure to document this creates a serious licensure and malpractice risk."
+  },
+  q5: {
+    ok: "Correct! ICD-10 requires specificity. 'Diabetes' alone is not a valid ICD-10 code. E11.9 (Type 2 DM without complications) is the minimum for most type 2 diabetics. If the note documents hyperglycemia, use E11.65. If neuropathy is documented, use E11.40. The ICD-10 code must match what is documented in the note — you cannot add specificity that isn't supported by the documentation. Accurate coding supports UDS quality measure attribution and risk adjustment.",
+    bad: "Incorrect. ICD-10 codes require specificity — 'diabetes' alone is not billable. The correct approach is to use E11.9 for Type 2 DM without complications as the baseline, and more specific codes (E11.65 for hyperglycemia, E11.40 for neuropathy, etc.) when the documentation supports them. The code must match the note — don't add specificity that isn't documented, but don't leave it vague either."
+  },
+  q6: {
+    ok: "Correct! Most Medicaid plans have a $0 copay for FQHC visits — this is a Medicaid policy, not a clinic discretion. The Sliding Fee Scale applies to self-pay balances or services not covered by Medicaid (e.g., some enabling services or ancillary charges). Collecting a Medicaid copay that the plan does not charge is a compliance problem. Always verify the patient's current copay through Epic's real-time eligibility tool at check-in.",
+    bad: "Incorrect. Most Medicaid programs do not charge copays for FQHC visits — it is a Medicaid policy, not a clinic choice. The Sliding Fee Scale is applied to self-pay or uninsured patients, or for services not covered by their insurance. Collecting a copay that Medicaid doesn't require is a compliance problem. Verify the copay via Epic's eligibility verification at every check-in."
+  },
+  q7: {
+    ok: "Correct! Leaving notes unsigned overnight — or longer — creates a real and serious revenue risk. Insurance payers have strict timely filing deadlines (Medicare: 12 months; many commercial plans: 90 days). Unsigned notes delay billing. If a stack of notes sits unsigned for weeks, some may miss the filing deadline permanently — that revenue is gone with no appeals option. Sign notes the same day as the visit, every time.",
+    bad: "Incorrect. Unsigned notes prevent billing. While most payers allow up to 90 days to 12 months for claims, notes that consistently sit unsigned for days or weeks can miss filing windows — especially with commercial insurers that have 90-day deadlines. The billing team cannot submit claims from unsigned notes. Notes cannot be back-dated in Epic. Same-day signing is the standard of care and the financial standard."
+  },
+  q8: {
+    ok: "Correct! FQHCs are required by HRSA to provide care to patients regardless of their ability to pay — this is a condition of FQHC status and federal funding. Denying care for a balance is a compliance violation. The correct approach is to see the patient, provide appropriate care, and then separately discuss the balance — offer a payment plan, review sliding fee eligibility, or flag for the billing team. Compassionate financial management and excellent clinical care are not mutually exclusive at an FQHC.",
+    bad: "Incorrect. FQHCs are federally prohibited from denying care based on inability to pay — it is a condition of HRSA designation. Refusing to see a patient or cancelling their appointment due to a balance is a compliance violation. See the patient, deliver care, and handle the financial conversation separately — offer a payment plan, review sliding fee eligibility, or escalate to your financial counselor."
+  }
+};
+
+let done = false;
+
+function grade() {
+  if (done) return;
+  let score = 0, all = true;
+
+  Object.keys(ans).forEach((q, i) => {
+    const s = document.querySelector(`input[name="${q}"]:checked`);
+    const fb = document.getElementById(`fb${i + 1}`);
+    if (!s) { all = false; return; }
+
+    document.querySelectorAll(`input[name="${q}"]`).forEach(l => l.closest('.qo').classList.remove('sel', 'correct', 'wrong'));
+    const ch = s.closest('.qo');
+
+    if (s.value === ans[q]) {
+      ch.classList.add('correct');
+      fb.className = 'qfb ok show';
+      fb.textContent = '✓ ' + ex[q].ok;
+      score++;
+    } else {
+      ch.classList.add('wrong');
+      fb.className = 'qfb bad show';
+      fb.textContent = '✗ ' + ex[q].bad;
+      document.querySelectorAll(`input[name="${q}"]`).forEach(l => {
+        if (l.value === ans[q]) l.closest('.qo').classList.add('correct');
+      });
+    }
+  });
+
+  if (!all) { alert('Please answer all 8 questions before submitting.'); return; }
+
+  done = true;
+  const sc = document.getElementById('qsc');
+  sc.textContent = `Score: ${score}/8`;
+  sc.style.color = score >= 7 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('qresult').style.display = 'block';
+
+  if (score >= 7) {
+    document.getElementById('qpass').style.display = 'block';
+    document.getElementById('qfail').style.display = 'none';
+    document.getElementById('pbf').style.width = '100%';
+    document.getElementById('ppct').textContent = '100%';
+  } else {
+    document.getElementById('qfail').style.display = 'block';
+    document.getElementById('qpass').style.display = 'none';
+  }
+}
+
+function reset() {
+  done = false;
+  document.querySelectorAll('#sec-quiz input[type=radio]').forEach(r => r.checked = false);
+  document.querySelectorAll('#sec-quiz .qo').forEach(o => o.className = 'qo');
+  document.querySelectorAll('#sec-quiz .qfb').forEach(f => f.className = 'qfb');
+  document.getElementById('qsc').textContent = '';
+  document.getElementById('qresult').style.display = 'none';
+}
+
+document.addEventListener('change', e => {
+  if (e.target.type === 'radio') {
+    const n = e.target.name;
+    document.querySelectorAll(`input[name="${n}"]`).forEach(r => r.closest('.qo').classList.remove('sel'));
+    e.target.closest('.qo').classList.add('sel');
+  }
+});
+
+window.addEventListener('scroll', () => {
+  const p = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('si').style.transform = `scaleX(${Math.min(p, 1)})`;
+}, { passive: true });
+</script>
+</body>
+</html>
