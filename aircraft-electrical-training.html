@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRFRAME ELECTRICAL — Systems Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --panel-bg:#1b1e21;
+  --panel-bg-2:#24282c;
+  --panel-bg-3:#2c3136;
+  --steel:#3a4046;
+  --steel-light:#4c545c;
+  --amber:#f2a93c;
+  --amber-dim:#8a6526;
+  --green-go:#4cc38a;
+  --green-dim:#2f5d49;
+  --red-warn:#d6534a;
+  --red-dim:#6e332e;
+  --text-primary:#ece8e1;
+  --text-secondary:#9ba3aa;
+  --text-tertiary:#6c757c;
+  --gauge-face:#101214;
+  --rivet:#454b52;
+  --focus:#7fd4ff;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse at top, #23272b 0%, #17191c 60%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  color:var(--text-primary);
+  font-family:'IBM Plex Sans',sans-serif;
+  min-height:100vh;
+  padding-bottom:60px;
+}
+::selection{background:var(--amber);color:#1b1e21;}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+
+h1,h2,h3,.placard{font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.04em;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:20px;
+  padding:14px 24px;
+  background:linear-gradient(180deg,#22262a,#1a1d20);
+  border-bottom:3px solid var(--steel);
+  box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  position:sticky; top:0; z-index:50;
+  flex-wrap:wrap;
+}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand-badge{
+  width:40px;height:40px;border-radius:6px;
+  background:var(--panel-bg-3); border:2px solid var(--steel-light);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--amber); font-family:'Oswald',sans-serif; font-weight:700; font-size:13px;
+  box-shadow: inset 0 0 0 2px #1b1e21;
+}
+.brand h1{font-size:18px; margin:0; line-height:1.1; color:var(--text-primary);}
+.brand span{display:block; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.14em; color:var(--text-tertiary); text-transform:uppercase; margin-top:2px;}
+
+.gauge-wrap{display:flex; align-items:center; gap:14px;}
+.gauge{width:76px;height:76px; position:relative;}
+.gauge svg{width:100%;height:100%;}
+.gauge-label{font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.1em; color:var(--text-tertiary); text-align:center; text-transform:uppercase; margin-top:2px;}
+.gauge-pct{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; color:var(--amber);}
+
+.topbar-actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+.btn{
+  font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel-bg-3); color:var(--text-primary);
+  border:1px solid var(--steel-light); border-radius:4px;
+  padding:9px 14px; cursor:pointer; font-weight:600;
+  transition:all .15s ease;
+}
+.btn:hover{background:var(--steel-light); border-color:var(--text-secondary);}
+.btn:active{transform:translateY(1px);}
+.btn-amber{background:var(--amber-dim); border-color:var(--amber); color:#fff4e0;}
+.btn-amber:hover{background:var(--amber); color:#1b1e21;}
+.btn-green{background:var(--green-dim); border-color:var(--green-go); color:#eafff4;}
+.btn-green:hover{background:var(--green-go); color:#0e2a1e;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn:disabled:hover{background:var(--panel-bg-3); color:var(--text-primary);}
+
+/* ===== LAYOUT ===== */
+.shell{display:grid; grid-template-columns:300px 1fr; gap:24px; max-width:1280px; margin:24px auto 0; padding:0 24px;}
+@media(max-width:900px){.shell{grid-template-columns:1fr;} }
+
+/* ===== BREAKER PANEL ===== */
+.panel{
+  background:linear-gradient(180deg,#24282c,#1e2124);
+  border:1px solid var(--steel); border-radius:10px;
+  padding:16px 14px 20px;
+  position:relative;
+  box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+}
+.panel::before,.panel::after{
+  content:''; position:absolute; width:7px; height:7px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #6a7178, var(--rivet));
+  top:10px; box-shadow:0 60px 0 var(--rivet);
+}
+.panel::before{left:10px;}
+.panel::after{right:10px;}
+.panel-title{font-size:12px; color:var(--text-tertiary); letter-spacing:.14em; margin:6px 0 14px; text-align:center;}
+
+.breaker{
+  display:flex; align-items:center; gap:10px;
+  width:100%; text-align:left;
+  background:var(--panel-bg-2); border:1px solid var(--steel);
+  border-radius:5px; padding:9px 10px; margin-bottom:7px;
+  cursor:pointer; color:var(--text-primary); font-family:'IBM Plex Sans',sans-serif;
+  transition:all .12s ease; position:relative;
+}
+.breaker:hover{border-color:var(--steel-light); background:#2a2f34;}
+.breaker.active{border-color:var(--focus); box-shadow:0 0 0 1px var(--focus);}
+.breaker .toggle{
+  width:20px;height:28px;border-radius:3px; flex:none;
+  background:linear-gradient(180deg,#4a5057,#2b2f33);
+  border:1px solid #1a1c1e; position:relative;
+  box-shadow:inset 0 -2px 3px rgba(0,0,0,.4);
+}
+.breaker .toggle::after{
+  content:''; position:absolute; left:3px; right:3px; height:10px; border-radius:2px;
+  background:var(--steel-light); top:3px; transition:all .15s ease;
+}
+.breaker.pass .toggle{border-color:var(--green-go);}
+.breaker.pass .toggle::after{background:var(--green-go); top:auto; bottom:3px; box-shadow:0 0 8px var(--green-go);}
+.breaker.fail .toggle::after{background:var(--red-warn);}
+.breaker .meta{flex:1; min-width:0;}
+.breaker .code{font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--text-tertiary); letter-spacing:.08em;}
+.breaker .name{font-size:12.5px; font-weight:600; line-height:1.25; color:var(--text-primary);}
+.breaker .stat{font-family:'IBM Plex Mono',monospace; font-size:9px; margin-top:2px;}
+.breaker.pass .stat{color:var(--green-go);}
+.breaker.fail .stat{color:var(--red-warn);}
+.breaker:not(.pass):not(.fail) .stat{color:var(--text-tertiary);}
+
+.breaker.final{margin-top:10px; border-color:var(--amber-dim);}
+.breaker.final .toggle{border-color:var(--amber);}
+.breaker.final.pass .toggle::after{background:var(--amber); box-shadow:0 0 8px var(--amber);}
+
+/* ===== CONTENT CARD ===== */
+.card{
+  background:linear-gradient(180deg,#232629,#1d2023);
+  border:1px solid var(--steel); border-radius:10px;
+  padding:32px 36px 36px; position:relative;
+  box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+  min-height:400px;
+}
+.card::before,.card::after{
+  content:''; position:absolute; width:7px; height:7px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #6a7178, var(--rivet));
+  top:12px;
+}
+.card::before{left:12px;} .card::after{right:12px;}
+.rivet-bl{position:absolute; width:7px;height:7px;border-radius:50%;left:12px;bottom:12px;background:radial-gradient(circle at 35% 30%, #6a7178, var(--rivet));}
+.rivet-br{position:absolute; width:7px;height:7px;border-radius:50%;right:12px;bottom:12px;background:radial-gradient(circle at 35% 30%, #6a7178, var(--rivet));}
+
+.eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.16em; color:var(--amber); margin-bottom:6px;}
+.card h2{font-size:26px; margin:0 0 4px; color:var(--text-primary);}
+.card .sub{color:var(--text-secondary); font-size:14px; margin-bottom:24px;}
+
+.content p{line-height:1.7; color:#d7d3ca; font-size:15px;}
+.content h3{font-size:14px; color:var(--amber); margin:26px 0 10px; letter-spacing:.06em;}
+.content ul, .content ol{color:#d7d3ca; line-height:1.75; font-size:15px; padding-left:22px;}
+.content li{margin-bottom:4px;}
+.content strong{color:var(--text-primary);}
+
+.formula{
+  font-family:'IBM Plex Mono',monospace; background:var(--gauge-face); border:1px solid var(--steel);
+  border-left:3px solid var(--amber); border-radius:4px; padding:12px 16px; margin:14px 0;
+  color:var(--amber); font-size:15px; letter-spacing:.03em;
+}
+.formula small{display:block; font-family:'IBM Plex Sans',sans-serif; color:var(--text-secondary); font-size:12px; margin-top:4px; letter-spacing:0;}
+
+.callout{
+  border:1px solid var(--steel); border-radius:6px; padding:14px 18px; margin:18px 0;
+  background:var(--panel-bg-2);
+}
+.callout.tip{border-left:3px solid var(--green-go);}
+.callout.tip .callout-label{color:var(--green-go);}
+.callout.warn{border-left:3px solid var(--red-warn);}
+.callout.warn .callout-label{color:var(--red-warn);}
+.callout-label{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px; font-weight:600;}
+.callout p, .callout ul{margin:0; font-size:13.5px;}
+.callout ul{padding-left:18px;}
+
+/* ===== QUIZ ===== */
+.quiz-block{margin-top:34px; border-top:1px dashed var(--steel); padding-top:26px;}
+.quiz-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
+.quiz-head h3{margin:0; color:var(--text-primary); font-size:16px;}
+.q-count{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-tertiary);}
+
+.qcard{background:var(--panel-bg-2); border:1px solid var(--steel); border-radius:6px; padding:16px 18px; margin-bottom:12px;}
+.qcard .qtext{font-weight:600; margin-bottom:12px; font-size:14.5px; color:var(--text-primary);}
+.qopt{
+  display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:4px; margin-bottom:6px;
+  cursor:pointer; border:1px solid transparent; font-size:13.5px; color:#d7d3ca;
+}
+.qopt:hover{background:rgba(255,255,255,.03);}
+.qopt input{accent-color:var(--amber); width:15px;height:15px; flex:none;}
+.qopt.correct{border-color:var(--green-go); background:rgba(76,195,138,.08); color:#eafff4;}
+.qopt.incorrect{border-color:var(--red-warn); background:rgba(214,83,74,.08); color:#ffeceb;}
+.qexplain{font-size:12.5px; color:var(--text-secondary); margin-top:8px; padding-top:8px; border-top:1px solid var(--steel); display:none;}
+.qexplain.show{display:block;}
+
+.score-box{
+  margin-top:18px; padding:16px 20px; border-radius:6px; background:var(--gauge-face);
+  border:1px solid var(--steel); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.score-box .result{font-family:'IBM Plex Mono',monospace; font-size:13px;}
+.score-box .result b{font-size:20px; margin-right:8px;}
+.pass-text{color:var(--green-go);}
+.fail-text{color:var(--red-warn);}
+
+/* ===== CERTIFICATE ===== */
+.cert-wrap{max-width:820px; margin:0 auto;}
+.cert{
+  background:
+    linear-gradient(180deg,#f7f2e6,#efe8d6);
+  color:#2a2620; border-radius:6px; padding:46px 50px; position:relative;
+  border:10px solid #8a6526;
+  box-shadow:0 0 0 3px #f2a93c inset, 0 20px 50px rgba(0,0,0,.5);
+}
+.cert::before{
+  content:''; position:absolute; inset:14px; border:1px solid #8a6526; border-radius:2px; pointer-events:none;
+}
+.cert-eyebrow{font-family:'IBM Plex Mono',monospace; letter-spacing:.2em; font-size:11px; text-align:center; color:#8a6526; margin-bottom:6px;}
+.cert h2{font-family:'Oswald',sans-serif; text-align:center; font-size:30px; margin:0 0 4px; letter-spacing:.05em; color:#241f16;}
+.cert .cert-sub{text-align:center; font-size:12.5px; color:#5c5343; margin-bottom:26px; font-family:'IBM Plex Mono',monospace;}
+.cert .cert-name{
+  text-align:center; font-family:'Oswald',sans-serif; font-size:26px; margin:20px 0 4px; color:#1b3b2f;
+  border-bottom:2px solid #8a6526; display:inline-block; padding:0 20px 6px; width:100%;
+}
+.cert-name-row{text-align:center;}
+.cert-body{text-align:center; font-size:13.5px; line-height:1.8; color:#3a3428; margin:18px 0;}
+.cert-table{width:100%; border-collapse:collapse; margin:22px 0; font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
+.cert-table th,.cert-table td{border:1px solid #b8ac8c; padding:6px 8px; text-align:left;}
+.cert-table th{background:#e6dcc2; text-transform:uppercase; letter-spacing:.06em; font-size:10px;}
+.cert-footer{display:flex; justify-content:space-between; margin-top:30px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#5c5343; align-items:flex-end;}
+.cert-stamp{
+  border:2px solid #1b6b45; color:#1b6b45; border-radius:50%; width:96px;height:96px;
+  display:flex; align-items:center; justify-content:center; text-align:center; font-family:'Oswald',sans-serif;
+  font-size:11px; letter-spacing:.05em; transform:rotate(-10deg); line-height:1.3; font-weight:700;
+}
+.cert-locked{text-align:center; padding:60px 20px; color:var(--text-secondary);}
+.cert-locked h3{color:var(--text-primary); font-size:18px;}
+.cert-req-list{max-width:420px; margin:20px auto; text-align:left; font-size:13px;}
+.cert-req-list li{margin-bottom:6px; font-family:'IBM Plex Mono',monospace; font-size:12px;}
+.req-ok{color:var(--green-go);}
+.req-no{color:var(--red-warn);}
+
+@media print{
+  body *{visibility:hidden;}
+  .cert, .cert *{visibility:visible;}
+  .cert{position:absolute; top:0; left:0; width:100%; box-shadow:none;}
+}
+
+/* ===== NAME GATE ===== */
+.namegate{display:flex; gap:10px; align-items:center; margin-bottom:22px; flex-wrap:wrap;}
+.namegate input{
+  background:var(--gauge-face); border:1px solid var(--steel); border-radius:4px; color:var(--text-primary);
+  padding:9px 12px; font-family:'IBM Plex Mono',monospace; font-size:13px; min-width:220px;
+}
+
+.footer-note{text-align:center; color:var(--text-tertiary); font-size:11px; font-family:'IBM Plex Mono',monospace; margin-top:30px; letter-spacing:.05em;}
+.toast{
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+  background:var(--panel-bg-3); border:1px solid var(--green-go); color:var(--text-primary);
+  padding:10px 18px; border-radius:6px; font-family:'IBM Plex Mono',monospace; font-size:12.5px;
+  transition:all .25s ease; z-index:100; pointer-events:none;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-badge">28V</div>
+    <div>
+      <h1>Airframe Electrical</h1>
+      <span>Systems Trainer &amp; Oral/Practical Prep</span>
+    </div>
+  </div>
+
+  <div class="gauge-wrap">
+    <div class="gauge">
+      <svg viewBox="0 0 100 100">
+        <path d="M 15 78 A 40 40 0 1 1 85 78" fill="none" stroke="#33383d" stroke-width="8" stroke-linecap="round"/>
+        <path id="gaugeArc" d="M 15 78 A 40 40 0 1 1 85 78" fill="none" stroke="#f2a93c" stroke-width="8" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
+        <line id="gaugeNeedle" x1="50" y1="78" x2="50" y2="42" stroke="#ece8e1" stroke-width="2" stroke-linecap="round" transform="rotate(-90 50 78)"/>
+        <circle cx="50" cy="78" r="3.5" fill="#ece8e1"/>
+      </svg>
+      <div class="gauge-pct" id="gaugePct">0%</div>
+    </div>
+    <div>
+      <div class="gauge-label">Load Complete</div>
+      <div class="gauge-label" id="passCount" style="color:var(--text-secondary)">0 / 13 systems</div>
+    </div>
+  </div>
+
+  <div class="topbar-actions">
+    <button class="btn" id="saveBtn">💾 Save Progress</button>
+    <button class="btn" id="resetBtn">Reset</button>
+    <button class="btn btn-amber" id="certNavBtn">🎓 Certificate</button>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="panel" id="breakerPanel" aria-label="Module navigation">
+    <div class="panel-title">Circuit Breaker Panel</div>
+    <div id="breakerList"></div>
+  </nav>
+
+  <main class="card" id="mainCard">
+    <div class="rivet-bl"></div><div class="rivet-br"></div>
+    <div id="cardContent"></div>
+  </main>
+</div>
+
+<div class="footer-note">TRAINER ED. 1 &nbsp;•&nbsp; FOR INSTRUCTIONAL USE &nbsp;•&nbsp; ALIGNED TO AMT GENERAL ELECTRICAL &amp; AIRFRAME WIRING PRACTICES</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   DATA — 12 modules + final exam
+========================================================= */
+const MODULES = [
+{
+  id:'m1', code:'CB-01', title:'Electron Theory & Static Electricity',
+  content:`
+  <p>Every electrical system on an aircraft — from the battery to the flight management computer — comes down to the controlled movement of electrons. An atom's nucleus holds protons (positive) and neutrons (neutral); electrons (negative) orbit around it. Materials whose outer-shell electrons are loosely held give those electrons up easily and are called <strong>conductors</strong> (copper, aluminum, silver). Materials that hold their electrons tightly are <strong>insulators</strong> (rubber, Teflon, mica). <strong>Semiconductors</strong> (silicon, germanium) sit in between and can be made to conduct or block current on command — the basis of diodes and transistors.</p>
+  <h3>Current, Voltage, Resistance</h3>
+  <ul>
+    <li><strong>Current (I)</strong> — the rate of electron flow, measured in amperes (A).</li>
+    <li><strong>Voltage (E or V)</strong> — electromotive force, the "push" that moves electrons, measured in volts.</li>
+    <li><strong>Resistance (R)</strong> — opposition to current flow, measured in ohms (Ω).</li>
+  </ul>
+  <h3>Static Electricity on Airframes</h3>
+  <p>Friction between an aircraft's skin and airborne particles (dust, ice crystals, precipitation) strips electrons and builds a static charge — <strong>precipitation static (P-static)</strong>. Left unchecked, it discharges as corona noise that blankets avionics receivers and can degrade or destroy sensitive equipment. Aircraft manage this with <strong>bonding straps</strong> (electrically tying components together so they share one potential) and <strong>static dischargers (wicks)</strong> mounted at trailing edges, which bleed the charge off into the air at a controlled point rather than letting it arc unpredictably off a control surface.</p>
+  <div class="callout tip"><div class="callout-label">Oral &amp; Practical Prep</div><p>Be ready to explain the difference between bonding and grounding, describe what P-static does to comm/nav receivers, and show you can inspect static wicks for resistance within manufacturer limits (typically checked with a static discharger ohmmeter, not a standard multimeter).</p></div>
+  `,
+  quiz:[
+    {q:"What determines whether a material is a good conductor?", choices:["The number of neutrons in the nucleus","How loosely the outer-shell electrons are held","The color of the material","The material's melting point"], a:1, ex:"Conductors have loosely bound valence electrons that move freely under an applied voltage."},
+    {q:"Which best describes a semiconductor?", choices:["A material that never conducts current","A material that conducts only at absolute zero","A material whose conductivity can be controlled, between conductor and insulator","A perfect insulator used only for wire jackets"], a:2, ex:"Semiconductors like silicon can be doped to control conductivity, forming the basis of diodes and transistors."},
+    {q:"What is the primary hazard of uncontrolled P-static buildup on an airframe?", choices:["Increased fuel burn","Corona discharge noise that interferes with avionics receivers","Excess weight from ice","Reduced tire pressure"], a:1, ex:"P-static discharge creates broadband noise that can desensitize or blank out communication and navigation receivers."},
+    {q:"What is the function of a static discharger (wick)?", choices:["To generate lift","To bleed static charge off the airframe at a controlled point","To ground the aircraft to fuel trucks only","To measure airspeed"], a:1, ex:"Static wicks provide a low-resistance path for the charge to leave the aircraft at trailing edges rather than arcing randomly."},
+    {q:"Bonding straps are primarily used to:", choices:["Increase aircraft weight for balance","Electrically tie components to a common potential and provide a fault current path","Insulate wiring bundles from each other","Reduce hydraulic pressure"], a:1, ex:"Bonding equalizes potential between structural components and gives fault current and static charge a defined path."}
+  ]
+},
+{
+  id:'m2', code:'CB-02', title:"Ohm's Law & Electrical Power",
+  content:`
+  <p>Ohm's Law is the single most-used relationship on the electrical portion of the oral exam: <strong>Voltage = Current × Resistance</strong>. From it you can solve for any one value if you know the other two.</p>
+  <div class="formula">E = I × R &nbsp;&nbsp; I = E ÷ R &nbsp;&nbsp; R = E ÷ I<small>E = Voltage (volts), I = Current (amps), R = Resistance (ohms)</small></div>
+  <p>Power is the rate of doing electrical work, measured in watts, and combines with Ohm's Law to give you a full family of formulas technicians use to size wire, breakers, and loads:</p>
+  <div class="formula">P = E × I &nbsp;&nbsp; P = I² × R &nbsp;&nbsp; P = E² ÷ R<small>P = Power (watts)</small></div>
+  <h3>Why this matters on the ramp</h3>
+  <p>If a landing light is rated 100 W at 28V DC, you should be able to find its expected current draw (I = P/E = 100/28 ≈ 3.57 A) and confirm that the breaker and wire gauge feeding it are sized correctly. Undersized wire for a given current creates excess voltage drop and heat — a leading cause of in-flight wiring fires when combined with chafed insulation.</p>
+  <h3>Voltage Drop</h3>
+  <p>Every conductor has some resistance, so some voltage is always "used up" just pushing current through the wire itself before it reaches the load. Excessive voltage drop (commonly limited to 2–4% of source voltage on aircraft circuits, per manufacturer data) starves the component at the far end and signals undersized wire, a bad connection, or a too-long run.</p>
+  <div class="callout warn"><div class="callout-label">Common Oral Trap</div><p>Examiners love giving you two of three Ohm's Law values and a mismatched unit (milliamps vs. amps, kilohms vs. ohms). Always convert to base units before you calculate.</p></div>
+  `,
+  quiz:[
+    {q:"A circuit has 28V applied across a 14Ω resistive load. What is the current?", choices:["0.5 A","2 A","14 A","392 A"], a:1, ex:"I = E/R = 28/14 = 2 A."},
+    {q:"A component draws 5A at 28V. What is its power consumption?", choices:["5.6 W","33 W","140 W","23 W"], a:2, ex:"P = E × I = 28 × 5 = 140 W."},
+    {q:"If resistance increases while voltage stays constant, current will:", choices:["Increase","Stay the same","Decrease","Reverse direction"], a:2, ex:"I = E/R — as R goes up, I goes down for a fixed E."},
+    {q:"Excessive voltage drop in a wire run is most directly caused by:", choices:["Too much resistance for the length/gauge of wire and current carried","Too little resistance","Using AC instead of DC","A fully charged battery"], a:0, ex:"Voltage drop = I × R of the wire itself; long runs, small gauge, or poor connections raise that resistance."},
+    {q:"A landing light is rated 200W at 28V DC. Approximate current draw?", choices:["0.14 A","5.6 A","7.1 A","28 A"], a:2, ex:"I = P/E = 200/28 ≈ 7.1 A."}
+  ]
+},
+{
+  id:'m3', code:'CB-03', title:'DC Circuits — Series, Parallel & Kirchhoff',
+  content:`
+  <p>Aircraft wiring is built from three basic circuit arrangements, and knowing how voltage, current, and resistance behave in each is a guaranteed practical-exam topic.</p>
+  <h3>Series Circuits</h3>
+  <ul>
+    <li>Current is the <strong>same</strong> everywhere in the circuit.</li>
+    <li>Total resistance is the <strong>sum</strong> of all resistances: R<sub>T</sub> = R1 + R2 + R3…</li>
+    <li>Voltage <strong>divides</strong> across each resistance proportional to its value.</li>
+    <li>One break anywhere opens the entire circuit — this is why series-wired instrument panel lighting strings can go fully dark from a single bad bulb.</li>
+  </ul>
+  <h3>Parallel Circuits</h3>
+  <ul>
+    <li>Voltage is the <strong>same</strong> across every branch.</li>
+    <li>Current <strong>divides</strong> among branches based on each branch's resistance.</li>
+    <li>Total resistance is always <strong>less</strong> than the smallest branch resistance: 1/R<sub>T</sub> = 1/R1 + 1/R2 + 1/R3…</li>
+    <li>Most aircraft buses feed loads in parallel so one failed component doesn't take down the whole bus.</li>
+  </ul>
+  <h3>Kirchhoff's Laws</h3>
+  <p><strong>Kirchhoff's Voltage Law (KVL):</strong> the sum of voltage drops around any closed loop equals the source voltage. <strong>Kirchhoff's Current Law (KCL):</strong> the current flowing into a junction equals the current flowing out.</p>
+  <div class="formula">Series: R<sub>T</sub> = R1+R2+R3 &nbsp;&nbsp; Parallel: R<sub>T</sub> = 1 / (1/R1 + 1/R2 + 1/R3)</div>
+  <div class="callout tip"><div class="callout-label">Practical Tip</div><p>On the bench, you'll often be asked to predict what a multimeter should read at a specific point in a series-parallel network <em>before</em> you probe it. Sketch the circuit, label it, and solve it on paper first — examiners are grading your method as much as your final number.</p></div>
+  `,
+  quiz:[
+    {q:"In a series circuit, if one component fails open, the rest of the circuit:", choices:["Continues operating normally","Also loses current — the whole circuit opens","Only loses voltage, not current","Increases in current"], a:1, ex:"Series circuits have a single current path; an open anywhere stops current everywhere."},
+    {q:"In a parallel circuit, the voltage across each branch is:", choices:["Divided based on resistance","The same as the source voltage","Always zero","Only present in the branch with least resistance"], a:1, ex:"Every parallel branch sees the full source voltage."},
+    {q:"Two 10Ω resistors are wired in parallel. Total resistance is:", choices:["20Ω","10Ω","5Ω","2Ω"], a:2, ex:"1/RT = 1/10+1/10 = 2/10, so RT = 5Ω."},
+    {q:"Kirchhoff's Current Law states that:", choices:["Current entering a junction equals current leaving it","Voltage is constant throughout a circuit","Resistance always increases with temperature","Current flows only in series circuits"], a:0, ex:"KCL is a statement of charge conservation at any node."},
+    {q:"Why are most aircraft bus loads wired in parallel rather than series?", choices:["It uses less wire","So a single failed component doesn't remove power from the rest of the bus","Parallel circuits require no circuit breakers","It reduces total voltage available"], a:1, ex:"Parallel wiring isolates loads from each other so one failure doesn't cascade."}
+  ]
+},
+{
+  id:'m4', code:'CB-04', title:'AC Theory & Aircraft AC Power',
+  content:`
+  <p>While most light aircraft run entirely on DC, most transport-category aircraft generate <strong>115V AC at 400 Hz, three-phase</strong> power as their primary source, then convert a portion to DC for the rest of the aircraft. 400 Hz (versus household 60 Hz) lets generators, motors, and transformers be built dramatically smaller and lighter for the same power output — critical for anything that flies.</p>
+  <h3>Describing a Sine Wave</h3>
+  <ul>
+    <li><strong>Frequency (Hz)</strong> — cycles per second.</li>
+    <li><strong>Peak value</strong> — the maximum instantaneous voltage/current.</li>
+    <li><strong>RMS (root-mean-square) value</strong> — the effective, "DC-equivalent" value; for a sine wave RMS = Peak × 0.707. All AC voltmeters read RMS unless stated otherwise.</li>
+    <li><strong>Phase</strong> — the timing relationship between two waveforms, expressed in degrees.</li>
+  </ul>
+  <div class="formula">RMS = Peak × 0.707 &nbsp;&nbsp; Peak = RMS × 1.414</div>
+  <h3>Three-Phase Power</h3>
+  <p>Three-phase generation delivers three sine waves 120° apart on separate windings. It gives smoother torque from AC motors, higher power density than single phase, and — wired properly — a built-in redundancy if one phase is lost. Aircraft three-phase systems are typically wired <strong>Wye (star)</strong> configuration, which provides both a phase-to-phase voltage (200V) and a phase-to-neutral voltage (115V) from the same alternator.</p>
+  <h3>Transformers & TRUs</h3>
+  <p>A transformer uses two magnetically coupled windings to step voltage up or down based on the <strong>turns ratio</strong> between primary and secondary coils — it has no moving parts and only works on AC. A <strong>Transformer-Rectifier Unit (TRU)</strong> combines a step-down transformer with rectifier diodes to convert 115V AC to 28V DC for the aircraft's DC buses, batteries, and battery charging.</p>
+  <div class="callout tip"><div class="callout-label">Oral Prep</div><p>Know cold: why 400 Hz instead of 60 Hz (weight/size savings), what RMS means and why it's what your meter displays, and what a TRU does and where it sits in the power distribution architecture.</p></div>
+  `,
+  quiz:[
+    {q:"Standard aircraft AC power is typically generated at:", choices:["60 Hz single phase","400 Hz three-phase","50 Hz single phase","1000 Hz three-phase"], a:1, ex:"400 Hz three-phase, 115V, is the standard for most transport aircraft primary AC power."},
+    {q:"Why is 400 Hz preferred over 60 Hz for aircraft AC systems?", choices:["It's cheaper to generate","Higher frequency allows smaller, lighter generators, motors, and transformers","It reduces radio interference completely","Passengers can't hear it"], a:1, ex:"Core and winding size for a given power rating shrinks as frequency rises, directly saving weight."},
+    {q:"A standard AC voltmeter reading of 115V represents the circuit's:", choices:["Peak voltage","Average voltage","RMS voltage","Minimum voltage"], a:2, ex:"AC meters are calibrated to display RMS, the effective heating-equivalent value."},
+    {q:"What is the primary function of a Transformer-Rectifier Unit (TRU)?", choices:["Convert AC to DC for DC buses and battery charging","Convert DC to AC for lighting","Increase engine RPM","Store electrical energy like a battery"], a:0, ex:"A TRU steps AC down and rectifies it to usable DC voltage, typically 28V."},
+    {q:"Three-phase AC waveforms are separated from each other by:", choices:["45 degrees","90 degrees","120 degrees","180 degrees"], a:2, ex:"Three equally spaced phases across 360° gives 120° separation between each."}
+  ]
+},
+{
+  id:'m5', code:'CB-05', title:'Magnetism & Electromagnetic Induction',
+  content:`
+  <p>Every generator, alternator, motor, relay, and transformer on the aircraft depends on one core relationship: moving a conductor through a magnetic field (or moving a magnetic field past a conductor) induces a voltage — this is <strong>electromagnetic induction</strong>, discovered by Faraday.</p>
+  <h3>Key Principles</h3>
+  <ul>
+    <li><strong>Left-Hand / Right-Hand Rules</strong> relate the direction of current, magnetic field, and induced motion or voltage — used to predict motor rotation direction or generator output polarity.</li>
+    <li><strong>Faraday's Law</strong> — induced voltage is proportional to the rate of change of magnetic flux; the faster the field changes, the higher the induced voltage.</li>
+    <li><strong>Lenz's Law</strong> — the induced current always opposes the change that created it (this is why generators require mechanical torque to turn — you're fighting the induced counter-force).</li>
+  </ul>
+  <h3>Electromagnets in Aircraft Systems</h3>
+  <p>Coiling a current-carrying wire concentrates its magnetic field; adding an iron core concentrates it further. This is the working principle behind <strong>relays and contactors</strong> (a small control current energizes a coil that closes larger power contacts), <strong>solenoids</strong> (landing gear and starter engagement), and the rotating field windings inside generators and alternators.</p>
+  <div class="callout tip"><div class="callout-label">Practical Tip</div><p>You may be asked to bench-test a relay: apply rated coil voltage and confirm contact closure with an ohmmeter or continuity tester, then verify the contacts open cleanly when coil power is removed. Weak spring return or pitted contacts are common write-ups.</p></div>
+  <div class="callout warn"><div class="callout-label">Safety Note</div><p>Coils store energy in their magnetic field. When de-energized, that collapsing field can produce a voltage spike (inductive kickback) large enough to damage semiconductors nearby — this is why relay-driving circuits often include a flyback (suppressor) diode.</p></div>
+  `,
+  quiz:[
+    {q:"Electromagnetic induction refers to:", choices:["Converting DC to AC using diodes only","Producing voltage by moving a conductor through a magnetic field, or the reverse","Storing charge in a battery","Static electricity buildup on airframes"], a:1, ex:"Relative motion between a conductor and magnetic flux induces an EMF — Faraday's principle."},
+    {q:"Lenz's Law tells us that induced current will:", choices:["Always flow in the same direction as source current","Oppose the change in flux that produced it","Have no direction","Only occur in DC circuits"], a:1, ex:"Lenz's Law is essentially conservation of energy applied to induction — opposition is why generators need mechanical torque."},
+    {q:"A relay works by using a small control current to:", choices:["Directly power the load","Energize a coil that mechanically closes larger power contacts","Discharge a capacitor into the load","Reverse the polarity of the battery"], a:1, ex:"Relays/contactors let a low-current control circuit switch a high-current power circuit safely."},
+    {q:"What is 'inductive kickback'?", choices:["A mechanical vibration in generators","A voltage spike produced when a coil's magnetic field suddenly collapses","A type of aircraft turbulence","The normal operating voltage of a solenoid"], a:1, ex:"Collapsing flux in a de-energized coil can spike voltage high enough to damage nearby components without suppression."},
+    {q:"Wrapping a current-carrying wire into a coil around an iron core primarily:", choices:["Reduces its resistance to zero","Concentrates and strengthens the magnetic field","Converts it into a capacitor","Prevents any current flow"], a:1, ex:"Coiling and adding a ferrous core focuses magnetic flux, which is the basis of electromagnets, relays, and field windings."}
+  ]
+},
+{
+  id:'m6', code:'CB-06', title:'Circuit Protection & Control Devices',
+  content:`
+  <p>Protection devices exist for one job: interrupt current before wiring or components are damaged by heat. Control devices route power on command.</p>
+  <h3>Fuses vs. Circuit Breakers</h3>
+  <ul>
+    <li><strong>Fuses</strong> contain a calibrated metal element that melts open at a rated current — one-time use, then replaced. Common on older/simpler systems and as backup protection.</li>
+    <li><strong>Circuit breakers (CBs)</strong> use a thermal (bimetallic) or thermal-magnetic mechanism to trip open at a rated current and can be manually reset once the fault is cleared. The vast majority of transport and GA aircraft use "push-to-reset, pull-to-open" CBs on the panel.</li>
+    <li><strong>Current limiters</strong> are heavy-duty, slow-acting fuse-like devices used on high-current feeder lines (like a generator feeder) where you want the wire protected from a dead short but don't want nuisance trips from momentary high in-rush current.</li>
+  </ul>
+  <div class="callout warn"><div class="callout-label">Maintenance Rule</div><p>A tripped breaker may be reset <strong>once</strong> per most manufacturer guidance, in flight only if operationally necessary and per the AFM/POH — a breaker that trips again should not be reset repeatedly. Repeated resetting without troubleshooting the fault is a classic write-up and a real fire risk.</p></div>
+  <h3>Switches & Relays</h3>
+  <p>Switches manually open/close a circuit; toggle, rocker, rotary, and push-button types are rated by current/voltage and by contact configuration (SPST, SPDT, DPDT, etc. — single/double pole, single/double throw). Relays and contactors use a control coil to switch a separate, often higher-current, power circuit — this lets a lightweight cockpit switch control a heavy starter or generator circuit without routing huge current through the control yoke.</p>
+  <h3>Diodes as Protection</h3>
+  <p>A diode conducts current in only one direction. Beyond rectification, diodes are used as <strong>flyback/suppressor diodes</strong> across relay and solenoid coils to absorb inductive kickback, and as <strong>blocking diodes</strong> to prevent current from feeding backward into a bus it shouldn't reach.</p>
+  `,
+  quiz:[
+    {q:"The key functional difference between a fuse and a circuit breaker is:", choices:["Fuses only work on AC, breakers only on DC","A fuse must be replaced after opening; a breaker can typically be reset","Breakers never protect against overcurrent","Fuses are always rated higher than breakers"], a:1, ex:"Fuses sacrifice a metal element and are replaced; thermal breakers trip and can be manually reset once the fault clears."},
+    {q:"What is the general rule about resetting a tripped circuit breaker in flight?", choices:["Reset it as many times as needed until it stays in","It may generally be reset once if operationally necessary per the AFM; repeated resetting without troubleshooting is unsafe","Never reset any breaker under any circumstance","Only reset breakers on the ground with the battery disconnected"], a:1, ex:"Standard guidance allows a single reset attempt per manufacturer procedure; repeated trips indicate a fault that must be found, not forced past."},
+    {q:"A current limiter is best described as:", choices:["A fast-acting fuse for delicate avionics","A slow-acting, heavy-duty protective device used on high-current feeder lines","A type of variable resistor","A device that limits voltage, not current"], a:1, ex:"Current limiters tolerate momentary high in-rush current but protect the wire from a sustained dead short."},
+    {q:"A flyback (suppressor) diode placed across a relay coil is there to:", choices:["Increase the coil's magnetic strength","Absorb the voltage spike from the collapsing magnetic field when the coil de-energizes","Reverse the relay's polarity on command","Provide a backup power source"], a:1, ex:"The diode gives the collapsing field's induced current a safe path, protecting nearby components from the kickback spike."},
+    {q:"In switch nomenclature, 'DPDT' refers to:", choices:["A fuse rating","Double Pole, Double Throw contact configuration","A wire gauge standard","A type of circuit breaker curve"], a:1, ex:"DPDT describes two independent circuits (poles), each switchable between two positions (throws), from one switch body."}
+  ]
+},
+{
+  id:'m7', code:'CB-07', title:'Aircraft Batteries',
+  content:`
+  <p>The battery is the aircraft's last line of defense — it starts the engine/APU, powers essential buses if generators fail, and buffers transient loads. Two chemistries dominate aviation:</p>
+  <h3>Lead-Acid (Flooded / Sealed VRLA)</h3>
+  <p>Uses lead plates in a sulfuric acid electrolyte. State of charge can be estimated by <strong>specific gravity</strong> of the electrolyte, measured with a hydrometer (roughly 1.275–1.300 fully charged, dropping as it discharges). Common on light GA aircraft. Ventilation and acid-resistant battery box coatings are required due to hydrogen gassing and corrosive electrolyte.</p>
+  <h3>Nickel-Cadmium (Ni-Cad)</h3>
+  <p>Uses nickel and cadmium plates in a potassium hydroxide (alkaline) electrolyte. Common on turbine aircraft because it tolerates high discharge rates and rapid engine-start current demand better than lead-acid. Ni-Cad's defining hazard is <strong>thermal runaway</strong>: an internal short or overcharge condition raises internal temperature, which lowers internal resistance, which increases current, which raises temperature further — a self-accelerating feedback loop that can destroy the battery and start a fire if not caught early (rising battery temperature and falling voltage are the classic warning signs on the flight deck).</p>
+  <div class="callout warn"><div class="callout-label">Critical Safety Point</div><p>Ni-Cad batteries do <strong>not</strong> show state-of-charge reliably via specific gravity or simple voltage the way lead-acid does, because cell voltage stays relatively flat until near full discharge. Capacity checks require a controlled discharge test, and every Ni-Cad installation requires scheduled maintenance per the manufacturer's capacity-check interval.</p></div>
+  <h3>Capacity & Rating</h3>
+  <p>Battery capacity is rated in <strong>amp-hours (Ah)</strong> — the current a battery can deliver over a specified time before reaching a defined end voltage. A battery rated 40 Ah at the 1-hour rate could theoretically deliver 40A for 1 hour (real-world capacity varies with discharge rate and temperature).</p>
+  `,
+  quiz:[
+    {q:"What tool is used to estimate the state of charge in a lead-acid battery?", choices:["An ammeter","A hydrometer, measuring electrolyte specific gravity","A megohmmeter","A tachometer"], a:1, ex:"Specific gravity of the sulfuric acid electrolyte drops predictably as a lead-acid battery discharges."},
+    {q:"Why are Ni-Cad batteries commonly used on turbine aircraft?", choices:["They are lighter than all alternatives with no drawbacks","They tolerate high discharge rates needed for engine/APU starting better than lead-acid","They never require maintenance","They cannot experience thermal runaway"], a:1, ex:"Ni-Cad chemistry handles the high current demand of turbine starts well, though it requires vigilant thermal monitoring."},
+    {q:"Thermal runaway in a Ni-Cad battery is a feedback loop where:", choices:["Rising temperature lowers internal resistance, increasing current, raising temperature further","The battery cools itself automatically under load","Voltage rises uncontrollably while temperature stays constant","Specific gravity increases uncontrollably"], a:0, ex:"The self-accelerating heat/current cycle is the defining hazard of Ni-Cad batteries if not caught early."},
+    {q:"Why can't specific gravity be used to check state of charge on a Ni-Cad battery the way it is on lead-acid?", choices:["Ni-Cad batteries have no electrolyte","Ni-Cad cell voltage stays relatively flat until near full discharge, so a proper capacity test is required instead","Ni-Cad batteries are always fully charged","Hydrometers don't exist for alkaline electrolyte"], a:1, ex:"Ni-Cad's flat discharge curve makes simple gravity/voltage checks unreliable; a controlled capacity discharge test is used instead."},
+    {q:"Battery capacity is rated in:", choices:["Watts","Ohms","Amp-hours (Ah)","Henries"], a:2, ex:"Amp-hour rating expresses how much current the battery can sustain over a defined time to a specified end voltage."}
+  ]
+},
+{
+  id:'m8', code:'CB-08', title:'Generators, Alternators & Motors',
+  content:`
+  <p>Generators, alternators, and motors are all built on the same electromagnetic principle running in different directions: generators and alternators convert mechanical energy to electrical energy; motors convert electrical energy back to mechanical.</p>
+  <h3>DC Generators vs. AC Alternators</h3>
+  <p>A DC generator uses a commutator and brushes to mechanically switch the output so it stays unidirectional (DC) as the armature spins. An alternator instead lets the AC come off the windings naturally, then uses solid-state rectifier diodes to convert it to DC — this eliminates the commutator, needs far less brush maintenance, and is lighter for a given output, which is why alternators have largely replaced DC generators in modern aircraft. A voltage regulator controls output by varying the current in the rotating field winding.</p>
+  <h3>Starter-Generators</h3>
+  <p>Many turbine aircraft use a single combined unit: it acts as a motor (drawing battery/external power) to spin the engine for start, then automatically switches to generator mode once the engine reaches self-sustaining speed — saving the weight of two separate machines.</p>
+  <h3>DC Motor Types</h3>
+  <ul>
+    <li><strong>Series-wound</strong> — field and armature windings in series; very high starting torque, speed varies greatly with load (runs away if unloaded). Used for starters.</li>
+    <li><strong>Shunt-wound</strong> — field winding in parallel with the armature; fairly constant speed regardless of load. Used where speed stability matters, like some instrument drives.</li>
+    <li><strong>Compound-wound</strong> — combines series and shunt windings for a blend of good starting torque and speed stability. Used for flap and landing-gear actuators.</li>
+  </ul>
+  <div class="callout tip"><div class="callout-label">Oral Prep</div><p>Be ready to explain why alternators replaced generators (weight, brush wear, output at low RPM), and to match each motor type to the job it's best suited for based on torque/speed behavior.</p></div>
+  `,
+  quiz:[
+    {q:"What component allows a DC generator's output to remain unidirectional as the armature spins?", choices:["The voltage regulator","The commutator and brushes","The field winding alone","A rectifier bridge"], a:1, ex:"The commutator mechanically switches connections each half-revolution, keeping current flow in one direction externally."},
+    {q:"Why have alternators largely replaced DC generators in modern aircraft?", choices:["Alternators are heavier but more reliable","Alternators eliminate the commutator, reducing brush wear and weight for a given output","Alternators cannot produce DC at all","Generators are illegal to install today"], a:1, ex:"Alternators use rectifier diodes instead of a commutator, cutting maintenance and weight while improving output at low RPM."},
+    {q:"A starter-generator unit is valued because it:", choices:["Only functions as a generator, never a motor","Combines starting and generating functions in one unit, saving weight over two separate machines","Requires no electrical connections","Can only be used on piston engines"], a:1, ex:"It motors the engine for start, then switches to generate power once the engine is self-sustaining."},
+    {q:"Which DC motor winding type produces very high starting torque but risks runaway speed if unloaded?", choices:["Shunt-wound","Compound-wound","Series-wound","Capacitor-start"], a:2, ex:"Series-wound motors are used for starters because of their high starting torque, but must always be loaded."},
+    {q:"A shunt-wound DC motor is chosen when the application needs:", choices:["The highest possible starting torque regardless of speed","Relatively constant speed regardless of load changes","No magnetic field at all","Only AC power input"], a:1, ex:"Shunt winding keeps field current fairly constant, giving stable speed across varying loads."}
+  ]
+},
+{
+  id:'m9', code:'CB-09', title:'Semiconductors & Solid-State Devices',
+  content:`
+  <p>Modern aircraft electrical and avionics systems lean heavily on solid-state components — no moving parts, but very specific failure modes and handling rules a technician must respect.</p>
+  <h3>Diodes</h3>
+  <p>A diode allows current to flow in one direction only (forward-biased) and blocks it in the reverse direction. Uses on the airframe include rectification (TRUs), flyback suppression across coils, and blocking current from feeding back into a bus (isolation diodes in some bus-tie architectures).</p>
+  <h3>Transistors</h3>
+  <p>A transistor uses a small control current or voltage to switch or amplify a much larger current — the solid-state descendant of the relay, but with no moving parts and far faster switching. Transistors form the building blocks of voltage regulators, solid-state power controllers, and avionics logic.</p>
+  <h3>Integrated Circuits & Solid-State Power Controllers (SSPCs)</h3>
+  <p>Many newer aircraft replace mechanical relays and thermal circuit breakers with <strong>SSPCs</strong> — solid-state switches that both control and protect a circuit, reporting status digitally to the aircraft's data bus and often resettable from the flight deck without a physical breaker pull.</p>
+  <div class="callout warn"><div class="callout-label">ESD Handling</div><p>Semiconductor devices and populated circuit boards can be destroyed by electrostatic discharge (ESD) far too small for a person to feel. Standard practice: work at a grounded ESD-safe station, wear a wrist strap bonded to ground, use ESD-safe (pink/black) bags for storage and transport, and never handle components by their leads/pins.</p></div>
+  <div class="callout tip"><div class="callout-label">Practical Tip</div><p>You can bench-test a diode's basic function with a multimeter's diode-check function: it should show a forward voltage drop (~0.5–0.7V for silicon) in one direction and an open reading (OL) in the other. No reading in either direction, or continuity in both directions, means the diode is bad.</p></div>
+  `,
+  quiz:[
+    {q:"A diode's basic function is to:", choices:["Amplify a signal","Allow current flow in one direction only","Store electrical charge","Convert AC frequency"], a:1, ex:"Diodes conduct when forward-biased and block when reverse-biased, making them one-way valves for current."},
+    {q:"On a multimeter's diode-check setting, a healthy silicon diode should show:", choices:["The same reading in both directions","A forward voltage drop around 0.5–0.7V one direction and an open (OL) reading the other","Zero resistance in both directions","Infinite resistance in both directions"], a:1, ex:"A functioning diode conducts (small forward drop) one way and blocks (open) the other; matching readings both ways indicate a failure."},
+    {q:"What is the main advantage of a transistor over a mechanical relay for switching?", choices:["Transistors are always larger","Transistors switch with no moving parts and much faster response","Transistors require higher control voltage","Transistors cannot handle small currents"], a:1, ex:"Solid-state switching removes mechanical wear and dramatically increases switching speed versus a relay's armature."},
+    {q:"An SSPC (Solid-State Power Controller) combines the function of:", choices:["A battery and a generator","A switch/relay and a circuit breaker in one solid-state device","A hydrometer and a voltmeter","An antenna and a receiver"], a:1, ex:"SSPCs both control and protect a circuit electronically, often reporting status digitally instead of using a mechanical breaker."},
+    {q:"Proper ESD precautions when handling circuit boards include:", choices:["Handling boards by their component leads for a secure grip","Working ungrounded to avoid a shock hazard","Using a grounded wrist strap and ESD-safe bags","Storing boards in any plastic bag available"], a:2, ex:"Grounded wrist straps, ESD-safe stations, and static-shielding bags protect components from discharge damage invisible to touch."}
+  ]
+},
+{
+  id:'m10', code:'CB-10', title:'Aircraft Wiring, Connectors & Bonding',
+  content:`
+  <p>Wire selection and installation practice is one of the most heavily tested practical areas because poor wiring work is a direct airworthiness and fire-safety issue.</p>
+  <h3>Wire Sizing (AWG)</h3>
+  <p>Aircraft wire is sized by <strong>American Wire Gauge (AWG)</strong> — counterintuitively, a <em>larger</em> AWG number means a <em>smaller</em> diameter wire. Wire size is selected based on expected continuous current, allowable voltage drop, and bundle/altitude derating (heat dissipates less efficiently in a bundle or at altitude, so more conductors packed together require larger wire for the same current than a single wire in open air).</p>
+  <h3>Wire Types & Insulation</h3>
+  <p>Aircraft wiring commonly uses insulation like PTFE (Teflon), ETFE, or cross-linked polymers per specifications such as MIL-W-22759, chosen for resistance to heat, fuel, hydraulic fluid, and abrasion. Shielded wire (with a braided or foil shield, grounded at one end per the applicable wiring diagram) is used for signal and avionics runs to reject electromagnetic interference; twisted pairs cancel induced noise between the two conductors.</p>
+  <h3>Terminations</h3>
+  <p><strong>Crimped</strong> terminals are the standard for aircraft wiring — done correctly with the specified tool, die, and terminal, a crimp is a stronger and more reliable gas-tight connection than solder, and it doesn't introduce solder wicking that stiffens the wire at the joint (a stress-riser that leads to fatigue breaks). Solder connections are used only in specific approved locations. Every crimp should be pull-tested per the applicable maintenance manual procedure.</p>
+  <h3>Bundling & Routing</h3>
+  <ul>
+    <li>Maintain separation between wire bundles and flight control cables, fuel/hydraulic lines, and hot bleed-air ducts.</li>
+    <li>Support wire bundles at intervals to prevent chafing and sagging (typically clamped every 24 inches unless the manual specifies otherwise).</li>
+    <li>Respect minimum bend radius (commonly 10× wire diameter) to avoid insulation and conductor damage.</li>
+    <li>Route drain loops so moisture doesn't track into connectors.</li>
+  </ul>
+  <div class="callout warn"><div class="callout-label">Practical Exam Focus</div><p>You will very likely be asked to identify a correctly vs. incorrectly made crimp connection, explain proper bundle clamping/separation, and describe how to inspect for chafing, especially where a bundle passes through a bulkhead or near a moving structure.</p></div>
+  `,
+  quiz:[
+    {q:"In AWG wire sizing, a larger gauge number means:", choices:["A larger wire diameter","A smaller wire diameter","No relationship to diameter","Higher voltage rating only"], a:1, ex:"AWG is inverse — 22 AWG is much smaller than 4 AWG."},
+    {q:"Why does wire bundled tightly with other wires need a larger gauge for the same current than a single wire in open air?", choices:["Bundled wire carries less voltage","Heat dissipates less efficiently within a bundle, requiring derating","Bundling increases resistance to zero","AWG rules don't apply to bundles"], a:1, ex:"Reduced convective cooling inside a bundle means more derating is needed to keep the conductor within temperature limits."},
+    {q:"Why are crimped terminals generally preferred over soldered connections on aircraft wiring?", choices:["Crimping is always cheaper regardless of quality","A proper crimp gives a strong gas-tight joint without the stress-riser solder wicking can create","Solder never fails","Crimped joints don't need inspection"], a:1, ex:"Correctly made crimps resist vibration fatigue better than solder joints, which can wick up the strands and stiffen the wire at the joint."},
+    {q:"Shielded wire is primarily used to:", choices:["Increase current capacity","Reject electromagnetic interference on sensitive signal/avionics circuits","Reduce wire weight","Eliminate the need for circuit protection"], a:1, ex:"A grounded shield intercepts EMI before it couples into the signal conductor."},
+    {q:"A common minimum bend radius guideline for aircraft wire is approximately:", choices:["1x the wire diameter","10x the wire diameter","100x the wire diameter","Bend radius doesn't matter for wire"], a:1, ex:"Roughly 10 times the wire's outside diameter is a common minimum to avoid insulation cracking and conductor damage — always confirm against the applicable manual."}
+  ]
+},
+{
+  id:'m11', code:'CB-11', title:'Power Distribution Systems',
+  content:`
+  <p>An aircraft electrical system isn't one big circuit — it's an architecture of buses designed so a single failure takes down the smallest possible slice of equipment.</p>
+  <h3>Bus Architecture</h3>
+  <ul>
+    <li><strong>Main/Battery bus</strong> — powered anytime the battery or an external source is connected; feeds items needed for engine start and essential functions.</li>
+    <li><strong>Generator/Alternator bus</strong> — powered only when a generator is online; feeds the bulk of normal-operation loads.</li>
+    <li><strong>Essential bus</strong> — carries only equipment required for continued safe flight; automatically or manually isolated from non-essential loads if generation is lost, so battery endurance is stretched.</li>
+    <li><strong>Split/parallel bus systems</strong> — larger aircraft split buses left/right (or by generator) with bus-tie relays that can join buses together if one generator fails, while normally keeping them isolated so a fault on one side doesn't propagate to the other.</li>
+  </ul>
+  <h3>Load Shedding</h3>
+  <p>When available power drops (an engine-driven generator fails, or the aircraft is running on battery alone), non-essential loads are automatically or manually shed — removed from the bus — to conserve the remaining source for flight-critical equipment. Understanding your aircraft's load-shed logic and essential bus contents is core oral-exam material.</p>
+  <h3>External & Emergency Power</h3>
+  <p>Ground power receptacles let maintenance and ground crews power the aircraft without draining the battery or running an engine — external power circuitry includes protection (reverse-current/polarity protection, and interlocks) to keep a bad ground cart from damaging the aircraft. Emergency/standby systems (a dedicated standby battery, ram air turbine, or standby inverter on some aircraft) provide a last-resort power source independent of the main generation system.</p>
+  <div class="callout tip"><div class="callout-label">Oral Prep</div><p>Be able to trace, on the aircraft's specific electrical diagram, what happens step by step from "generator fails" to "essential bus still powered" — examiners frequently walk this scenario live.</p></div>
+  `,
+  quiz:[
+    {q:"What is the purpose of separating loads onto an 'essential bus'?", choices:["To reduce total aircraft weight","To ensure flight-critical equipment stays powered if generation capacity is lost","To make the wiring diagram simpler","Essential buses only exist on light aircraft"], a:1, ex:"Isolating only the equipment required for continued safe flight onto its own bus preserves battery endurance if generators are lost."},
+    {q:"Load shedding refers to:", choices:["Adding more electrical loads to test a system","Removing non-essential loads from the bus to conserve limited available power","Discharging the battery intentionally on the ground","A method of charging Ni-Cad batteries"], a:1, ex:"When generation is reduced or lost, shedding non-essential equipment stretches the remaining power source for critical loads."},
+    {q:"A bus-tie relay in a split-bus architecture is used to:", choices:["Permanently join all buses together at all times","Allow buses to be joined if one generator fails, while normally keeping them isolated","Disconnect the battery from all buses","Convert AC power to DC"], a:1, ex:"Bus ties give flexibility to share power after a failure while limiting fault propagation during normal operation."},
+    {q:"Protective features on external ground power receptacles typically guard against:", choices:["Reverse polarity/current from a faulty ground power unit","Excess altitude","Low tire pressure","Engine over-temperature"], a:0, ex:"Reverse-current and polarity protection, plus interlocks, prevent a bad ground cart from damaging aircraft electrical equipment."},
+    {q:"An emergency/standby power source (e.g., standby battery or RAT-driven generator) exists to:", choices:["Replace the main battery permanently","Provide power independent of the main generation system as a last resort","Charge the main battery faster","Power only the galley equipment"], a:1, ex:"Standby sources are sized to keep minimum flight-critical equipment alive if normal generation and the main battery are both unavailable."}
+  ]
+},
+{
+  id:'m12', code:'CB-12', title:'Testing, Troubleshooting & Electrical Safety',
+  content:`
+  <p>Theory only matters if you can apply it with a meter in hand, safely, and reach the correct conclusion about what's actually wrong.</p>
+  <h3>Core Test Instruments</h3>
+  <ul>
+    <li><strong>Multimeter</strong> — voltage, current, resistance, and continuity; the everyday troubleshooting tool.</li>
+    <li><strong>Megohmmeter (Megger)</strong> — applies a high test voltage (often 500V+) to measure insulation resistance in megohms; used to confirm wire/component insulation hasn't degraded enough to allow current leakage to ground, especially after a suspected overheat or moisture exposure. Never megger a circuit with sensitive electronics still connected.</li>
+    <li><strong>Clamp-on ammeter</strong> — measures current without breaking the circuit, useful for load-checking a live feeder.</li>
+  </ul>
+  <h3>Systematic Troubleshooting</h3>
+  <p>Work from symptom to root cause using a logical method: gather the reported discrepancy, consult the wiring diagram, isolate the circuit into halves and test at the midpoint (bisecting the problem rather than guessing point-to-point), and confirm your fix restores normal readings before closing up the aircraft. Chasing symptoms without a diagram in hand is the single biggest time-waster — and safety risk — in electrical troubleshooting.</p>
+  <h3>Electrical Safety Practices</h3>
+  <ul>
+    <li>De-energize and tag/lock out circuits before working on them where practical; pull the relevant breaker and verify zero energy with a meter before touching bare conductors.</li>
+    <li>Disconnect the battery (negative/ground lead first) before major electrical work, per the applicable maintenance manual.</li>
+    <li>Treat every wire as energized until you've personally verified otherwise — never trust a label alone.</li>
+    <li>Respect arc-flash and short-circuit risk around the battery and main bus — remove rings/watches, use insulated tools near hot buses.</li>
+    <li>Follow ESD precautions (Module 9) around avionics and solid-state components.</li>
+  </ul>
+  <div class="callout tip"><div class="callout-label">Practical Prep</div><p>Practice narrating your troubleshooting logic out loud as you work — examiners are evaluating your method (safety steps, use of the diagram, logical isolation) at least as much as whether you find the fault.</p></div>
+  `,
+  quiz:[
+    {q:"A megohmmeter (megger) is used to:", choices:["Measure current in a live circuit","Measure insulation resistance using a high test voltage","Charge a battery","Measure AC frequency"], a:1, ex:"Meggers apply an elevated DC test voltage to reveal degraded insulation resistance not visible with a standard ohmmeter."},
+    {q:"Why should sensitive electronics be disconnected before using a megohmmeter on a circuit?", choices:["Electronics improve the megger's accuracy","The megger's high test voltage can damage sensitive semiconductor components","Meggers only work with electronics connected","It's not necessary to disconnect anything"], a:1, ex:"Megger test voltages (often 500V+) can exceed the voltage rating of solid-state components and destroy them."},
+    {q:"An efficient systematic troubleshooting approach involves:", choices:["Randomly replacing components until the fault clears","Bisecting the circuit and testing at the midpoint using the wiring diagram", "Skipping the wiring diagram to save time","Always replacing the battery first regardless of symptoms"], a:1, ex:"Splitting the circuit in half at each test point narrows the fault location far faster than linear point-to-point checking."},
+    {q:"Before working on an aircraft electrical circuit, best practice is to:", choices:["Assume the circuit is de-energized based on the panel label alone","De-energize the circuit, verify zero energy with a meter, and lock out/tag as applicable","Leave the battery connected in case you need power quickly","Skip verification if you're in a hurry"], a:1, ex:"Verifying zero energy directly with a meter — not trusting a label — is the standard safe-practice step before contact with conductors."},
+    {q:"When disconnecting a battery for maintenance, standard practice is to:", choices:["Disconnect the positive lead first, then negative","Disconnect the negative/ground lead first per the maintenance manual","It doesn't matter which lead is disconnected first","Never disconnect the battery for any maintenance"], a:1, ex:"Disconnecting ground/negative first reduces the chance of an accidental short to structure while the hot lead is still connected."}
+  ]
+}
+];
+
+const FINAL_EXAM = [
+  {q:"What formula finds current when voltage and resistance are known?", choices:["I = E × R","I = E ÷ R","I = R ÷ E","I = P ÷ R"], a:1},
+  {q:"In a series circuit, current is:", choices:["Different at every point","The same throughout the circuit","Zero unless a switch is closed twice","Only present at the source"], a:1},
+  {q:"In a parallel circuit, voltage across each branch is:", choices:["Divided by the number of branches","The same as the source voltage","Always higher than the source","Impossible to determine"], a:1},
+  {q:"Standard aircraft primary AC power is typically:", choices:["115V, 400Hz, three-phase","240V, 50Hz, single-phase","12V, 60Hz, single-phase","440V, 400Hz, two-phase"], a:0},
+  {q:"An AC voltmeter reading represents which value?", choices:["Peak","RMS","Average of the negative half-cycle","Instantaneous"], a:1},
+  {q:"A TRU's main function is to:", choices:["Convert DC to AC","Rectify AC to DC for DC buses/battery charging","Regulate hydraulic pressure","Store static electricity"], a:1},
+  {q:"Lenz's Law states that induced current will:", choices:["Reinforce the change that produced it","Oppose the change that produced it","Have no measurable direction","Only occur in permanent magnets"], a:1},
+  {q:"A relay uses a small control current to:", choices:["Directly power the load","Close larger power contacts via an electromagnetic coil","Discharge a capacitor","Reverse the AC phase"], a:1},
+  {q:"The main difference between a fuse and a circuit breaker is:", choices:["A fuse can be reset, a breaker cannot","A breaker can typically be reset, a fuse must be replaced","Fuses only work on 3-phase AC","Breakers cannot protect DC circuits"], a:1},
+  {q:"A flyback diode across a relay coil protects against:", choices:["Overvoltage from the battery","Inductive kickback from the collapsing coil field","Static discharge from the airframe","Excess hydraulic pressure"], a:1},
+  {q:"Specific gravity testing with a hydrometer applies to:", choices:["Ni-Cad batteries only","Lead-acid batteries","Alternators","Static wicks"], a:1},
+  {q:"Thermal runaway is a defining hazard of which battery chemistry?", choices:["Lead-acid","Nickel-Cadmium","Lithium coin cells only","Dry cell batteries"], a:1},
+  {q:"Alternators largely replaced DC generators because they:", choices:["Eliminate the commutator, reducing weight and brush wear","Cannot produce usable output at all","Only work at very high altitude","Require twice the maintenance"], a:0},
+  {q:"A series-wound DC motor is best suited for:", choices:["Constant-speed instrument drives","High starting-torque applications like starters","Applications with no load at all","AC-only circuits"], a:1},
+  {q:"A diode's diode-check reading on a healthy unit shows:", choices:["Continuity both directions","A forward drop one direction, open (OL) the other","Infinite resistance both directions","Zero resistance both directions"], a:1},
+  {q:"ESD-safe handling of circuit boards requires:", choices:["Bare-hand handling for better grip","Grounded wrist strap and ESD-safe bags","Handling only by exposed component leads","No special precautions are needed"], a:1},
+  {q:"In AWG wire sizing, a smaller number means:", choices:["A smaller wire diameter","A larger wire diameter","No change in diameter","Only insulation thickness changes"], a:1},
+  {q:"Crimped terminals are generally preferred over solder because they:", choices:["Are always cheaper regardless of quality","Provide a strong gas-tight joint without a stiffening stress-riser","Never require inspection","Work only on shielded wire"], a:1},
+  {q:"An essential bus exists to:", choices:["Power only galley/cabin convenience loads","Keep flight-critical equipment powered if generation is lost","Replace the need for a battery entirely","Only function on the ground"], a:1},
+  {q:"A megohmmeter is used to check:", choices:["Battery specific gravity","Insulation resistance using an elevated test voltage","Engine RPM","AC frequency"], a:1}
+];
+
+/* =========================================================
+   STATE
+========================================================= */
+let state = {
+  name:'',
+  moduleResults:{},   // id -> {score, total, passed}
+  finalResult:null,   // {score,total,passed}
+  certDate:null
+};
+let currentQuizAnswers = {}; // qIndex -> selected choice (per active module)
+let currentView = 'welcome';
+let storageOK = true;
+
+const PASS_THRESHOLD = 0.7;
+const FINAL_THRESHOLD = 0.8;
+
+/* =========================================================
+   STORAGE
+========================================================= */
+async function loadState(){
+  try{
+    const res = await window.storage.get('progress-v1', false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state = Object.assign(state, parsed);
+    }
+  }catch(e){
+    // key not found or storage unavailable — start fresh
+  }
+}
+async function saveState(showToast){
+  try{
+    const res = await window.storage.set('progress-v1', JSON.stringify(state), false);
+    storageOK = !!res;
+  }catch(e){
+    storageOK = false;
+  }
+  if(showToast) toast(storageOK ? 'Progress saved.' : 'Save failed — storage unavailable.');
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   RENDER: BREAKER PANEL
+========================================================= */
+function renderBreakers(){
+  const list = document.getElementById('breakerList');
+  list.innerHTML = '';
+  MODULES.forEach(m=>{
+    const r = state.moduleResults[m.id];
+    const cls = r ? (r.passed ? 'pass':'fail') : '';
+    const btn = document.createElement('button');
+    btn.className = 'breaker '+cls+(currentView===m.id?' active':'');
+    btn.setAttribute('aria-label', m.title);
+    btn.innerHTML = `
+      <div class="toggle"></div>
+      <div class="meta">
+        <div class="code">${m.code}</div>
+        <div class="name">${m.title}</div>
+        <div class="stat">${r ? (r.passed?'ENERGIZED — '+r.score+'%':'TRIPPED — '+r.score+'%') : 'STANDBY'}</div>
+      </div>`;
+    btn.onclick = ()=>showModule(m.id);
+    list.appendChild(btn);
+  });
+  // final exam breaker
+  const fr = state.finalResult;
+  const fcls = fr ? (fr.passed?'pass':'fail') : '';
+  const fbtn = document.createElement('button');
+  fbtn.className = 'breaker final '+fcls+(currentView==='final'?' active':'');
+  fbtn.innerHTML = `
+    <div class="toggle"></div>
+    <div class="meta">
+      <div class="code">CB-FX</div>
+      <div class="name">Comprehensive Final Exam</div>
+      <div class="stat">${fr ? (fr.passed?'ENERGIZED — '+fr.score+'%':'TRIPPED — '+fr.score+'%') : 'STANDBY'}</div>
+    </div>`;
+  fbtn.onclick = ()=>showFinal();
+  list.appendChild(fbtn);
+}
+
+/* =========================================================
+   PROGRESS GAUGE
+========================================================= */
+function updateGauge(){
+  const totalItems = MODULES.length + 1; // + final exam
+  let passed = MODULES.filter(m=>state.moduleResults[m.id]?.passed).length;
+  if(state.finalResult?.passed) passed += 1;
+  const pct = Math.round((passed/totalItems)*100);
+  const circumference = 188.5;
+  const arc = document.getElementById('gaugeArc');
+  arc.style.strokeDashoffset = circumference - (circumference*pct/100);
+  document.getElementById('gaugePct').textContent = pct+'%';
+  document.getElementById('passCount').textContent = passed+' / '+totalItems+' systems';
+  const needle = document.getElementById('gaugeNeedle');
+  const angle = -90 + (pct/100)*180;
+  needle.setAttribute('transform', `rotate(${angle} 50 78)`);
+  document.getElementById('certNavBtn').disabled = false;
+}
+
+/* =========================================================
+   RENDER: WELCOME
+========================================================= */
+function showWelcome(){
+  currentView='welcome';
+  renderBreakers();
+  const totalPassed = MODULES.filter(m=>state.moduleResults[m.id]?.passed).length;
+  document.getElementById('cardContent').innerHTML = `
+    <div class="eyebrow">Trainer Start</div>
+    <h2>Airframe Electrical Systems</h2>
+    <div class="sub">Twelve breakers of core theory, each with a system test, wired straight into oral &amp; practical exam prep.</div>
+    <div class="namegate">
+      <label class="mono" style="font-size:12px;color:var(--text-secondary);">Student Name:</label>
+      <input type="text" id="nameInput" placeholder="Enter your full name" value="${escapeHtml(state.name)}">
+      <button class="btn btn-amber" id="nameSaveBtn">Set</button>
+    </div>
+    <div class="content">
+      <p>This trainer covers the electrical fundamentals an aviation maintenance technician needs cold before walking into the oral and practical portion of the exam: electron theory, Ohm's Law, DC and AC circuit behavior, magnetism, protection devices, batteries, generators/alternators/motors, semiconductors, wiring practices, power distribution, and troubleshooting/safety.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Work through each breaker (module) on the left — read the material, then take its 5-question system test.</li>
+        <li>Score <strong>70% or higher</strong> on a module quiz to "energize" that breaker green. Below that, it trips red — review and retake anytime.</li>
+        <li>Once all 12 modules are energized, unlock the <strong>Comprehensive Final Exam</strong> (20 questions, 80% to pass).</li>
+        <li>Passing the final exam unlocks your <strong>Certificate of Completion</strong> — printable as your study record.</li>
+        <li>Your progress saves to this device. Use <strong>Save Progress</strong> any time, and it auto-saves after every quiz.</li>
+      </ul>
+      <div class="callout tip"><div class="callout-label">Currently</div><p>${totalPassed} of 12 modules energized. ${state.finalResult?.passed ? 'Final exam passed — certificate unlocked.' : 'Final exam locked until all modules pass.'}</p></div>
+    </div>
+  `;
+  document.getElementById('nameSaveBtn').onclick = async ()=>{
+    const v = document.getElementById('nameInput').value.trim();
+    state.name = v;
+    await saveState(true);
+  };
+  updateGauge();
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str||'';
+  return d.innerHTML;
+}
+
+/* =========================================================
+   RENDER: MODULE
+========================================================= */
+function showModule(id){
+  currentView = id;
+  currentQuizAnswers = {};
+  const m = MODULES.find(x=>x.id===id);
+  renderBreakers();
+  const prior = state.moduleResults[id];
+  document.getElementById('cardContent').innerHTML = `
+    <div class="eyebrow">${m.code} — Module ${MODULES.indexOf(m)+1} of ${MODULES.length}</div>
+    <h2>${m.title}</h2>
+    <div class="sub">Read the system description, then run the system test below.</div>
+    <div class="content">${m.content}</div>
+    <div class="quiz-block">
+      <div class="quiz-head">
+        <h3>System Test — ${m.code}</h3>
+        <div class="q-count">${m.quiz.length} questions · pass at 70%</div>
+      </div>
+      <div id="quizArea"></div>
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button class="btn btn-amber" id="submitQuizBtn">Check Answers</button>
+      </div>
+      <div id="scoreArea"></div>
+    </div>
+  `;
+  renderQuiz(m);
+  document.getElementById('submitQuizBtn').onclick = ()=>gradeQuiz(m);
+}
+
+function renderQuiz(m){
+  const area = document.getElementById('quizArea');
+  area.innerHTML = m.quiz.map((q,qi)=>`
+    <div class="qcard" data-qi="${qi}">
+      <div class="qtext">${qi+1}. ${q.q}</div>
+      ${q.choices.map((c,ci)=>`
+        <label class="qopt" data-ci="${ci}">
+          <input type="radio" name="q${qi}" value="${ci}">
+          <span>${c}</span>
+        </label>
+      `).join('')}
+      <div class="qexplain" id="ex${qi}">${q.ex}</div>
+    </div>
+  `).join('');
+  area.querySelectorAll('input[type=radio]').forEach(inp=>{
+    inp.addEventListener('change', (e)=>{
+      const qi = e.target.name.replace('q','');
+      currentQuizAnswers[qi] = parseInt(e.target.value);
+    });
+  });
+}
+
+async function gradeQuiz(m){
+  const total = m.quiz.length;
+  let correct = 0;
+  let unanswered = 0;
+  m.quiz.forEach((q,qi)=>{
+    const chosen = currentQuizAnswers[qi];
+    if(chosen===undefined) unanswered++;
+    const card = document.querySelector(`.qcard[data-qi="${qi}"]`);
+    card.querySelectorAll('.qopt').forEach((opt,ci)=>{
+      opt.classList.remove('correct','incorrect');
+      if(ci===q.a) opt.classList.add('correct');
+      else if(ci===chosen) opt.classList.add('incorrect');
+    });
+    document.getElementById('ex'+qi).classList.add('show');
+    if(chosen===q.a) correct++;
+  });
+  if(unanswered>0){
+    toast(`Answer all questions first (${unanswered} remaining).`);
+    return;
+  }
+  const pct = Math.round((correct/total)*100);
+  const passed = (correct/total) >= PASS_THRESHOLD;
+  state.moduleResults[m.id] = {score:pct, total, correct, passed};
+  const scoreArea = document.getElementById('scoreArea');
+  scoreArea.innerHTML = `
+    <div class="score-box">
+      <div class="result">SCORE: <b class="${passed?'pass-text':'fail-text'}">${pct}%</b> (${correct}/${total} correct)</div>
+      <div class="result ${passed?'pass-text':'fail-text'}">${passed ? '✔ BREAKER ENERGIZED — MODULE PASSED' : '✘ BREAKER TRIPPED — REVIEW & RETRY'}</div>
+    </div>
+  `;
+  renderBreakers();
+  updateGauge();
+  await saveState(false);
+  toast(passed ? `${m.code} passed at ${pct}%.` : `${m.code} needs review — ${pct}%.`);
+}
+
+/* =========================================================
+   RENDER: FINAL EXAM
+========================================================= */
+function allModulesPassed(){
+  return MODULES.every(m=>state.moduleResults[m.id]?.passed);
+}
+
+function showFinal(){
+  currentView='final';
+  currentQuizAnswers={};
+  renderBreakers();
+  const card = document.getElementById('cardContent');
+  if(!allModulesPassed()){
+    const remaining = MODULES.filter(m=>!state.moduleResults[m.id]?.passed);
+    card.innerHTML = `
+      <div class="eyebrow">CB-FX — Locked</div>
+      <h2>Comprehensive Final Exam</h2>
+      <div class="sub">All 12 module breakers must be energized (70%+) before this test unlocks.</div>
+      <div class="cert-locked">
+        <h3>🔒 Complete the remaining modules</h3>
+        <ul class="cert-req-list">
+          ${remaining.map(m=>`<li class="req-no">✘ ${m.code} — ${m.title}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+    updateGauge();
+    return;
+  }
+  card.innerHTML = `
+    <div class="eyebrow">CB-FX — Comprehensive Final Exam</div>
+    <h2>Final System Check</h2>
+    <div class="sub">${FINAL_EXAM.length} questions drawn across all systems. 80% required to pass and unlock your certificate.</div>
+    <div class="content"><div class="callout warn"><div class="callout-label">Before You Start</div><p>Treat this like the real oral/practical gate — no peeking at module notes. Answer everything, then check.</p></div></div>
+    <div class="quiz-block" style="border-top:none; padding-top:0;">
+      <div id="quizArea"></div>
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button class="btn btn-amber" id="submitQuizBtn">Submit Final Exam</button>
+      </div>
+      <div id="scoreArea"></div>
+    </div>
+  `;
+  const area = document.getElementById('quizArea');
+  area.innerHTML = FINAL_EXAM.map((q,qi)=>`
+    <div class="qcard" data-qi="${qi}">
+      <div class="qtext">${qi+1}. ${q.q}</div>
+      ${q.choices.map((c,ci)=>`
+        <label class="qopt" data-ci="${ci}">
+          <input type="radio" name="q${qi}" value="${ci}">
+          <span>${c}</span>
+        </label>
+      `).join('')}
+    </div>
+  `).join('');
+  area.querySelectorAll('input[type=radio]').forEach(inp=>{
+    inp.addEventListener('change',(e)=>{
+      const qi = e.target.name.replace('q','');
+      currentQuizAnswers[qi] = parseInt(e.target.value);
+    });
+  });
+  document.getElementById('submitQuizBtn').onclick = gradeFinal;
+}
+
+async function gradeFinal(){
+  const total = FINAL_EXAM.length;
+  let correct=0, unanswered=0;
+  FINAL_EXAM.forEach((q,qi)=>{
+    const chosen = currentQuizAnswers[qi];
+    if(chosen===undefined) unanswered++;
+    const card = document.querySelector(`.qcard[data-qi="${qi}"]`);
+    card.querySelectorAll('.qopt').forEach((opt,ci)=>{
+      opt.classList.remove('correct','incorrect');
+      if(ci===q.a) opt.classList.add('correct');
+      else if(ci===chosen) opt.classList.add('incorrect');
+    });
+    if(chosen===q.a) correct++;
+  });
+  if(unanswered>0){ toast(`Answer all questions first (${unanswered} remaining).`); return; }
+  const pct = Math.round((correct/total)*100);
+  const passed = (correct/total) >= FINAL_THRESHOLD;
+  state.finalResult = {score:pct,total,correct,passed};
+  if(passed) state.certDate = new Date().toISOString();
+  document.getElementById('scoreArea').innerHTML = `
+    <div class="score-box">
+      <div class="result">FINAL SCORE: <b class="${passed?'pass-text':'fail-text'}">${pct}%</b> (${correct}/${total})</div>
+      <div class="result ${passed?'pass-text':'fail-text'}">${passed?'✔ PASSED — CERTIFICATE UNLOCKED':'✘ NOT YET — 80% REQUIRED, REVIEW WEAK MODULES & RETRY'}</div>
+    </div>
+  `;
+  renderBreakers();
+  updateGauge();
+  await saveState(false);
+  toast(passed?'Final exam passed! Certificate unlocked.':`Final exam: ${pct}% — need 80%.`);
+}
+
+/* =========================================================
+   RENDER: CERTIFICATE
+========================================================= */
+function showCert(){
+  currentView='cert';
+  renderBreakers();
+  const card = document.getElementById('cardContent');
+  const ready = allModulesPassed() && state.finalResult?.passed;
+  if(!ready){
+    const remaining = MODULES.filter(m=>!state.moduleResults[m.id]?.passed);
+    card.innerHTML = `
+      <div class="eyebrow">Certificate</div>
+      <h2>Certificate of Completion</h2>
+      <div class="cert-locked">
+        <h3>🔒 Not yet unlocked</h3>
+        <p>Complete every module and pass the comprehensive final exam to generate your certificate.</p>
+        <ul class="cert-req-list">
+          ${MODULES.map(m=>`<li class="${state.moduleResults[m.id]?.passed?'req-ok':'req-no'}">${state.moduleResults[m.id]?.passed?'✔':'✘'} ${m.code} — ${m.title}</li>`).join('')}
+          <li class="${state.finalResult?.passed?'req-ok':'req-no'}">${state.finalResult?.passed?'✔':'✘'} CB-FX — Comprehensive Final Exam</li>
+        </ul>
+      </div>
+    `;
+    updateGauge();
+    return;
+  }
+  const dateStr = state.certDate ? new Date(state.certDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const avgScore = Math.round(
+    (MODULES.reduce((s,m)=>s+state.moduleResults[m.id].score,0) + state.finalResult.score) / (MODULES.length+1)
+  );
+  const certId = genCertId();
+  card.innerHTML = `
+    <div class="eyebrow">Certificate</div>
+    <h2 style="margin-bottom:18px;">Certificate of Completion</h2>
+    <div class="namegate" style="margin-bottom:22px;">
+      <label class="mono" style="font-size:12px;color:var(--text-secondary);">Name on certificate:</label>
+      <input type="text" id="certNameInput" placeholder="Enter your full name" value="${escapeHtml(state.name)}">
+      <button class="btn btn-amber" id="certNameSaveBtn">Update</button>
+      <button class="btn btn-green" id="printBtn">🖨 Print / Save PDF</button>
+    </div>
+    <div class="cert-wrap">
+      <div class="cert" id="certBlock">
+        <div class="cert-eyebrow">Airframe Electrical Systems Trainer</div>
+        <h2>Certificate of Completion</h2>
+        <div class="cert-sub">Electrical Principles for Aviation Maintenance</div>
+        <div class="cert-body">This certifies that</div>
+        <div class="cert-name-row"><div class="cert-name">${escapeHtml(state.name)||'________________________'}</div></div>
+        <div class="cert-body">has successfully completed all twelve system modules and the comprehensive final examination covering electron theory, DC/AC circuit analysis, magnetism, circuit protection, batteries, generators/alternators/motors, semiconductors, aircraft wiring practices, power distribution, and electrical troubleshooting &amp; safety — demonstrating readiness for the airframe electrical oral and practical examination.</div>
+        <table class="cert-table">
+          <tr><th>Module</th><th>Score</th></tr>
+          ${MODULES.map(m=>`<tr><td>${m.code} — ${m.title}</td><td>${state.moduleResults[m.id].score}%</td></tr>`).join('')}
+          <tr><td><strong>CB-FX — Comprehensive Final Exam</strong></td><td><strong>${state.finalResult.score}%</strong></td></tr>
+        </table>
+        <div class="cert-footer">
+          <div>DATE COMPLETED<br><strong style="color:#241f16;">${dateStr}</strong></div>
+          <div class="cert-stamp">AIRWORTHY<br>FOR ORAL &amp;<br>PRACTICAL</div>
+          <div>CERT ID<br><strong style="color:#241f16;">${certId}</strong><br>AVG SCORE ${avgScore}%</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('certNameSaveBtn').onclick = async ()=>{
+    state.name = document.getElementById('certNameInput').value.trim();
+    await saveState(true);
+    showCert();
+  };
+  document.getElementById('printBtn').onclick = ()=>window.print();
+  updateGauge();
+}
+
+function genCertId(){
+  const base = (state.name||'STUDENT') + (state.certDate||'') ;
+  let hash = 0;
+  for(let i=0;i<base.length;i++){ hash = (hash*31 + base.charCodeAt(i)) >>> 0; }
+  return 'AE-'+hash.toString(36).toUpperCase().slice(0,8);
+}
+
+/* =========================================================
+   INIT
+========================================================= */
+document.getElementById('saveBtn').onclick = ()=>saveState(true);
+document.getElementById('certNavBtn').onclick = showCert;
+document.getElementById('resetBtn').onclick = async ()=>{
+  if(!confirm('Reset all progress? This clears every module score, your final exam result, and your certificate eligibility.')) return;
+  state = {name:state.name, moduleResults:{}, finalResult:null, certDate:null};
+  await saveState(false);
+  showWelcome();
+  toast('Progress reset.');
+};
+
+(async function init(){
+  await loadState();
+  showWelcome();
+})();
+</script>
+</body>
+</html>
